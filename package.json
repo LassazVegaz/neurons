@@ -1,0 +1,21 @@
+{
+  "name": "t",
+  "version": "1.0.0",
+  "description": "",
+  "type": "commonjs",
+  "main": "out/main.js",
+  "scripts": {
+    "start": "node out/main.js",
+    "debug": "node --inspect out/main.js",
+    "watch": "tsc --watch",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.15.0",
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "^5.9.3"
+  }
+}
