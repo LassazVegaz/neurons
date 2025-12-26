@@ -33,7 +33,7 @@ const getTrainingData = () => {
   console.log("Generating training data...");
   const trainingData: number[] = [];
   for (let i = 0; i <= 10000; i++) {
-    const x = (Math.random() * 100) / 10;
+    const x = Math.random();
     trainingData.push(x);
   }
   fs.writeFileSync(FILE_TRAINING_DATA, JSON.stringify(trainingData));
