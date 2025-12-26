@@ -1,4 +1,8 @@
 import * as fs from "node:fs";
+import * as path from "node:path";
+
+const FILE_WEIGHTS = path.join("data", "weights.json");
+const FILE_TRAINING_DATA = path.join("data", "trainingData.json");
 
 /**
  * Neural Network with one hidden layer
@@ -21,9 +25,8 @@ type ForwardResults = {
 };
 
 const getTrainingData = () => {
-  const file = "trainingData.json";
-  if (fs.existsSync(file)) {
-    const data = fs.readFileSync(file, "utf-8");
+  if (fs.existsSync(FILE_TRAINING_DATA)) {
+    const data = fs.readFileSync(FILE_TRAINING_DATA, "utf-8");
     return JSON.parse(data) as number[];
   }
 
@@ -33,18 +36,18 @@ const getTrainingData = () => {
     const x = (Math.random() * 100) / 10;
     trainingData.push(x);
   }
-  fs.writeFileSync(file, JSON.stringify(trainingData));
+  fs.writeFileSync(FILE_TRAINING_DATA, JSON.stringify(trainingData));
   console.log("Training data generated.");
   return trainingData;
 };
 
 const saveParameters = (p: Parameters) => {
-  fs.writeFileSync("weights.json", JSON.stringify(p));
+  fs.writeFileSync(FILE_WEIGHTS, JSON.stringify(p));
 };
 
 const loadParameters = (): Parameters => {
-  if (fs.existsSync("weights.json")) {
-    const data = fs.readFileSync("weights.json", "utf-8");
+  if (fs.existsSync(FILE_WEIGHTS)) {
+    const data = fs.readFileSync(FILE_WEIGHTS, "utf-8");
     const json = JSON.parse(data) as Parameters;
     console.log("Loaded weights:", json);
     return json;
