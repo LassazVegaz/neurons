@@ -2,7 +2,7 @@
   "name": "t",
   "version": "1.0.0",
   "description": "",
-  "type": "commonjs",
+  "type": "module",
   "main": "out/main.js",
   "scripts": {
     "start": "node out/main.js",
