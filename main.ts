@@ -53,11 +53,11 @@ const loadParameters = (): Parameters => {
     return json;
   }
   return {
-    nInW: [Math.random(), Math.random()],
-    nInB: [Math.random(), Math.random()],
-    nOutW: [Math.random(), Math.random()],
-    nOutB: [Math.random(), Math.random()],
-    b: Math.random(),
+    nInW: [Math.random() * 0.1 - 0.05, Math.random() * 0.1 - 0.05],
+    nInB: [Math.random() * 0.1 - 0.05, Math.random() * 0.1 - 0.05],
+    nOutW: [Math.random() * 0.1 - 0.05, Math.random() * 0.1 - 0.05],
+    nOutB: [Math.random() * 0.1 - 0.05, Math.random() * 0.1 - 0.05],
+    b: Math.random() * 0.1 - 0.05,
   };
 };
 
