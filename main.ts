@@ -1,10 +1,13 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-type Params = { w1: number; w2: number; b: number };
+type Params = { w: number[]; b: number[] };
 
 const FILE_PARAMETERS = path.join("data", "params.json");
 const FILE_TRAINING_DATA = path.join("data", "trainingData.json");
+
+const INITIAL_WS = [0.1, 0.2, 0.3, 0.4];
+const INITIAL_BS = [0.5, 0.6, 0.7];
 
 const createData = () => {
   const nums: number[] = [];
@@ -31,66 +34,94 @@ const saveParams = (p: Params) => {
   });
 };
 
-const getParams = () => {
-  if (!fs.existsSync(FILE_PARAMETERS)) saveParams({ w1: 0, w2: 0, b: 0 });
+const getParams = (newParams: boolean) => {
+  if (newParams || !fs.existsSync(FILE_PARAMETERS))
+    saveParams({ w: INITIAL_WS, b: INITIAL_BS });
 
   const json = fs.readFileSync(FILE_PARAMETERS, { encoding: "utf-8" });
   return JSON.parse(json) as Params;
 };
 
-// y = x^2 + 2x + 5
-const f = (x: number) => x ** 2 + 2 * x + 5;
+const relU = (x: number) => Math.max(0, x);
+const dRelU = (x: number) => (x === 0 ? 0 : 1);
 
-const forward = (x: number, p: Params) => x ** 2 * p.w1 + x * p.w2 + p.b;
+// y = x
+const f = (x: number) => x;
 
-const main = () => {
+const forward = (x: number, p: Params) => {
+  const y0 = x * p.w[0] + p.b[0];
+  const y1 = x * p.w[1] + p.b[1];
+
+  const n0 = relU(y0);
+  const n1 = relU(y1);
+
+  const y2 = n0 * p.w[2];
+  const y3 = n1 * p.w[3];
+
+  const h = y2 + y3 + p.b[2];
+
+  return { y0, y1, n0, n1, h };
+};
+
+const main = (clearParams = false) => {
   const data = getData();
   const max = Math.max(...data);
-  const a = 0.001;
+  const a = 0.1;
 
-  let { w1, w2, b } = getParams();
+  let { w, b } = getParams(clearParams);
 
   // x => w.x + b => y
 
   // MSE = mean square error = 0.5 * sum of square errors / number of training data (n)
   let MSE = 0;
   for (let round = 0; round < 10000; round++) {
-    // dW = 0.5 * -xi * sum of errors / n
-    // dB = 0.5 * -sum of errors / n
+    // refer to the diagram for derivatives
 
-    let dW1 = 0,
-      dW2 = 0,
-      dB = 0;
+    const dW: number[] = [0, 0, 0, 0],
+      dB: number[] = [0, 0, 0];
 
     for (const _x of data) {
       const x = _x / max;
-      const h = forward(x, { w1, w2, b });
+      const { y0, y1, n0, n1, h } = forward(x, { w, b });
       const y = f(x);
       const e = y - h;
-      dW1 += -(x ** 2) * e;
-      dW2 += -x * e;
-      dB += -e;
+
+      dB[2] += -e;
+      dB[1] += -w[3] * dRelU(y1) * e;
+      dB[0] += -w[2] * dRelU(y0) * e;
+
+      dW[3] += -n1 * e;
+      dW[2] += -n0 * e;
+      dW[1] += -w[3] * dRelU(y1) * x * e;
+      dW[0] += -w[2] * dRelU(y0) * x * e;
+
       MSE += e ** 2;
     }
 
     const n = data.length;
     MSE = (0.5 * MSE) / n;
-    w1 -= (dW1 / n) * a;
-    w2 -= (dW2 / n) * a;
-    b -= (dB / n) * a;
 
-    if (round % 1000 === 0)
-      console.log(`${round} -> ${MSE} : {${w1} ${w2} ${b}}`);
+    for (let i = 0; i < b.length; i++) b[i] -= (dB[i] / n) * a;
+    for (let i = 0; i < w.length; i++) w[i] -= (dW[i] / n) * a;
+
+    if (round % 1000 === 0) console.log(`${round} MSE -> ${MSE}`);
+    if (round % 2000 === 0)
+      console.log(`${round} Ws -> ${w}\n${round} Bs -> ${b}`);
   }
 
-  saveParams({ w1, w2, b });
+  saveParams({ w, b });
 
-  console.log("Finished training.....");
-  console.log(`Last MSE -> ${MSE} : {${w1} ${w2} ${b}}`);
+  console.log("\nFinished training.....");
+  console.log(`Last MSE -> ${MSE}`);
+  console.log(`Last Ws -> ${w}\nLast Bs -> ${b}`);
+
   const testData = [1, 1026.9854, 101.01, 32];
   for (const d of testData) {
-    console.log(`x = ${d}, y =${forward(d, { w1, w2, b })}`);
+    const fwd = forward(d, { w, b });
+    console.log(`x = ${d}, y =${fwd.h}`);
   }
 };
 
-main();
+const clearParams = process.argv[2]?.toLowerCase() === "c";
+
+main(clearParams);
