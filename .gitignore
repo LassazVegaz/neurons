@@ -145,3 +145,6 @@ data/
 
 # ignore TS build output
 out/
+
+# draw.io backup files
+.*.drawio.bkp
