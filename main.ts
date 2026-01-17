@@ -66,15 +66,16 @@ const forward = (x: number, p: Params) => {
 const main = (clearParams = false) => {
   const data = getData();
   const max = Math.max(...data);
-  const a = 0.1;
+  const a = 0.01;
 
   let { w, b } = getParams(clearParams);
 
   // x => w.x + b => y
 
   // MSE = mean square error = 0.5 * sum of square errors / number of training data (n)
-  let MSE = 0;
-  for (let round = 0; round < 10000; round++) {
+  let MSE = 0,
+    newMSE = 0;
+  for (let round = 0; round < 1000000; round++) {
     // refer to the diagram for derivatives
 
     const dW: number[] = [0, 0, 0, 0],
@@ -95,17 +96,20 @@ const main = (clearParams = false) => {
       dW[1] += -w[3] * dRelU(y1) * x * e;
       dW[0] += -w[2] * dRelU(y0) * x * e;
 
-      MSE += e ** 2;
+      newMSE += e ** 2;
     }
 
     const n = data.length;
-    MSE = (0.5 * MSE) / n;
+    newMSE = (0.5 * newMSE) / n;
+    const MSEGap = newMSE - MSE;
+    MSE = newMSE;
 
     for (let i = 0; i < b.length; i++) b[i] -= (dB[i] / n) * a;
     for (let i = 0; i < w.length; i++) w[i] -= (dW[i] / n) * a;
 
-    if (round % 1000 === 0) console.log(`${round} MSE -> ${MSE}`);
-    if (round % 2000 === 0)
+    if (round % 100000 === 0)
+      console.log(`${round} MSE -> ${MSE} (${MSEGap > 0 ? "+" : ""}${MSEGap})`);
+    if (round % 200000 === 0)
       console.log(`${round} Ws -> ${w}\n${round} Bs -> ${b}`);
   }
 
@@ -115,7 +119,7 @@ const main = (clearParams = false) => {
   console.log(`Last MSE -> ${MSE}`);
   console.log(`Last Ws -> ${w}\nLast Bs -> ${b}`);
 
-  const testData = [1, 1026.9854, 101.01, 32];
+  const testData = [1, 2, 1026.9854, 101.01, 32];
   for (const d of testData) {
     const fwd = forward(d, { w, b });
     console.log(`x = ${d}, y =${fwd.h}`);
