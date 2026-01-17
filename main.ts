@@ -46,7 +46,7 @@ const relU = (x: number) => Math.max(0, x);
 const dRelU = (x: number) => (x === 0 ? 0 : 1);
 
 // y = x
-const f = (x: number) => x;
+const f = (x: number) => 5 * x;
 
 const forward = (x: number, p: Params) => {
   const y0 = x * p.w[0] + p.b[0];
