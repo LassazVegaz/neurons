@@ -68,6 +68,8 @@ export class Network {
     const alpha = 0.1;
     inputs = this.normalizeInput(inputs);
 
+    let prevMSE = 1;
+
     for (let i = 0; i < 1000; i++) {
       // derivatives
       const d = this.createEmptyThetas();
@@ -86,7 +88,10 @@ export class Network {
 
       if (calculateMSE) {
         MSE /= 2 * inputs.length;
-        console.log(`MSE at ${i} = ${MSE}`);
+        const mseDiff = prevMSE - MSE;
+        const mseDiffPerc = (100 * mseDiff) / prevMSE;
+        console.log(`MSE at ${i} = ${MSE} (${-mseDiffPerc}%)`);
+        prevMSE = MSE;
       }
 
       this.applyDerivatives(d, thetas, inputs.length, alpha);
