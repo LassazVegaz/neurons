@@ -17,6 +17,12 @@ type PredictionResults = {
   preActivations: number[][];
 };
 
+type TrainParams = {
+  inputs: number[];
+  thetas: ModelParameters;
+  alpha: number;
+};
+
 const relU = (x: number) => Math.max(0, x);
 const dRelU = (x: number) => (x > 0 ? 1 : 0);
 
@@ -64,9 +70,8 @@ export class Network {
    * Pass in the previously calculated parameters or use `createEmptyParameters`
    * to create new empty parameters.
    */
-  train(inputs: number[], thetas: ModelParameters) {
-    const alpha = 0.01;
-    inputs = this.normalizeInput(inputs);
+  train(p: TrainParams) {
+    const inputs = this.normalizeInput(p.inputs);
 
     let prevMSE = 1;
 
@@ -79,8 +84,8 @@ export class Network {
 
       // forward
       for (const x of inputs) {
-        const results = this.h(x, thetas);
-        this.accumulateDerivatives(x, thetas, d, results);
+        const results = this.h(x, p.thetas);
+        this.accumulateDerivatives(x, p.thetas, d, results);
 
         if (calculateMSE)
           MSE += (this.f(x) - results.activations.at(-1)![0]) ** 2;
@@ -94,7 +99,7 @@ export class Network {
         prevMSE = MSE;
       }
 
-      this.applyDerivatives(d, thetas, inputs.length, alpha);
+      this.applyDerivatives(d, p.thetas, inputs.length, p.alpha);
     }
   }
 

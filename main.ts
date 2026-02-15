@@ -41,12 +41,17 @@ const getThetas = (newThetas: boolean, network: Network) => {
 // y = x
 const f = (x: number) => x;
 
-const main = (clearThetas = false) => {
+type Params = {
+  clearThetas: boolean;
+  alpha: number;
+};
+
+const main = (p: Params) => {
   const data = getData();
   const network = new Network(f, [1, 2, 1]);
-  const thetas = getThetas(clearThetas, network);
+  const thetas = getThetas(p.clearThetas, network);
 
-  network.train(data, thetas);
+  network.train({ inputs: data, thetas, alpha: p.alpha });
 
   saveThetas(thetas);
 
@@ -60,6 +65,21 @@ const main = (clearThetas = false) => {
   }
 };
 
-const clearThetas = process.argv[2]?.toLowerCase() === "-c";
+const builParams = (): Params => {
+  const clearThetas = process.argv.includes("-c");
 
-main(clearThetas);
+  let alpha = 0.1;
+  if (process.argv.includes("-a")) {
+    const idx = process.argv.indexOf("-a") + 1;
+    const alphaStr = process.argv[idx];
+    const _alpha = Number.parseFloat(alphaStr);
+    if (!Number.isNaN(alpha)) alpha = _alpha;
+  }
+
+  return {
+    clearThetas,
+    alpha,
+  };
+};
+
+main(builParams());
