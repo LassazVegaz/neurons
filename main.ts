@@ -44,6 +44,7 @@ const f = (x: number) => x;
 type Params = {
   clearThetas: boolean;
   alpha: number;
+  iterations: number;
 };
 
 const main = (p: Params) => {
@@ -51,7 +52,12 @@ const main = (p: Params) => {
   const network = new Network(f, [1, 2, 1]);
   const thetas = getThetas(p.clearThetas, network);
 
-  network.train({ inputs: data, thetas, alpha: p.alpha });
+  network.train({
+    inputs: data,
+    thetas,
+    alpha: p.alpha,
+    iterations: p.iterations,
+  });
 
   saveThetas(thetas);
 
@@ -65,20 +71,32 @@ const main = (p: Params) => {
   }
 };
 
+const getValueParam = <T>(
+  name: string,
+  converter: (input: string) => T,
+  validator?: (p: T) => boolean,
+): T | null => {
+  if (!process.argv.includes(name)) return null;
+
+  const idx = process.argv.indexOf(name) + 1;
+  const paramStr = process.argv[idx];
+  const _p = converter(paramStr);
+  if (validator && !validator(_p)) return null;
+  return _p;
+};
+
+const nanValidator = (n: number) => !Number.isNaN(n);
+
 const builParams = (): Params => {
   const clearThetas = process.argv.includes("-c");
-
-  let alpha = 0.1;
-  if (process.argv.includes("-a")) {
-    const idx = process.argv.indexOf("-a") + 1;
-    const alphaStr = process.argv[idx];
-    const _alpha = Number.parseFloat(alphaStr);
-    if (!Number.isNaN(alpha)) alpha = _alpha;
-  }
+  const alpha = getValueParam("-a", Number.parseFloat, nanValidator) ?? 0.1;
+  const iterations =
+    getValueParam("-i", Number.parseInt, nanValidator) ?? 10000;
 
   return {
     clearThetas,
     alpha,
+    iterations,
   };
 };
 

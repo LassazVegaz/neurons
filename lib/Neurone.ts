@@ -23,6 +23,7 @@ type TrainParams = {
   inputs: number[];
   thetas: ModelParameters;
   alpha: number;
+  iterations: number;
 };
 
 const relU = (x: number) => Math.max(0, x);
@@ -75,9 +76,9 @@ export class Network {
   train(p: TrainParams) {
     const inputs = this.normalizeInput(p.inputs);
 
-    const mse = new MSECalculator(1000, inputs.length, this.f);
+    const mse = new MSECalculator(p.iterations / 10, inputs.length, this.f);
 
-    for (let i = 0; i < 10000; i++) {
+    for (let i = 0; i < p.iterations; i++) {
       mse.iteration = i;
       // derivatives
       const d = this.createThetas(0);
