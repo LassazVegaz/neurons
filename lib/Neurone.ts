@@ -1,112 +1,186 @@
-type ActivationFunction = (x: number) => number;
+/**
+ * Weights and biases in the gaps between layers
+ */
+export type ModelParameters = {
+  /**
+   * [layer][neuron][weight of connection from previous layer neuron]
+   */
+  w: number[][][];
+  /**
+   * [layer][neuron]
+   */
+  b: number[][];
+};
 
-type Params = { w: number[][][]; b: number[][][] };
+type PredictionResults = {
+  activations: number[][];
+  preActivations: number[][];
+};
 
-const endpointActivation: ActivationFunction = (x) => x;
+const relU = (x: number) => Math.max(0, x);
+const dRelU = (x: number) => (x > 0 ? 1 : 0);
 
-class Snapshot {
-  outputs: number[] = [];
-}
-
-class Neurone {
-  input = 0;
-  output = 0;
-
-  constructor(public activate: ActivationFunction) {}
-}
-
-class Network {
-  // assume there are 2 x 2 neurones
-  neuronesCount = [1, 2, 2, 1];
-
-  static createNetwork(f: (x: number) => number, nodes: Neurone[][]): Network {
-    const start = new Neurone(endpointActivation);
-    const end = new Neurone(endpointActivation);
-
-    const _nodes = [[start], ...nodes, [end]];
-    return new Network(f, _nodes);
-  }
-
-  private constructor(
+export class Network {
+  constructor(
     private readonly f: (x: number) => number,
-    private readonly nodes: Neurone[][],
+    private readonly layers: number[],
   ) {}
 
+  /**
+   * Get results from the network
+   * @param thetas So far calculated thetas.
+   * @returns Values after and before activating each neurone.
+   */
+  private h(x: number, thetas: ModelParameters) {
+    const activations = [[x]];
+    const preActivations = [[x]];
+
+    // do the job for the next layer neurons
+    // pre activations -> actions
+    for (let a = 0; a < this.layers.length - 1; a++) {
+      preActivations.push([]);
+      activations.push([]);
+
+      // each neurone in the next layer
+      for (let b = 0; b < this.layers[a + 1]; b++) {
+        preActivations[a + 1][b] = thetas.b[a][b];
+
+        // each neurone in current layer
+        for (let c = 0; c < this.layers[a]; c++) {
+          preActivations[a + 1][b] += thetas.w[a][b][c] * activations[a][c];
+        }
+
+        activations[a + 1][b] = this.activate(preActivations[a + 1][b], a + 1);
+      }
+    }
+
+    return { preActivations, activations };
+  }
+
+  /**
+   * Train the neural network
+   * @param inputs Inputs for training. Set of Xs
+   * @param thetas Parameters. Weights and biases of the network.
+   * Pass in the previously calculated parameters or use `createEmptyParameters`
+   * to create new empty parameters.
+   */
+  train(inputs: number[], thetas: ModelParameters) {
+    const alpha = 0.1;
+    inputs = this.normalizeInput(inputs);
+
+    for (let i = 0; i < 1000; i++) {
+      // derivatives
+      const d = this.createEmptyThetas();
+
+      // forward
+      for (const x of inputs) {
+        const results = this.h(x, thetas);
+        this.accumulateDerivatives(x, thetas, d, results);
+      }
+
+      this.applyDerivatives(d, thetas, inputs.length, alpha);
+    }
+  }
+
+  predict(x: number, thetas: ModelParameters) {
+    const { activations } = this.h(x, thetas);
+    return activations.at(-1)![0];
+  }
+
+  /**
+   * Create thetas filled with 0s.
+   * 1D size = number of layers - 1.
+   * 2D first element refers to the 2nd layer neurons.
+   * 3D first element refers to the previous layer neurons.
+   */
+  createEmptyThetas(): ModelParameters {
+    const thetas: ModelParameters = { b: [], w: [] };
+
+    // thetas exist in the gaps between layers
+    // hence the size of 1st dimension is no of layers - 1
+    for (let a = 0; a < this.layers.length - 1; a++) {
+      thetas.b.push([]);
+      thetas.w.push([]);
+
+      for (let b = 0; b < this.layers[a + 1]; b++) {
+        thetas.b[a].push(0);
+        thetas.w[a].push(new Array<number>(this.layers[a]).fill(0));
+      }
+    }
+
+    return thetas;
+  }
+
+  private accumulateDerivatives(
+    x: number,
+    thetas: ModelParameters,
+    d: ModelParameters,
+    r: PredictionResults,
+  ) {
+    const errorSignals: number[][] = [];
+
+    // predicated value of the hypothesis function
+    const h = r.activations.at(-1)![0];
+    errorSignals[this.layers.length - 1] = [-(this.f(x) - h)];
+
+    for (let a = this.layers.length - 1; a > 0; a--) {
+      errorSignals[a - 1] = new Array<number>(this.layers[a - 1]).fill(0);
+
+      // each neuron in this layer
+      for (let b = 0; b < this.layers[a]; b++) {
+        d.b[a - 1][b] += errorSignals[a][b];
+
+        // each neuron from the previous layer
+        for (let c = 0; c < this.layers[a - 1]; c++) {
+          d.w[a - 1][b][c] += errorSignals[a][b] * r.activations[a - 1][c];
+
+          errorSignals[a - 1][c] +=
+            dRelU(r.preActivations[a - 1][c]) *
+            thetas.w[a - 1][b][c] *
+            errorSignals[a][b];
+        }
+      }
+    }
+  }
+
+  private normalizeInput(inputs: number[]) {
+    const max = Math.max(...inputs);
+    return inputs.map((x) => x / max);
+  }
+
+  /**
+   * Divide partial derivatives by number of training data and subtract them from
+   * parameters
+   * @param derivatives Accumulated partial derivatives of `p`
+   * @param thetas Parameters
+   * @param m Number of inputs
+   */
+  private applyDerivatives(
+    derivatives: ModelParameters,
+    thetas: ModelParameters,
+    m: number,
+    alpha: number,
+  ) {
+    for (let a = 0; a < this.layers.length - 1; a++) {
+      for (let b = 0; b < this.layers[a + 1]; b++) {
+        derivatives.b[a][b] /= m;
+        thetas.b[a][b] -= derivatives.b[a][b] * alpha;
+
+        for (let c = 0; c < this.layers[a]; c++) {
+          derivatives.w[a][b][c] /= m;
+          thetas.w[a][b][c] -= derivatives.w[a][b][c] * alpha;
+        }
+      }
+    }
+  }
+
+  /**
+   * This is a helper function for `h`. If it is trying to activate last layer,
+   * just return the pre activation without modifying
+   * @param layer Layer index. 0 based
+   * @returns If it is the last layer, return `x`. Otherwise `RelU(x)`.
+   */
   private activate(x: number, layer: number) {
-    if (layer === 0 || layer === this.neuronesCount.length - 1) return 0;
-    else return Math.max(x, 0);
-  }
-
-  train(inputs: number[], p: Params) {
-    // forward results
-    const fRes: number[] = [];
-
-    // forward
-    for (const input of inputs) {
-      // inputs for each neurone
-      const x = inputs.map((i) => new Array<number>(i).fill(0));
-      x[0][0] = input;
-
-      // a = index of layer
-      for (let a = 0; a < this.neuronesCount.length; a++) {
-        const layer = this.neuronesCount[a];
-
-        // b = neurone index in layer a
-        for (let b = 0; b < layer; b++) {
-          const output = this.activate(x[a][b], a);
-
-          const nextLayerIdx = a + 1;
-          if (nextLayerIdx === this.neuronesCount.length) {
-            fRes.push(output);
-          } else {
-            const nextLayer = this.neuronesCount[nextLayerIdx];
-            // c = neurone index in next layer
-            for (let c = 0; c < nextLayer; c++) {
-              const feed = p.w[a][b][c] * output + p.b[a][b][c];
-              x[nextLayerIdx][c] += feed;
-            }
-          }
-        }
-      }
-    }
-
-    // backward
-    let MSE = 0;
-    let dPs: Params = { w: [], b: [] }; // derivatives of params
-
-    for (let a = 0; a < fRes.length; a++) {
-      const h = fRes[a];
-      const x = inputs[a];
-      const e = x - h;
-      MSE += e ** 2;
-
-      // start from the layer before last one
-      // b = layer index
-      for (let b = this.neuronesCount.length - 2; b >= 0; b--) {
-        const layer = this.neuronesCount[b];
-        // c = neurone index
-        for (let c = b - 1; c >= 0; c--) {
-          // d = param of next layer input
-          for (let d = p.b[b][c].length - 1; d >= 0; d--) {
-            const param = p.b[b][c][d];
-            const dParam = 1; // dJ/dB[b][c][d]
-            dPs.b[b][c][d] += dParam;
-          }
-        }
-      }
-    }
-
-    MSE = (2 * MSE) / inputs.length;
-    console.log(`MSE = ${MSE}`);
-  }
-
-  private createInitialParams() {
-    const b = this.nodes.map((l) => [] as number[]);
-    b.pop();
-
-    const w = this.nodes.map((l) => [] as number[]);
-    w.pop();
-
-    return { b, w };
+    return layer === this.layers.length - 1 ? x : relU(x);
   }
 }

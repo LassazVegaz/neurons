@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import { Network, type Params } from "./lib/Neurone gpt";
+import { Network, type Params } from "./lib/Neurone gpt.js";
 
 const FILE_PARAMETERS = path.join("data", "params.json");
 const FILE_TRAINING_DATA = path.join("data", "trainingData.json");
