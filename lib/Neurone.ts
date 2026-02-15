@@ -72,10 +72,21 @@ export class Network {
       // derivatives
       const d = this.createEmptyThetas();
 
+      let MSE = 0;
+      let calculateMSE = i === 0 || (i + 1) % 100 === 0;
+
       // forward
       for (const x of inputs) {
         const results = this.h(x, thetas);
         this.accumulateDerivatives(x, thetas, d, results);
+
+        if (calculateMSE)
+          MSE += (this.f(x) - results.activations.at(-1)![0]) ** 2;
+      }
+
+      if (calculateMSE) {
+        MSE /= 2 * inputs.length;
+        console.log(`MSE at ${i} = ${MSE}`);
       }
 
       this.applyDerivatives(d, thetas, inputs.length, alpha);
