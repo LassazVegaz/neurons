@@ -3,8 +3,15 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "Normal",
       "program": "${workspaceFolder}/out/main.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Clear thetas",
+      "program": "${workspaceFolder}/out/main.js",
+      "args": ["-c"]
     }
   ]
 }
