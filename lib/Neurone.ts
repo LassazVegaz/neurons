@@ -119,7 +119,9 @@ export class Network {
 
       for (let b = 0; b < this.layers[a + 1]; b++) {
         thetas.b[a].push(this.random());
-        thetas.w[a].push(new Array<number>(this.layers[a]).fill(this.random()));
+        thetas.w[a].push([]);
+        for (let c = 0; c < this.layers[a]; c++)
+          thetas.w[a][b].push(this.random());
       }
     }
 
@@ -127,7 +129,8 @@ export class Network {
   }
 
   private random() {
-    return Math.floor(Math.random() * 10) / 10;
+    const sign = Math.random() > 0.5 ? -1 : 1;
+    return (Math.floor(Math.random() * 10) / 10) * sign;
   }
 
   private accumulateDerivatives(
