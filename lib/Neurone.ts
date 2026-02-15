@@ -95,7 +95,7 @@ export class Network {
         MSE /= 2 * inputs.length;
         const mseDiff = prevMSE - MSE;
         const mseDiffPerc = (100 * mseDiff) / prevMSE;
-        console.log(`MSE at ${i} = ${MSE} (${-mseDiffPerc}%)`);
+        console.log(`MSE at ${i} = ${MSE} (${-mseDiffPerc.toFixed(2)}%)`);
         prevMSE = MSE;
       }
 
