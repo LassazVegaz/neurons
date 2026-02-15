@@ -32,7 +32,7 @@ const saveThetas = (thetas: ModelParameters) => {
 
 const getThetas = (newThetas: boolean, network: Network) => {
   if (newThetas || !fs.existsSync(FILE_THETAS))
-    saveThetas(network.createEmptyThetas());
+    saveThetas(network.createThetas());
 
   const json = fs.readFileSync(FILE_THETAS, { encoding: "utf-8" });
   return JSON.parse(json) as ModelParameters;

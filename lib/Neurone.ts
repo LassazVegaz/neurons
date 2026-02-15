@@ -72,7 +72,7 @@ export class Network {
 
     for (let i = 0; i < 10000; i++) {
       // derivatives
-      const d = this.createEmptyThetas();
+      const d = this.createThetas();
 
       let MSE = 0;
       let calculateMSE = i === 0 || (i + 1) % 1000 === 0;
@@ -104,12 +104,13 @@ export class Network {
   }
 
   /**
-   * Create thetas filled with 0s.
+   * Create thetas filled with numbers in range 0 <= x < 1
+   * with only one decimal place.
    * 1D size = number of layers - 1.
    * 2D first element refers to the 2nd layer neurons.
    * 3D first element refers to the previous layer neurons.
    */
-  createEmptyThetas(): ModelParameters {
+  createThetas(): ModelParameters {
     const thetas: ModelParameters = { b: [], w: [] };
 
     // thetas exist in the gaps between layers
