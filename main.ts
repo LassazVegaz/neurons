@@ -43,7 +43,7 @@ const f = (x: number) => x;
 
 const main = (clearThetas = false) => {
   const data = getData();
-  const network = new Network(f, [1, 1, 1]);
+  const network = new Network(f, [1, 2, 1]);
   const thetas = getThetas(clearThetas, network);
 
   network.train(data, thetas);

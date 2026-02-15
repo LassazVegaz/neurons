@@ -65,17 +65,17 @@ export class Network {
    * to create new empty parameters.
    */
   train(inputs: number[], thetas: ModelParameters) {
-    const alpha = 0.1;
+    const alpha = 0.01;
     inputs = this.normalizeInput(inputs);
 
     let prevMSE = 1;
 
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 10000; i++) {
       // derivatives
       const d = this.createEmptyThetas();
 
       let MSE = 0;
-      let calculateMSE = i === 0 || (i + 1) % 100 === 0;
+      let calculateMSE = i === 0 || (i + 1) % 1000 === 0;
 
       // forward
       for (const x of inputs) {
@@ -119,16 +119,16 @@ export class Network {
       thetas.w.push([]);
 
       for (let b = 0; b < this.layers[a + 1]; b++) {
-        thetas.b[a].push(Math.floor(Math.random() * 10));
-        thetas.w[a].push(
-          new Array<number>(this.layers[a]).fill(
-            Math.floor(Math.random() * 10),
-          ),
-        );
+        thetas.b[a].push(this.random());
+        thetas.w[a].push(new Array<number>(this.layers[a]).fill(this.random()));
       }
     }
 
     return thetas;
+  }
+
+  private random() {
+    return Math.floor(Math.random() * 10) / 10;
   }
 
   private accumulateDerivatives(
