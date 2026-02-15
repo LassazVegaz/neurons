@@ -8,7 +8,7 @@ export class MSECalculator {
   private itr = 0;
   set iteration(v: number) {
     this.itr = v;
-    this.calculateMse = v % this.iterationBreaker === 0 || v === 0;
+    this.calculateMse = (v - 1) % this.iterationBreaker === 0 || v === 0;
   }
 
   constructor(
