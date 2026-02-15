@@ -114,8 +114,12 @@ export class Network {
       thetas.w.push([]);
 
       for (let b = 0; b < this.layers[a + 1]; b++) {
-        thetas.b[a].push(0);
-        thetas.w[a].push(new Array<number>(this.layers[a]).fill(0));
+        thetas.b[a].push(Math.floor(Math.random() * 10));
+        thetas.w[a].push(
+          new Array<number>(this.layers[a]).fill(
+            Math.floor(Math.random() * 10),
+          ),
+        );
       }
     }
 
