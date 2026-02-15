@@ -155,11 +155,12 @@ export class Network {
         for (let c = 0; c < this.layers[a - 1]; c++) {
           d.w[a - 1][b][c] += errorSignals[a][b] * r.activations[a - 1][c];
 
-          errorSignals[a - 1][c] +=
-            dRelU(r.preActivations[a - 1][c]) *
-            thetas.w[a - 1][b][c] *
-            errorSignals[a][b];
+          errorSignals[a - 1][c] += thetas.w[a - 1][b][c] * errorSignals[a][b];
         }
+      }
+
+      for (let b = 0; b < this.layers[a - 1]; b++) {
+        errorSignals[a - 1][b] *= dRelU(r.preActivations[a - 1][b]);
       }
     }
   }
