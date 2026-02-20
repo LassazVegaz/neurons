@@ -102,6 +102,8 @@ export class Network {
     return activations.at(-1)![0];
   }
 
+  createThetas(): ModelParameters;
+  createThetas(value: number): ModelParameters;
   /**
    * Create thetas filled with the given `value` of a random value
    * 1D size = number of layers - 1.
