@@ -1,0 +1,3 @@
+# Neural Networks
+
+I wanna see how numbers work behind these networks...
