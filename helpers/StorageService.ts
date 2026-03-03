@@ -1,6 +1,6 @@
 import path from "node:path";
 import fs from "node:fs";
-import type { ModelParameters, Network } from "./Neurone.js";
+import type { ModelParameters, Network } from "../lib/Neurone.js";
 
 const FILE_THETAS = path.join("data", "thetas.json");
 const FILE_TRAINING_DATA = path.join("data", "trainingData.json");
