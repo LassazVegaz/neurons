@@ -1,4 +1,4 @@
-import MainParameters from "../types/MainParameters.js";
+import MainParameters from "../types/main-parameters.type.js";
 
 class ParametersBuilder {
   private getValueParam<T>(

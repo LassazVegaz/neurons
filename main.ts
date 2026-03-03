@@ -1,7 +1,7 @@
 import { Network } from "./lib/Neurone.js";
 import pb from "./lib/ParametersBuilder.js";
 import ss from "./lib/StorageService.js";
-import MainParameters from "./types/MainParameters.js";
+import MainParameters from "./types/main-parameters.type.js";
 
 // y = x
 const f = (x: number) => x * x;
