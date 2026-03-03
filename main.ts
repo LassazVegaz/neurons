@@ -1,6 +1,6 @@
 import { Network } from "./lib/Neurone.js";
-import pb from "./helpers/ParametersBuilder.js";
-import ss from "./helpers/StorageService.js";
+import pb from "./helpers/parameters-builder.js";
+import ss from "./helpers/storage-service.js";
 import MainParameters from "./types/main-parameters.type.js";
 
 // y = x
