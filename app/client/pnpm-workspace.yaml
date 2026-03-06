@@ -3,4 +3,4 @@ ignoredBuiltDependencies:
   - unrs-resolver
 
 overrides:
-  neurons: link:../../neurons
+  shared: link:../shared

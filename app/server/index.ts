@@ -1,25 +1,12 @@
 import { createServer } from "node:http";
 import { Server } from "socket.io";
-import { Network, TrainParams } from "neurons";
+import { Network } from "neurons";
 import ss from "./lib/storage-service";
-
-interface ClientToServerEvents {
-  train: (
-    params: Pick<TrainParams, "alpha" | "iterations"> & {
-      layers: number[];
-      newThetas: boolean;
-    },
-  ) => void;
-}
-
-type FinishedTrainingResults = {
-  actual: number;
-  prediction: number;
-}[];
-
-interface ServerToClientEvents {
-  finishedTraining: (results: FinishedTrainingResults) => void;
-}
+import {
+  ClientToServerEvents,
+  FinishedTrainingResults,
+  ServerToClientEvents,
+} from "shared";
 
 const PORT = process.env.PORT;
 if (!PORT) throw new Error("PORT is not defined in environment variables");

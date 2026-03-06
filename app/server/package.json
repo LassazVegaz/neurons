@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "neurons": "link:../../neurons",
+    "shared": "link:../shared",
     "socket.io": "^4.8.3"
   }
 }

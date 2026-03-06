@@ -1,25 +1,7 @@
 "use client";
-import type { TrainParams } from "neurons";
 import { useEffect, useState } from "react";
+import { ClientToServerEvents, ServerToClientEvents } from "shared";
 import { io, Socket } from "socket.io-client";
-
-interface ClientToServerEvents {
-  train: (
-    params: Pick<TrainParams, "alpha" | "iterations"> & {
-      layers: number[];
-      newThetas: boolean;
-    },
-  ) => void;
-}
-
-type FinishedTrainingResults = {
-  actual: number;
-  prediction: number;
-}[];
-
-interface ServerToClientEvents {
-  finishedTraining: (results: FinishedTrainingResults) => void;
-}
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
   "http://localhost:3001",
