@@ -19,7 +19,7 @@ type PredictionResults = {
   preActivations: number[][];
 };
 
-type TrainParams = {
+export type TrainParams = {
   inputs: number[];
   thetas: ModelParameters;
   alpha: number;
@@ -97,7 +97,7 @@ export class Network {
     }
   }
 
-  predict(x: number, thetas: ModelParameters) {
+  predict(x: number, thetas: ModelParameters): number {
     const { activations } = this.h(x, thetas);
     return activations.at(-1)![0];
   }
