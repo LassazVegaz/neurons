@@ -1,9 +1,10 @@
 import path from "node:path";
 import fs from "node:fs";
-import type { ModelParameters, Network } from "../lib/Neurone.js";
+import type { ModelParameters, Network } from "neurons";
 
-const FILE_THETAS = path.join("data", "thetas.json");
-const FILE_TRAINING_DATA = path.join("data", "trainingData.json");
+const DIRECTORY = path.join(process.cwd(), "data");
+const FILE_THETAS = path.join(DIRECTORY, "thetas.json");
+const FILE_TRAINING_DATA = path.join(DIRECTORY, "trainingData.json");
 
 class StorageService {
   private createData() {
@@ -12,9 +13,14 @@ class StorageService {
       nums.push(Math.random() * 100);
     }
 
+    this.ensureDirectory();
     fs.writeFileSync(FILE_TRAINING_DATA, JSON.stringify(nums), {
       encoding: "utf8",
     });
+  }
+
+  private ensureDirectory() {
+    if (!fs.existsSync(DIRECTORY)) fs.mkdirSync(DIRECTORY);
   }
 
   getData() {
@@ -26,6 +32,7 @@ class StorageService {
   }
 
   saveThetas(thetas: ModelParameters) {
+    this.ensureDirectory();
     fs.writeFileSync(FILE_THETAS, JSON.stringify(thetas), {
       encoding: "utf-8",
     });
