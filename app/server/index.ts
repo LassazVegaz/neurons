@@ -1,6 +1,9 @@
 import { createServer } from "node:http";
 import { Server } from "socket.io";
 
+const PORT = process.env.PORT;
+if (!PORT) throw new Error("PORT is not defined in environment variables");
+
 const httpServer = createServer();
 const io = new Server(httpServer, {
   cors: {
@@ -15,6 +18,6 @@ io.on("connection", (socket) => {
   });
 });
 
-httpServer.listen(3001, () => {
-  console.log("listening on *:3001");
+httpServer.listen(PORT, () => {
+  console.log(`listening on localhost:${PORT}`);
 });
