@@ -1,23 +1,69 @@
 import { createServer } from "node:http";
 import { Server } from "socket.io";
+import { Network, TrainParams } from "neurons";
+import ss from "./lib/storage-service";
+
+interface ClientToServerEvents {
+  train: (
+    params: Pick<TrainParams, "alpha" | "iterations"> & {
+      layers: number[];
+      newThetas: boolean;
+    },
+  ) => void;
+}
+
+type FinishedTrainingResults = {
+  actual: number;
+  prediction: number;
+}[];
+
+interface ServerToClientEvents {
+  finishedTraining: (results: FinishedTrainingResults) => void;
+}
 
 const PORT = process.env.PORT;
 if (!PORT) throw new Error("PORT is not defined in environment variables");
 
 const httpServer = createServer();
-const io = new Server(httpServer, {
+const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   cors: {
     origin: "*",
   },
 });
 
+const f = (x: number) => x;
+
 io.on("connection", (socket) => {
-  console.log("a user connected");
+  console.log(`a user connected (${socket.id})`);
+
   socket.on("disconnect", () => {
-    console.log("user disconnected");
+    console.log(`user disconnected (${socket.id})`);
+  });
+
+  socket.on("train", (p) => {
+    console.log("Starting training...");
+    const network = new Network(f, p.layers);
+    const thetas = ss.getThetas(p.newThetas, network);
+    const inputs = ss.getData();
+
+    network.train({
+      alpha: p.alpha,
+      iterations: p.iterations,
+      inputs,
+      thetas,
+    });
+
+    ss.saveThetas(thetas);
+
+    const results: FinishedTrainingResults = inputs.map((input) => {
+      const prediction = network.predict(input, thetas);
+      return { actual: input, prediction };
+    });
+
+    socket.emit("finishedTraining", results);
   });
 });
 
 httpServer.listen(PORT, () => {
-  console.log(`listening on localhost:${PORT}`);
+  console.log(`lisTening on localhost:${PORT}`);
 });
