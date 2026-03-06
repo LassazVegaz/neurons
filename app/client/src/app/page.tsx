@@ -1,3 +1,4 @@
+"use client";
 import type { TrainParams } from "neurons";
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
@@ -30,7 +31,7 @@ enum TrainingStatus {
   Finished,
 }
 
-function App() {
+export default function Home() {
   const [connected, setConnected] = useState(false);
   const [trainingStatus, setTrainingStatus] = useState(
     TrainingStatus.NotStarted,
@@ -85,5 +86,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
