@@ -15,6 +15,7 @@
     "tsx": "^4.21.0"
   },
   "dependencies": {
+    "neurons": "link:../../neurons",
     "socket.io": "^4.8.3"
   }
 }

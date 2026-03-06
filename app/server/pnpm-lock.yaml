@@ -4,10 +4,16 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  neurons: link:../../neurons
+
 importers:
 
   .:
     dependencies:
+      neurons:
+        specifier: link:../../neurons
+        version: link:../../neurons
       socket.io:
         specifier: ^4.8.3
         version: 4.8.3
