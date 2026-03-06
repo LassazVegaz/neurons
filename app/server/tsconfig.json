@@ -3,5 +3,8 @@
     {
       "path": "../../neurons"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "esModuleInterop": true
+  }
 }
