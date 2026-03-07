@@ -12,6 +12,7 @@ class StorageService {
     for (let i = 0; i < 1000; i++) {
       nums.push(Math.random() * 100);
     }
+    nums.sort((a, b) => a - b);
 
     this.ensureDirectory();
     fs.writeFileSync(FILE_TRAINING_DATA, JSON.stringify(nums), {
