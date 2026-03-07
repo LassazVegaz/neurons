@@ -7,6 +7,7 @@ import {
   ServerToClientEvents,
 } from "shared";
 import { io, Socket } from "socket.io-client";
+import { Checkbox, TextField } from "./components";
 
 const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
 if (!serverUrl)
@@ -33,6 +34,7 @@ export default function Home() {
     alpha: "0.01",
     iterations: "10000",
     useNewThetas: true,
+    layers: "1,2,1",
   });
 
   useEffect(() => {
@@ -85,41 +87,30 @@ export default function Home() {
         </LineChart>
       </div>
       <div className="flex flex-col gap-4 pt-4 pr-4">
-        <div className="flex items-center gap-2">
-          <input
-            name="useNewThetas"
-            type="checkbox"
-            checked={form.useNewThetas}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, useNewThetas: e.target.checked }))
-            }
-          />
-          <label htmlFor="useNewThetas">Use new thetas</label>
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="alpha">Alpha (learning rate)</label>
-          <input
-            name="alpha"
-            type="text"
-            value={form.alpha}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, alpha: e.target.value }))
-            }
-            className="bg-gray-700 text-white rounded px-2 py-1"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="iterations">Iterations</label>
-          <input
-            name="iterations"
-            type="text"
-            value={form.iterations}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, iterations: e.target.value }))
-            }
-            className="bg-gray-700 text-white rounded px-2 py-1"
-          />
-        </div>
+        <Checkbox
+          label="Use new thetas"
+          name="useNewThetas"
+          checked={form.useNewThetas}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, useNewThetas: e.target.checked }))
+          }
+        />
+        <TextField
+          label="Alpha (learning rate)"
+          name="alpha"
+          value={form.alpha}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, alpha: e.target.value }))
+          }
+        />
+        <TextField
+          label="Iterations"
+          name="iterations"
+          value={form.iterations}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, iterations: e.target.value }))
+          }
+        />
         <div>
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
