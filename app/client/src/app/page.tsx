@@ -3,9 +3,14 @@ import { useEffect, useState } from "react";
 import { ClientToServerEvents, ServerToClientEvents } from "shared";
 import { io, Socket } from "socket.io-client";
 
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  "http://localhost:3001",
-);
+const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+if (!serverUrl)
+  throw new Error(
+    "NEXT_PUBLIC_SERVER_URL is not defined in environment variables",
+  );
+
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
+  io(serverUrl);
 
 enum TrainingStatus {
   NotStarted,
