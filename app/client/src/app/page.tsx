@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { ClientToServerEvents, ServerToClientEvents } from "shared";
 import { io, Socket } from "socket.io-client";
 
@@ -46,32 +47,50 @@ export default function Home() {
   }, []);
 
   return (
-    <div>
-      Hello World
-      <div>{connected ? "Connected" : "Disconnected"}</div>
-      <div>
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => {
-            socket.emit("train", {
-              layers: [1, 2, 1],
-              newThetas: true,
-              alpha: 0.01,
-              iterations: 10000,
-            });
-            setTrainingStatus(TrainingStatus.InProgress);
-          }}
-        >
-          Start
-        </button>
+    <div className="h-full w-full grid grid-cols-[1fr_auto]">
+      <div className="p-4 w-full h-full">
+        <ResponsiveContainer>
+          <LineChart
+            className="bg-gray-800 rounded-lg"
+            data={[
+              { name: 0, value: 0 },
+              { name: 1, value: 1 },
+              { name: 2, value: 2 },
+              { name: 3, value: 3 },
+              { name: 4, value: 4 },
+              { name: 5, value: 5 },
+            ]}
+          >
+            <Line dataKey="value" />
+            <XAxis dataKey="name" />
+            <YAxis />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
       <div>
-        {trainingStatus === TrainingStatus.NotStarted &&
-          "Click start to begin training."}
-        {trainingStatus === TrainingStatus.InProgress &&
-          "Training in progress..."}
-        {trainingStatus === TrainingStatus.Finished && "Training finished!"}
-      </div>
+        <div>
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={() => {
+              socket.emit("train", {
+                layers: [1, 2, 1],
+                newThetas: true,
+                alpha: 0.01,
+                iterations: 10000,
+              });
+              setTrainingStatus(TrainingStatus.InProgress);
+            }}
+          >
+            Start
+          </button>
+        </div>
+        <div>
+          {trainingStatus === TrainingStatus.NotStarted &&
+            "Click start to begin training."}
+          {trainingStatus === TrainingStatus.InProgress &&
+            "Training in progress..."}
+          {trainingStatus === TrainingStatus.Finished && "Training finished!"}
+        </div>
       </div>
 
       {!connected && (
