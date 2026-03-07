@@ -22,9 +22,11 @@ const f = (x: number) => x;
 
 io.on("connection", (socket) => {
   console.log(`a user connected (${socket.id})`);
+  console.log(`Total users: ${io.engine.clientsCount}`);
 
   socket.on("disconnect", () => {
     console.log(`user disconnected (${socket.id})`);
+    console.log(`Total users: ${io.engine.clientsCount}`);
   });
 
   socket.on("train", (p) => {
@@ -40,6 +42,8 @@ io.on("connection", (socket) => {
       inputs,
       thetas,
     });
+
+    console.log("Finished training...");
 
     ss.saveThetas(thetas);
 
