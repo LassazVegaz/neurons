@@ -70,6 +70,13 @@ export default function Home() {
           "Training in progress..."}
         {trainingStatus === TrainingStatus.Finished && "Training finished!"}
       </div>
+      </div>
+
+      {!connected && (
+        <div className="bg-green-800 text-white fixed bottom-0 left-0 w-full text-center p-1">
+          <div className="text-gray-300 text-xs">Connecting to server</div>
+        </div>
+      )}
     </div>
   );
 }
