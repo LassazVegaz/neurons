@@ -29,6 +29,7 @@ io.on("connection", (socket) => {
 
   socket.on("train", (p) => {
     console.log("Starting training...");
+    console.log("Parameters:", p);
     const network = new Network(f, p.layers);
     const thetas = ss.getThetas(p.newThetas, network);
     const inputs = ss.getData();
@@ -44,7 +45,7 @@ io.on("connection", (socket) => {
 
     const results: FinishedTrainingResults = inputs.map((input) => {
       const prediction = network.predict(input, thetas);
-      return { actual: input, prediction };
+      return { x: input, actual: f(input), prediction };
     });
 
     socket.emit("finishedTraining", results);

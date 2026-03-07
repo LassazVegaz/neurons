@@ -10,6 +10,7 @@ export interface ClientToServerEvents {
 }
 
 export type FinishedTrainingResults = {
+  x: number;
   actual: number;
   prediction: number;
 }[];
