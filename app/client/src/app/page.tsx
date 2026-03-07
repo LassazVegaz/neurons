@@ -48,7 +48,7 @@ export default function Home() {
     socket.on("finishedTraining", (res) => {
       setTrainingStatus(TrainingStatus.Finished);
       setTrainingResults(res);
-      setForm((prev) => ({ ...prev, useNewThetas: true }));
+      setForm((prev) => ({ ...prev, useNewThetas: false }));
     });
 
     return () => {
