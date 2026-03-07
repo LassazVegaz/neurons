@@ -1,7 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
-import { ClientToServerEvents, ServerToClientEvents } from "shared";
+import { Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  ClientToServerEvents,
+  FinishedTrainingResults,
+  ServerToClientEvents,
+} from "shared";
 import { io, Socket } from "socket.io-client";
 
 const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
@@ -24,6 +28,13 @@ export default function Home() {
   const [trainingStatus, setTrainingStatus] = useState(
     TrainingStatus.NotStarted,
   );
+  const [trainingResults, setTrainingResults] =
+    useState<FinishedTrainingResults>([]);
+  const [form, setForm] = useState({
+    alpha: "0.01",
+    iterations: "10000",
+    useNewThetas: true,
+  });
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -34,8 +45,10 @@ export default function Home() {
       setConnected(false);
     });
 
-    socket.on("finishedTraining", () => {
+    socket.on("finishedTraining", (res) => {
       setTrainingStatus(TrainingStatus.Finished);
+      setTrainingResults(res);
+      setForm((prev) => ({ ...prev, useNewThetas: true }));
     });
 
     return () => {
@@ -47,36 +60,73 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="h-full w-full grid grid-cols-[1fr_auto]">
+    <div className="h-full w-full grid grid-cols-[1fr_200px]">
       <div className="p-4 w-full h-full">
-        <ResponsiveContainer>
-          <LineChart
-            className="bg-gray-800 rounded-lg"
-            data={[
-              { name: 0, value: 0 },
-              { name: 1, value: 1 },
-              { name: 2, value: 2 },
-              { name: 3, value: 3 },
-              { name: 4, value: 4 },
-              { name: 5, value: 5 },
-            ]}
-          >
-            <Line dataKey="value" />
-            <XAxis dataKey="name" />
-            <YAxis />
-          </LineChart>
-        </ResponsiveContainer>
+        <LineChart
+          className="bg-gray-800 rounded-lg"
+          width="100%"
+          height="100%"
+          data={trainingResults}
+        >
+          <Line dataKey="actual" />
+          <Line dataKey="prediction" />
+          <XAxis dataKey="x" type="number" />
+          <YAxis />
+          <Tooltip
+            labelStyle={{ color: "black" }}
+            contentStyle={{
+              backgroundColor: "#999",
+              borderRadius: "8px",
+            }}
+            itemStyle={{ color: "#333" }}
+          />
+        </LineChart>
       </div>
-      <div>
+      <div className="flex flex-col gap-4 pt-4 pr-4">
+        <div className="flex items-center gap-2">
+          <input
+            name="useNewThetas"
+            type="checkbox"
+            checked={form.useNewThetas}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, useNewThetas: e.target.checked }))
+            }
+          />
+          <label htmlFor="useNewThetas">Use new thetas</label>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="alpha">Alpha (learning rate)</label>
+          <input
+            name="alpha"
+            type="text"
+            value={form.alpha}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, alpha: e.target.value }))
+            }
+            className="bg-gray-700 text-white rounded px-2 py-1"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="iterations">Iterations</label>
+          <input
+            name="iterations"
+            type="text"
+            value={form.iterations}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, iterations: e.target.value }))
+            }
+            className="bg-gray-700 text-white rounded px-2 py-1"
+          />
+        </div>
         <div>
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             onClick={() => {
               socket.emit("train", {
                 layers: [1, 2, 1],
-                newThetas: true,
-                alpha: 0.01,
-                iterations: 10000,
+                newThetas: form.useNewThetas,
+                alpha: parseFloat(form.alpha),
+                iterations: parseInt(form.iterations),
               });
               setTrainingStatus(TrainingStatus.InProgress);
             }}
