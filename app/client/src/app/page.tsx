@@ -111,12 +111,20 @@ export default function Home() {
             setForm((prev) => ({ ...prev, iterations: e.target.value }))
           }
         />
+        <TextField
+          label="Layers"
+          name="layers"
+          value={form.layers}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, layers: e.target.value }))
+          }
+        />
         <div>
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             onClick={() => {
               socketRef.current?.emit("train", {
-                layers: [1, 2, 1],
+                layers: form.layers.split(",").map(Number),
                 newThetas: form.useNewThetas,
                 alpha: parseFloat(form.alpha),
                 iterations: parseInt(form.iterations),
