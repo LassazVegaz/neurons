@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
 import {
   ClientToServerEvents,
@@ -14,9 +14,6 @@ if (!serverUrl)
     "NEXT_PUBLIC_SERVER_URL is not defined in environment variables",
   );
 
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
-  io(serverUrl);
-
 enum TrainingStatus {
   NotStarted,
   InProgress,
@@ -24,6 +21,8 @@ enum TrainingStatus {
 }
 
 export default function Home() {
+  const socketRef =
+    useRef<Socket<ServerToClientEvents, ClientToServerEvents>>(null);
   const [connected, setConnected] = useState(false);
   const [trainingStatus, setTrainingStatus] = useState(
     TrainingStatus.NotStarted,
@@ -37,6 +36,9 @@ export default function Home() {
   });
 
   useEffect(() => {
+    const socket = io(serverUrl);
+    socketRef.current = socket;
+
     socket.on("connect", () => {
       setConnected(true);
     });
@@ -122,7 +124,7 @@ export default function Home() {
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             onClick={() => {
-              socket.emit("train", {
+              socketRef.current?.emit("train", {
                 layers: [1, 2, 1],
                 newThetas: form.useNewThetas,
                 alpha: parseFloat(form.alpha),
