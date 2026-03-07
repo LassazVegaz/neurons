@@ -70,8 +70,8 @@ export default function Home() {
           height="100%"
           data={trainingResults}
         >
-          <Line dataKey="actual" />
-          <Line dataKey="prediction" />
+          <Line dataKey="actual" dot={false} stroke="blue" />
+          <Line dataKey="prediction" dot={false} stroke="red" />
           <XAxis dataKey="x" type="number" />
           <YAxis />
           <Tooltip
