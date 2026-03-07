@@ -40,6 +40,8 @@ export default function Home() {
     return () => {
       socket.off("connect");
       socket.off("disconnect");
+      socket.off("finishedTraining");
+      socket.disconnect();
     };
   }, []);
 
