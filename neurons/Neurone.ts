@@ -36,37 +36,6 @@ export class Network {
   ) {}
 
   /**
-   * Get results from the network
-   * @param thetas So far calculated thetas.
-   * @returns Values after and before activating each neurone.
-   */
-  private h(x: number, thetas: ModelParameters) {
-    const activations = [[x]];
-    const preActivations = [[x]];
-
-    // do the job for the next layer neurons
-    // pre activations -> actions
-    for (let a = 0; a < this.layers.length - 1; a++) {
-      preActivations.push([]);
-      activations.push([]);
-
-      // each neurone in the next layer
-      for (let b = 0; b < this.layers[a + 1]; b++) {
-        preActivations[a + 1][b] = thetas.b[a][b];
-
-        // each neurone in current layer
-        for (let c = 0; c < this.layers[a]; c++) {
-          preActivations[a + 1][b] += thetas.w[a][b][c] * activations[a][c];
-        }
-
-        activations[a + 1][b] = this.activate(preActivations[a + 1][b], a + 1);
-      }
-    }
-
-    return { preActivations, activations };
-  }
-
-  /**
    * Train the neural network
    * @param inputs Inputs for training. Set of Xs
    * @param thetas Parameters. Weights and biases of the network.
@@ -128,6 +97,37 @@ export class Network {
     }
 
     return thetas;
+  }
+
+  /**
+   * Get results from the network
+   * @param thetas So far calculated thetas.
+   * @returns Values after and before activating each neurone.
+   */
+  private h(x: number, thetas: ModelParameters) {
+    const activations = [[x]];
+    const preActivations = [[x]];
+
+    // do the job for the next layer neurons
+    // pre activations -> actions
+    for (let a = 0; a < this.layers.length - 1; a++) {
+      preActivations.push([]);
+      activations.push([]);
+
+      // each neurone in the next layer
+      for (let b = 0; b < this.layers[a + 1]; b++) {
+        preActivations[a + 1][b] = thetas.b[a][b];
+
+        // each neurone in current layer
+        for (let c = 0; c < this.layers[a]; c++) {
+          preActivations[a + 1][b] += thetas.w[a][b][c] * activations[a][c];
+        }
+
+        activations[a + 1][b] = this.activate(preActivations[a + 1][b], a + 1);
+      }
+    }
+
+    return { preActivations, activations };
   }
 
   private random() {
