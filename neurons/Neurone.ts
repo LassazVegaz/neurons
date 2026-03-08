@@ -35,6 +35,8 @@ const dRelU = (x: number) => (x > 0 ? 1 : 0);
 const UNBLOCK_BREAKER = 1000;
 
 export class Network {
+  private requestTrainingStop = false;
+
   private readonly events: {
     [E in keyof Events]?: ((...args: Events[E]) => void)[];
   } = {};
@@ -49,6 +51,10 @@ export class Network {
     this.events[event]?.push(listener);
   }
 
+  stopTraining() {
+    this.requestTrainingStop = true;
+  }
+
   /**
    * Train the neural network
    * @param inputs Inputs for training. Set of Xs
@@ -57,9 +63,12 @@ export class Network {
    * to create new empty parameters.
    */
   async train(p: TrainParams) {
+    this.requestTrainingStop = false;
     const inputs = this.normalizeInput(p.inputs);
 
     for (let i = 0; i < p.iterations; i++) {
+      if (this.requestTrainingStop) break;
+
       /**
        * Mean squared error
        */
