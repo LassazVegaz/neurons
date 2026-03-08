@@ -3,6 +3,9 @@ type ErrorAdder = () => number;
 export class MSECalculator {
   private prevMSE = 1;
   private MSE = 0;
+  get lastMse() {
+    return this.prevMSE;
+  }
 
   private calculateMse = false;
   private itr = 0;
