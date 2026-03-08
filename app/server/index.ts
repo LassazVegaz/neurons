@@ -1,12 +1,7 @@
 import { createServer } from "node:http";
 import { Server } from "socket.io";
-import { Network } from "neurons";
-import ss from "./lib/storage-service";
-import {
-  ClientToServerEvents,
-  FinishedTrainingResults,
-  ServerToClientEvents,
-} from "shared";
+import { ClientToServerEvents, ServerToClientEvents } from "shared";
+import train from "./train";
 
 const PORT = process.env.PORT;
 if (!PORT) throw new Error("PORT is not defined in environment variables");
@@ -18,8 +13,6 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   },
 });
 
-const f = (x: number) => x;
-
 io.on("connection", (socket) => {
   console.log(`a user connected (${socket.id})`);
   console.log(`Total users: ${io.engine.clientsCount}`);
@@ -29,31 +22,7 @@ io.on("connection", (socket) => {
     console.log(`Total users: ${io.engine.clientsCount}`);
   });
 
-  socket.on("train", (p) => {
-    console.log("Starting training...");
-    console.log("Parameters:", p);
-    const network = new Network(f, p.layers);
-    const thetas = ss.getThetas(p.newThetas, network);
-    const inputs = ss.getData();
-
-    network.train({
-      alpha: p.alpha,
-      iterations: p.iterations,
-      inputs,
-      thetas,
-    });
-
-    console.log("Finished training...");
-
-    ss.saveThetas(thetas);
-
-    const results: FinishedTrainingResults = inputs.map((input) => {
-      const prediction = network.predict(input, thetas);
-      return { x: input, actual: f(input), prediction };
-    });
-
-    socket.emit("finishedTraining", results);
-  });
+  socket.on("train", (p) => train(socket, p));
 });
 
 httpServer.listen(PORT, () => {
