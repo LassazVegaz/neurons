@@ -32,6 +32,8 @@ type Events = {
 const relU = (x: number) => Math.max(0, x);
 const dRelU = (x: number) => (x > 0 ? 1 : 0);
 
+const UNBLOCK_BREAKER = 1000;
+
 export class Network {
   private readonly events: {
     [E in keyof Events]?: ((...args: Events[E]) => void)[];
@@ -54,7 +56,7 @@ export class Network {
    * Pass in the previously calculated parameters or use `createEmptyParameters`
    * to create new empty parameters.
    */
-  train(p: TrainParams) {
+  async train(p: TrainParams) {
     const inputs = this.normalizeInput(p.inputs);
 
     for (let i = 0; i < p.iterations; i++) {
@@ -79,6 +81,8 @@ export class Network {
       this.applyDerivatives(d, p.thetas, inputs.length, p.alpha);
 
       this.fire("iterationFinish", i, mse);
+
+      if (i % UNBLOCK_BREAKER === 0) await this.unblockThread();
     }
 
     this.fire("trainingFinish", p.thetas);
@@ -232,5 +236,9 @@ export class Network {
     for (const listener of this.events[event]) {
       listener(...args);
     }
+  }
+
+  private unblockThread() {
+    return new Promise<void>((res) => setInterval(res));
   }
 }
