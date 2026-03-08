@@ -1,5 +1,3 @@
-import { MSECalculator } from "./MSECalculator.js";
-
 /**
  * Weights and biases in the gaps between layers
  */
@@ -59,10 +57,12 @@ export class Network {
   train(p: TrainParams) {
     const inputs = this.normalizeInput(p.inputs);
 
-    const mse = new MSECalculator(p.iterations / 10, inputs.length, this.f);
-
     for (let i = 0; i < p.iterations; i++) {
-      mse.iteration = i;
+      /**
+       * Mean squared error
+       */
+      let mse = 0;
+
       // derivatives
       const d = this.createThetas(0);
 
@@ -71,13 +71,17 @@ export class Network {
         const results = this.h(x, p.thetas);
         this.accumulateDerivatives(x, p.thetas, d, results);
 
-        mse.addError(x, results.activations.at(-1)![0]);
+        const predicted = results.activations.at(-1)![0];
+        mse += (this.f(x) - predicted) ** 2;
       }
-
-      mse.finishIteration();
+      mse /= inputs.length * 2;
 
       this.applyDerivatives(d, p.thetas, inputs.length, p.alpha);
+
+      this.fire("iterationFinish", i, mse);
     }
+
+    this.fire("trainingFinish", p.thetas);
   }
 
   predict(x: number, thetas: ModelParameters): number {
