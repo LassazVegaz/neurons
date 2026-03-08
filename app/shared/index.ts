@@ -17,4 +17,5 @@ export type FinishedTrainingResults = {
 
 export interface ServerToClientEvents {
   finishedTraining: (results: FinishedTrainingResults) => void;
+  iterationsBreak: (iteration: number, MSEs: number[]) => void;
 }
