@@ -26,14 +26,28 @@ export type TrainParams = {
   iterations: number;
 };
 
+type Events = {
+  iterationFinish: [iteration: number, mse: number];
+  trainingFinish: [thetas: ModelParameters];
+};
+
 const relU = (x: number) => Math.max(0, x);
 const dRelU = (x: number) => (x > 0 ? 1 : 0);
 
 export class Network {
+  private readonly events: {
+    [E in keyof Events]?: ((...args: Events[E]) => void)[];
+  } = {};
+
   constructor(
     private readonly f: (x: number) => number,
     private readonly layers: number[],
   ) {}
+
+  on<E extends keyof Events>(event: E, listener: (...args: Events[E]) => void) {
+    if (!this.events[event]) this.events[event] = [];
+    this.events[event]?.push(listener);
+  }
 
   /**
    * Train the neural network
@@ -207,5 +221,12 @@ export class Network {
    */
   private activate(x: number, layer: number) {
     return layer === this.layers.length - 1 ? x : relU(x);
+  }
+
+  private fire<E extends keyof Events>(event: E, ...args: Events[E]) {
+    if (!this.events[event]) return;
+    for (const listener of this.events[event]) {
+      listener(...args);
+    }
   }
 }
