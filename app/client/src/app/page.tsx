@@ -1,45 +1,29 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
-import {
-  ClientToServerEvents,
-  FinishedTrainingResults,
-  ServerToClientEvents,
-} from "shared";
-import { io, Socket } from "socket.io-client";
-import { Checkbox, TextField } from "./components";
+import { FinishedTrainingResults } from "shared";
+import { io } from "socket.io-client";
+import ControlPanel from "./components/ControlPanel";
+import Socket from "@/types/socket.type";
+import TrainingStatus from "./types/trainin-status.enum";
 
-const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
-if (!serverUrl)
-  throw new Error(
-    "NEXT_PUBLIC_SERVER_URL is not defined in environment variables",
-  );
-
-enum TrainingStatus {
-  NotStarted,
-  InProgress,
-  Finished,
-}
+let socket: Socket | undefined;
 
 export default function Home() {
-  const socketRef =
-    useRef<Socket<ServerToClientEvents, ClientToServerEvents>>(null);
   const [connected, setConnected] = useState(false);
   const [trainingStatus, setTrainingStatus] = useState(
     TrainingStatus.NotStarted,
   );
   const [trainingResults, setTrainingResults] =
     useState<FinishedTrainingResults>([]);
-  const [form, setForm] = useState({
-    alpha: "0.01",
-    iterations: "10000",
-    useNewThetas: true,
-    layers: "1,2,1",
-  });
 
   useEffect(() => {
-    const socket = io(serverUrl);
-    socketRef.current = socket;
+    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+    if (!serverUrl)
+      throw new Error(
+        "NEXT_PUBLIC_SERVER_URL is not defined in environment variables",
+      );
+    socket = io(serverUrl);
 
     socket.on("connect", () => {
       setConnected(true);
@@ -52,14 +36,16 @@ export default function Home() {
     socket.on("finishedTraining", (res) => {
       setTrainingStatus(TrainingStatus.Finished);
       setTrainingResults(res);
-      setForm((prev) => ({ ...prev, useNewThetas: false }));
     });
 
     return () => {
+      if (!socket) return;
+
       socket.off("connect");
       socket.off("disconnect");
       socket.off("finishedTraining");
       socket.disconnect();
+      socket = undefined;
     };
   }, []);
 
@@ -86,63 +72,12 @@ export default function Home() {
           />
         </LineChart>
       </div>
-      <div className="flex flex-col gap-4 pt-4 pr-4">
-        <Checkbox
-          label="Use new thetas"
-          name="useNewThetas"
-          checked={form.useNewThetas}
-          onChange={(e) =>
-            setForm((prev) => ({ ...prev, useNewThetas: e.target.checked }))
-          }
-        />
-        <TextField
-          label="Alpha (learning rate)"
-          name="alpha"
-          value={form.alpha}
-          onChange={(e) =>
-            setForm((prev) => ({ ...prev, alpha: e.target.value }))
-          }
-        />
-        <TextField
-          label="Iterations"
-          name="iterations"
-          value={form.iterations}
-          onChange={(e) =>
-            setForm((prev) => ({ ...prev, iterations: e.target.value }))
-          }
-        />
-        <TextField
-          label="Layers"
-          name="layers"
-          value={form.layers}
-          onChange={(e) =>
-            setForm((prev) => ({ ...prev, layers: e.target.value }))
-          }
-        />
-        <div>
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => {
-              socketRef.current?.emit("train", {
-                layers: form.layers.split(",").map(Number),
-                newThetas: form.useNewThetas,
-                alpha: parseFloat(form.alpha),
-                iterations: parseInt(form.iterations),
-              });
-              setTrainingStatus(TrainingStatus.InProgress);
-            }}
-          >
-            Start
-          </button>
-        </div>
-        <div>
-          {trainingStatus === TrainingStatus.NotStarted &&
-            "Click start to begin training."}
-          {trainingStatus === TrainingStatus.InProgress &&
-            "Training in progress..."}
-          {trainingStatus === TrainingStatus.Finished && "Training finished!"}
-        </div>
-      </div>
+
+      <ControlPanel
+        socket={socket}
+        trainingStatus={trainingStatus}
+        onTrainingStart={() => setTrainingStatus(TrainingStatus.InProgress)}
+      />
 
       {!connected && (
         <div className="bg-green-800 text-white fixed bottom-0 left-0 w-full text-center p-1">
