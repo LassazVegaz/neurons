@@ -24,8 +24,8 @@ const train = (
   const MSEs: number[] = [];
   network.on("iterationFinish", (i, mse) => {
     MSEs.push(mse);
-    if (i % ITERATION_BREAKPOINT === 0) socket.emit("iterationsBreak", i, MSEs);
-    else if (i === p.iterations - 1) socket.emit("iterationsBreak", i, MSEs);
+    if (i % ITERATION_BREAKPOINT === 0 || i === p.iterations - 1)
+      socket.emit("iterationsBreak", i, MSEs);
   });
 
   network.on("trainingFinish", (thetas) => {
