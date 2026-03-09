@@ -38,14 +38,20 @@ const train = (
 
     ss.saveThetas(thetas);
 
+    socket.emit("trainingStatusChange", "stopped");
     socket.emit("finishedTraining", results);
   });
 
+  socket.emit("trainingStatusChange", "started");
   network.train({
     alpha: p.alpha,
     iterations: p.iterations,
     inputs,
     thetas,
+  });
+
+  socket.on("stopTraining", () => {
+    network.stopTraining();
   });
 };
 
