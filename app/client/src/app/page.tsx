@@ -35,7 +35,9 @@ export default function Home() {
     });
 
     socket.on("iterationsBreak", (_, MSEs) => {
-      setMseChartData(MSEs.map((mse) => ({ mse })));
+      console.log("data rec:", MSEs[0]);
+      console.log("mse length:", MSEs.length);
+      setMseChartData(MSEs.map((mse, idx) => ({ x: idx + 1, mse })));
     });
 
     return () => {
@@ -52,7 +54,7 @@ export default function Home() {
 
   return (
     <div className="h-full w-full grid grid-cols-[1fr_200px]">
-      <div className="p-4 w-full h-full grid grid-rows-[1fr_1fr]">
+      <div className="p-4 w-full h-full grid grid-rows-[1fr_1fr] gap-2">
         <PredictionsChart data={trainingResults} />
         <MseChart data={mseChartData} />
       </div>

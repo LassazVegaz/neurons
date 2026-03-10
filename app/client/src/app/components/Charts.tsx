@@ -1,11 +1,12 @@
 import { LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
+import { FinishedTrainingResults } from "shared";
 
 type PredictionChartProps = {
-  data: { prediction: number; actual: number }[];
+  data: FinishedTrainingResults;
 };
 
 export type MseChartProps = {
-  data: { mse: number }[];
+  data: { x: number; mse: number }[];
 };
 
 export const PredictionsChart = (props: PredictionChartProps) => (
@@ -15,7 +16,7 @@ export const PredictionsChart = (props: PredictionChartProps) => (
     height="100%"
     data={props.data}
   >
-    <Line dataKey="actual" dot={false} stroke="blue" />
+    <Line dataKey="actual" dot={false} stroke="green" />
     <Line dataKey="prediction" dot={false} stroke="red" />
     <XAxis dataKey="x" type="number" />
     <YAxis />
@@ -37,7 +38,7 @@ export const MseChart = (props: MseChartProps) => (
     height="100%"
     data={props.data}
   >
-    <Line dataKey="mse" dot={false} stroke="blue" />
+    <Line dataKey="mse" dot={false} stroke="yellow" type="monotone" />
     <XAxis dataKey="x" type="number" />
     <YAxis />
     <Tooltip
