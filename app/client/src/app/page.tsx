@@ -13,6 +13,9 @@ export default function Home() {
   const [trainingResults, setTrainingResults] =
     useState<FinishedTrainingResults>([]);
   const [mseChartData, setMseChartData] = useState<MseChartProps["data"]>([]);
+  const [currentIteration, setCurrentIteration] = useState<number | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
     const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
@@ -32,12 +35,12 @@ export default function Home() {
 
     socket.on("finishedTraining", (res) => {
       setTrainingResults(res);
+      setCurrentIteration(undefined);
     });
 
-    socket.on("iterationsBreak", (_, MSEs) => {
-      console.log("data rec:", MSEs[0]);
-      console.log("mse length:", MSEs.length);
+    socket.on("iterationsBreak", (itr, MSEs) => {
       setMseChartData(MSEs.map((mse, idx) => ({ x: idx + 1, mse })));
+      setCurrentIteration(itr);
     });
 
     return () => {
@@ -59,7 +62,11 @@ export default function Home() {
         <MseChart data={mseChartData} />
       </div>
 
-      <ControlPanel socket={socket} connectedToServer={connected} />
+      <ControlPanel
+        socket={socket}
+        connectedToServer={connected}
+        currentIteration={currentIteration}
+      />
 
       {!connected && (
         <div className="bg-green-800 text-white fixed bottom-0 left-0 w-full text-center p-1">

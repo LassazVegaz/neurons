@@ -6,6 +6,7 @@ import Socket from "@/types/socket.type";
 type ControlPanelProps = {
   socket?: Socket;
   connectedToServer?: boolean;
+  currentIteration?: number;
 };
 
 const defaultForm = {
@@ -24,6 +25,12 @@ const mapTrainingStatusToText: Record<TrainingStatus, string> = {
 };
 
 export default function ControlPanel(props: Readonly<ControlPanelProps>) {
+  /**
+   * Currently training iterations count. If not training, can be `undefined`
+   */
+  const [iteraionsCount, setIteraionsCount] = useState<number | undefined>(
+    undefined,
+  );
   const [form, setForm] = useState(defaultForm);
   const [trainingStatus, setTrainingStatus] = useState(
     TrainingStatus.NotStarted,
@@ -50,13 +57,15 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
 
   const onStartClick = () => {
     if (!props.socket) return;
+    const iterations = Number.parseInt(form.iterations);
     props.socket.emit("train", {
       layers: form.layers.split(",").map(Number),
       newThetas: form.useNewThetas,
       alpha: Number.parseFloat(form.alpha),
-      iterations: Number.parseInt(form.iterations),
+      iterations,
     });
     setTrainingStatus(TrainingStatus.InProgress);
+    setIteraionsCount(iterations);
   };
 
   const onStopClick = () => {
@@ -70,6 +79,17 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
     trainingStatus === TrainingStatus.NotStarted ||
     trainingStatus === TrainingStatus.RequestToStopFulfilled;
   const showStopBtn = trainingStatus === TrainingStatus.InProgress;
+
+  const isTraining =
+    trainingStatus === TrainingStatus.Finished ||
+    trainingStatus === TrainingStatus.NotStarted ||
+    trainingStatus === TrainingStatus.RequestToStopFulfilled ||
+    trainingStatus === TrainingStatus.RequestedToStop;
+
+  const completionPercentage =
+    props.currentIteration && iteraionsCount
+      ? ((props.currentIteration / iteraionsCount) * 100).toFixed(2)
+      : undefined;
 
   return (
     <div className="flex flex-col gap-4 pt-4 pr-4">
@@ -122,6 +142,10 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
         )}
       </div>
       <div>{mapTrainingStatusToText[trainingStatus]}</div>
+      {isTraining && <div>Iteration: {props.currentIteration} of 10000</div>}
+      {isTraining && completionPercentage && (
+        <div>Completion: {completionPercentage}%</div>
+      )}
     </div>
   );
 }
