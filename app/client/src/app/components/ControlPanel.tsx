@@ -38,6 +38,7 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
 
     props.socket.on("finishedTraining", () => {
       setTrainingStatus(TrainingStatus.Finished);
+      setForm((prev) => ({ ...prev, useNewThetas: false }));
     });
 
     return () => {
