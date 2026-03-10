@@ -1,12 +1,11 @@
-import { useState } from "react";
-import { Checkbox, TextField } from "./Fields";
+import { useEffect, useState } from "react";
+import { Button, Checkbox, TextField } from "./Fields";
 import TrainingStatus from "../types/trainin-status.enum";
 import Socket from "@/types/socket.type";
 
 type ControlPanelProps = {
-  trainingStatus: TrainingStatus;
   socket?: Socket;
-  onTrainingStart?: () => void;
+  connectedToServer?: boolean;
 };
 
 const defaultForm = {
@@ -16,17 +15,53 @@ const defaultForm = {
   layers: "1,2,1",
 };
 
+const mapTrainingStatusToText: Record<TrainingStatus, string> = {
+  [TrainingStatus.NotStarted]: "Click start to begin training.",
+  [TrainingStatus.InProgress]: "Training in progress...",
+  [TrainingStatus.Finished]: "Training finished!",
+  [TrainingStatus.RequestedToStop]: "Requested to stop training...",
+  [TrainingStatus.RequestToStopFulfilled]: "Training stopped.",
+};
+
 export default function ControlPanel(props: Readonly<ControlPanelProps>) {
   const [form, setForm] = useState(defaultForm);
+  const [trainingStatus, setTrainingStatus] = useState(
+    TrainingStatus.NotStarted,
+  );
+
+  useEffect(() => {
+    if (!props.socket) return;
+
+    props.socket.on("requestToStopTrainingFulfilled", () => {
+      setTrainingStatus(TrainingStatus.RequestToStopFulfilled);
+    });
+
+    props.socket.on("finishedTraining", () => {
+      setTrainingStatus(TrainingStatus.Finished);
+    });
+
+    return () => {
+      if (!props.socket) return;
+      props.socket.off("requestToStopTrainingFulfilled");
+      props.socket.off("finishedTraining");
+    };
+  }, [props.socket]);
 
   const onStartClick = () => {
-    props.socket?.emit("train", {
+    if (!props.socket) return;
+    props.socket.emit("train", {
       layers: form.layers.split(",").map(Number),
       newThetas: form.useNewThetas,
       alpha: Number.parseFloat(form.alpha),
       iterations: Number.parseInt(form.iterations),
     });
-    props.onTrainingStart?.();
+    setTrainingStatus(TrainingStatus.InProgress);
+  };
+
+  const onStopClick = () => {
+    if (!props.socket) return;
+    props.socket.emit("requestToStopTraining");
+    setTrainingStatus(TrainingStatus.RequestedToStop);
   };
 
   return (
@@ -63,22 +98,25 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
           setForm((prev) => ({ ...prev, layers: e.target.value }))
         }
       />
-      <div>
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={onStartClick}
-        >
-          Start
-        </button>
+      <div className="flex gap-4">
+        {(trainingStatus === TrainingStatus.Finished ||
+          trainingStatus === TrainingStatus.NotStarted ||
+          trainingStatus === TrainingStatus.RequestToStopFulfilled) && (
+          <Button
+            className="bg-blue-500 hover:bg-blue-700"
+            onClick={onStartClick}
+            disabled={!props.connectedToServer}
+          >
+            Start
+          </Button>
+        )}
+        {trainingStatus === TrainingStatus.InProgress && (
+          <Button className="bg-red-500 hover:bg-red-700" onClick={onStopClick}>
+            Stop
+          </Button>
+        )}
       </div>
-      <div>
-        {props.trainingStatus === TrainingStatus.NotStarted &&
-          "Click start to begin training."}
-        {props.trainingStatus === TrainingStatus.InProgress &&
-          "Training in progress..."}
-        {props.trainingStatus === TrainingStatus.Finished &&
-          "Training finished!"}
-      </div>
+      <div>{mapTrainingStatusToText[trainingStatus]}</div>
     </div>
   );
 }

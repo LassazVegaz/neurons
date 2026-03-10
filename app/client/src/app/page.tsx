@@ -5,15 +5,11 @@ import { FinishedTrainingResults } from "shared";
 import { io } from "socket.io-client";
 import ControlPanel from "./components/ControlPanel";
 import Socket from "@/types/socket.type";
-import TrainingStatus from "./types/trainin-status.enum";
 
 let socket: Socket | undefined;
 
 export default function Home() {
   const [connected, setConnected] = useState(false);
-  const [trainingStatus, setTrainingStatus] = useState(
-    TrainingStatus.NotStarted,
-  );
   const [trainingResults, setTrainingResults] =
     useState<FinishedTrainingResults>([]);
 
@@ -34,7 +30,6 @@ export default function Home() {
     });
 
     socket.on("finishedTraining", (res) => {
-      setTrainingStatus(TrainingStatus.Finished);
       setTrainingResults(res);
     });
 
@@ -73,11 +68,7 @@ export default function Home() {
         </LineChart>
       </div>
 
-      <ControlPanel
-        socket={socket}
-        trainingStatus={trainingStatus}
-        onTrainingStart={() => setTrainingStatus(TrainingStatus.InProgress)}
-      />
+      <ControlPanel socket={socket} connectedToServer={connected} />
 
       {!connected && (
         <div className="bg-green-800 text-white fixed bottom-0 left-0 w-full text-center p-1">
