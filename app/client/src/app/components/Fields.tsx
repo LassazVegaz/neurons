@@ -1,3 +1,5 @@
+import { twMerge } from "tailwind-merge";
+
 type TextFieldProps = {
   label: string;
   name: string;
@@ -35,4 +37,14 @@ export const Checkbox = (props: CheckboxProps) => (
     />
     <label htmlFor={props.name}>{props.label}</label>
   </div>
+);
+
+export const Button = ({
+  className,
+  ...props
+}: React.ComponentProps<"button">) => (
+  <button
+    {...props}
+    className={twMerge("text-white font-bold py-2 px-4 rounded", className)}
+  />
 );
