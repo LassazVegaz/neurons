@@ -27,6 +27,7 @@ export type TrainParams = {
 type Events = {
   iterationFinish: [iteration: number, mse: number];
   trainingFinish: [thetas: ModelParameters];
+  trainingStopRequestFulfilled: [];
 };
 
 const relU = (x: number) => Math.max(0, x);
@@ -35,7 +36,11 @@ const dRelU = (x: number) => (x > 0 ? 1 : 0);
 const UNBLOCK_BREAKER = 1000;
 
 export class Network {
-  private requestTrainingStop = false;
+  /**
+   * If `true`, client has requested to stop training. Set to `false`
+   * as soon as the request is fulfilled.
+   */
+  private requestedToStopTraining = false;
 
   private readonly events: {
     [E in keyof Events]?: ((...args: Events[E]) => void)[];
@@ -51,8 +56,12 @@ export class Network {
     this.events[event]?.push(listener);
   }
 
-  stopTraining() {
-    this.requestTrainingStop = true;
+  /**
+   * Request to stop training. Once stopped `stopRequestFulfilled` event
+   * will be emmited
+   */
+  requestToStop() {
+    this.requestedToStopTraining = true;
   }
 
   /**
@@ -63,11 +72,14 @@ export class Network {
    * to create new empty parameters.
    */
   async train(p: TrainParams) {
-    this.requestTrainingStop = false;
     const inputs = this.normalizeInput(p.inputs);
 
     for (let i = 0; i < p.iterations; i++) {
-      if (this.requestTrainingStop) break;
+      // request to stop training will be checked at beginning of every itr
+      if (this.requestedToStopTraining) {
+        this.fulfillTrainingStop();
+        break;
+      }
 
       /**
        * Mean squared error
@@ -249,5 +261,14 @@ export class Network {
 
   private unblockThread() {
     return new Promise<void>((res) => setInterval(res));
+  }
+
+  /**
+   * Call this function once the training loop broke out because the client
+   * requested to stop training.
+   */
+  private fulfillTrainingStop() {
+    this.requestedToStopTraining = false;
+    this.fire("trainingStopRequestFulfilled");
   }
 }
