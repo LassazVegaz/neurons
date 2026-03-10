@@ -38,11 +38,9 @@ const train = (
 
     ss.saveThetas(thetas);
 
-    socket.emit("trainingStatusChange", "stopped");
     socket.emit("finishedTraining", results);
   });
 
-  socket.emit("trainingStatusChange", "started");
   network.train({
     alpha: p.alpha,
     iterations: p.iterations,
@@ -50,8 +48,9 @@ const train = (
     thetas,
   });
 
-  socket.on("stopTraining", () => {
-    network.stopTraining();
+  socket.on("requestToStopTraining", () => {
+    network.requestToStop();
+    socket.emit("requestToStopTrainingFulfilled");
   });
 };
 
