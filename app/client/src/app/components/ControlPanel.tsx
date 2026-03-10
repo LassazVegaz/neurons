@@ -65,6 +65,12 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
     setTrainingStatus(TrainingStatus.RequestedToStop);
   };
 
+  const showStartBtn =
+    trainingStatus === TrainingStatus.Finished ||
+    trainingStatus === TrainingStatus.NotStarted ||
+    trainingStatus === TrainingStatus.RequestToStopFulfilled;
+  const showStopBtn = trainingStatus === TrainingStatus.InProgress;
+
   return (
     <div className="flex flex-col gap-4 pt-4 pr-4">
       <Checkbox
@@ -100,9 +106,7 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
         }
       />
       <div className="flex gap-4">
-        {(trainingStatus === TrainingStatus.Finished ||
-          trainingStatus === TrainingStatus.NotStarted ||
-          trainingStatus === TrainingStatus.RequestToStopFulfilled) && (
+        {showStartBtn && (
           <Button
             className="bg-blue-500 hover:bg-blue-700"
             onClick={onStartClick}
@@ -111,7 +115,7 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
             Start
           </Button>
         )}
-        {trainingStatus === TrainingStatus.InProgress && (
+        {showStopBtn && (
           <Button className="bg-red-500 hover:bg-red-700" onClick={onStopClick}>
             Stop
           </Button>
