@@ -24,17 +24,37 @@ export type TrainParams = {
   iterations: number;
 };
 
-type Events = {
+/**
+ * Parameters for events
+ */
+type EventParams = {
+  /**
+   * When an iteration finishes
+   */
   iterationFinish: [iteration: number, mse: number];
+  /**
+   * When the training finishes
+   */
   trainingFinish: [thetas: ModelParameters];
+  /**
+   * When the training is stopped because the client
+   * requested it
+   */
   trainingStopRequestFulfilled: [];
 };
 
 const relU = (x: number) => Math.max(0, x);
 const dRelU = (x: number) => (x > 0 ? 1 : 0);
 
+/**
+ * Release thread for other work after this much of iterations
+ * in training
+ */
 const UNBLOCK_BREAKER = 1000;
 
+/**
+ * A basic Deep Learning Network 😒
+ */
 export class Network {
   /**
    * If `true`, client has requested to stop training. Set to `false`
@@ -42,16 +62,33 @@ export class Network {
    */
   private requestedToStopTraining = false;
 
+  /**
+   * Events the client is listening to
+   */
   private readonly events: {
-    [E in keyof Events]?: ((...args: Events[E]) => void)[];
+    [E in keyof EventParams]?: ((...args: EventParams[E]) => void)[];
   } = {};
 
+  /**
+   * Create a beautiful Deep Learning Network 😇
+   * @param f The function that can generate actual values
+   * @param layers Layers of the netwok including the input and output layers.
+   * Each number in the array represents the number of neurons in that layer
+   */
   constructor(
     private readonly f: (x: number) => number,
     private readonly layers: number[],
   ) {}
 
-  on<E extends keyof Events>(event: E, listener: (...args: Events[E]) => void) {
+  /**
+   * Listen to an event 👂
+   * @param event Event type
+   * @param listener Listener function
+   */
+  on<E extends keyof EventParams>(
+    event: E,
+    listener: (...args: EventParams[E]) => void,
+  ) {
     if (!this.events[event]) this.events[event] = [];
     this.events[event]?.push(listener);
   }
@@ -252,7 +289,7 @@ export class Network {
     return layer === this.layers.length - 1 ? x : relU(x);
   }
 
-  private fire<E extends keyof Events>(event: E, ...args: Events[E]) {
+  private fire<E extends keyof EventParams>(event: E, ...args: EventParams[E]) {
     if (!this.events[event]) return;
     for (const listener of this.events[event]) {
       listener(...args);
