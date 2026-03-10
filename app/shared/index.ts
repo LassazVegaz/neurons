@@ -7,7 +7,7 @@ export interface ClientToServerEvents {
       newThetas: boolean;
     },
   ) => void;
-  stopTraining: () => void;
+  requestToStopTraining: () => void;
 }
 
 export type FinishedTrainingResults = {
@@ -19,5 +19,5 @@ export type FinishedTrainingResults = {
 export interface ServerToClientEvents {
   finishedTraining: (results: FinishedTrainingResults) => void;
   iterationsBreak: (iteration: number, MSEs: number[]) => void;
-  trainingStatusChange: (status: "started" | "stopped") => void;
+  requestToStopTrainingFulfilled: () => void;
 }
