@@ -46,7 +46,7 @@ export const Button = ({
   <button
     {...props}
     className={twMerge(
-      "text-white font-bold py-2 px-4 rounded disabled:opacity-45",
+      "text-white font-bold py-2 px-4 rounded disabled:opacity-45 cursor-pointer",
       className,
     )}
   />
