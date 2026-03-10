@@ -9,13 +9,25 @@ type ControlPanelProps = {
   onTrainingStart?: () => void;
 };
 
+const defaultForm = {
+  alpha: "0.01",
+  iterations: "10000",
+  useNewThetas: true,
+  layers: "1,2,1",
+};
+
 export default function ControlPanel(props: Readonly<ControlPanelProps>) {
-  const [form, setForm] = useState({
-    alpha: "0.01",
-    iterations: "10000",
-    useNewThetas: true,
-    layers: "1,2,1",
-  });
+  const [form, setForm] = useState(defaultForm);
+
+  const onStartClick = () => {
+    props.socket?.emit("train", {
+      layers: form.layers.split(",").map(Number),
+      newThetas: form.useNewThetas,
+      alpha: Number.parseFloat(form.alpha),
+      iterations: Number.parseInt(form.iterations),
+    });
+    props.onTrainingStart?.();
+  };
 
   return (
     <div className="flex flex-col gap-4 pt-4 pr-4">
@@ -54,15 +66,7 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
       <div>
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => {
-            props.socket?.emit("train", {
-              layers: form.layers.split(",").map(Number),
-              newThetas: form.useNewThetas,
-              alpha: Number.parseFloat(form.alpha),
-              iterations: Number.parseInt(form.iterations),
-            });
-            props.onTrainingStart?.();
-          }}
+          onClick={onStartClick}
         >
           Start
         </button>
