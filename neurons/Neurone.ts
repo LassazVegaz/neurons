@@ -105,8 +105,8 @@ export class Network {
    * Train the neural network
    * @param inputs Inputs for training. Set of Xs
    * @param thetas Parameters. Weights and biases of the network.
-   * Pass in the previously calculated parameters or use `createEmptyParameters`
-   * to create new empty parameters.
+   * Pass in the previously calculated parameters or use `createThetas`
+   * to create new random parameters.
    */
   async train(p: TrainParams) {
     const inputs = this.normalizeInput(p.inputs);
