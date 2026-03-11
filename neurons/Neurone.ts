@@ -153,16 +153,24 @@ export class Network {
     return activations.at(-1)![0];
   }
 
-  createThetas(): ModelParameters;
-  createThetas(value: number): ModelParameters;
   /**
-   * Create thetas filled with the given `value` of a random value
-   * 1D size = number of layers - 1.
-   * 2D first element refers to the 2nd layer neurons.
-   * 3D first element refers to the previous layer neurons.
+   * Create thetas using He initialization method \
+   * 1D size = number of layers - 1. \
+   * 2D first element refers to the 2nd layer neurons. \
+   * 3D first element refers to the previous layer neurons. \
    */
+  createThetas(): ModelParameters;
+  /**
+   * Create thetas filled with the given `value` \
+   * 1D size = number of layers - 1. \
+   * 2D first element refers to the 2nd layer neurons. \
+   * 3D first element refers to the previous layer neurons. \
+   */
+  createThetas(value: number): ModelParameters;
   createThetas(value?: number): ModelParameters {
     const thetas: ModelParameters = { b: [], w: [] };
+
+    const variance = 2 / this.layers[0];
 
     // thetas exist in the gaps between layers
     // hence the size of 1st dimension is no of layers - 1
@@ -171,10 +179,10 @@ export class Network {
       thetas.w.push([]);
 
       for (let b = 0; b < this.layers[a + 1]; b++) {
-        thetas.b[a].push(value ?? this.random());
+        thetas.b[a].push(value ?? this.random(-variance, variance));
         thetas.w[a].push([]);
         for (let c = 0; c < this.layers[a]; c++)
-          thetas.w[a][b].push(value ?? this.random());
+          thetas.w[a][b].push(value ?? this.random(-variance, variance));
       }
     }
 
@@ -212,9 +220,8 @@ export class Network {
     return { preActivations, activations };
   }
 
-  private random() {
-    const sign = Math.random() > 0.5 ? -1 : 1;
-    return (Math.floor(Math.random() * 10) / 10) * sign;
+  private random(min: number, max: number) {
+    return Math.random() * (max - min) + min;
   }
 
   private accumulateDerivatives(
