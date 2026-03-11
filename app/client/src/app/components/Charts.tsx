@@ -1,4 +1,11 @@
-import { LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ReferenceLine,
+} from "recharts";
 import { FinishedTrainingResults } from "shared";
 
 type PredictionChartProps = {
@@ -18,6 +25,8 @@ export const PredictionsChart = (props: PredictionChartProps) => (
   >
     <Line dataKey="actual" dot={false} stroke="green" />
     <Line dataKey="prediction" dot={false} stroke="red" />
+    <ReferenceLine x={0} stroke="gray" />
+    <ReferenceLine y={0} stroke="gray" />
     <XAxis dataKey="x" type="number" />
     <YAxis />
     <Tooltip
