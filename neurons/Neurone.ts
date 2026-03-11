@@ -121,7 +121,7 @@ export class Network {
       let mse = 0;
 
       // derivatives
-      const d = this.createThetas();
+      const d = this.createThetas(0);
 
       // forward
       for (const x of inputs) {
@@ -153,14 +153,15 @@ export class Network {
     return activations.at(-1)![0];
   }
 
+  createThetas(): ModelParameters;
+  createThetas(value: number): ModelParameters;
   /**
-   * Create thetas using `generate`. If `generate` is not given,
-   * 0 will be used \
-   * 1D size = number of layers - 1. \
-   * 2D first element refers to the 2nd layer neurons. \
+   * Create thetas filled with the given `value` of a random value
+   * 1D size = number of layers - 1.
+   * 2D first element refers to the 2nd layer neurons.
    * 3D first element refers to the previous layer neurons.
    */
-  private createThetas(generate?: () => number): ModelParameters {
+  createThetas(value?: number): ModelParameters {
     const thetas: ModelParameters = { b: [], w: [] };
 
     // thetas exist in the gaps between layers
@@ -170,11 +171,10 @@ export class Network {
       thetas.w.push([]);
 
       for (let b = 0; b < this.layers[a + 1]; b++) {
-        thetas.b[a].push(generate?.() ?? 0);
+        thetas.b[a].push(value ?? this.random());
         thetas.w[a].push([]);
-        for (let c = 0; c < this.layers[a]; c++) {
-          thetas.w[a][b].push(generate?.() ?? 0);
-        }
+        for (let c = 0; c < this.layers[a]; c++)
+          thetas.w[a][b].push(value ?? this.random());
       }
     }
 
@@ -300,16 +300,5 @@ export class Network {
 
   private unblockThread() {
     return new Promise<void>((res) => setTimeout(res));
-  }
-}
-
-class RandomGenerator {
-  constructor(
-    private readonly min: number,
-    private readonly max: number,
-  ) {}
-
-  generate() {
-    return Math.random();
   }
 }
