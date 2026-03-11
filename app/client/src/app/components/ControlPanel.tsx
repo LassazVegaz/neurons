@@ -81,9 +81,7 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
   const showStopBtn = trainingStatus === TrainingStatus.InProgress;
 
   const isTraining =
-    trainingStatus === TrainingStatus.Finished ||
-    trainingStatus === TrainingStatus.NotStarted ||
-    trainingStatus === TrainingStatus.RequestToStopFulfilled ||
+    trainingStatus === TrainingStatus.InProgress ||
     trainingStatus === TrainingStatus.RequestedToStop;
 
   const completionPercentage =
