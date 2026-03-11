@@ -113,10 +113,7 @@ export class Network {
 
     for (let i = 0; i < p.iterations; i++) {
       // request to stop training will be checked at beginning of every itr
-      if (this.requestedToStopTraining) {
-        this.fulfillTrainingStop();
-        break;
-      }
+      if (this.requestedToStopTraining) break;
 
       /**
        * Mean squared error
@@ -143,7 +140,12 @@ export class Network {
       if (i % UNBLOCK_BREAKER === 0) await this.unblockThread();
     }
 
-    this.fire("trainingFinish", p.thetas);
+    if (this.requestedToStopTraining) {
+      this.requestedToStopTraining = false;
+      this.fire("trainingStopRequestFulfilled");
+    } else {
+      this.fire("trainingFinish", p.thetas);
+    }
   }
 
   predict(x: number, thetas: ModelParameters): number {
@@ -298,14 +300,5 @@ export class Network {
 
   private unblockThread() {
     return new Promise<void>((res) => setInterval(res));
-  }
-
-  /**
-   * Call this function once the training loop broke out because the client
-   * requested to stop training.
-   */
-  private fulfillTrainingStop() {
-    this.requestedToStopTraining = false;
-    this.fire("trainingStopRequestFulfilled");
   }
 }
