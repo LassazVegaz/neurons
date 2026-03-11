@@ -7,7 +7,7 @@ import {
 import { Socket } from "socket.io";
 import ss from "./lib/storage-service";
 
-const ITERATION_BREAKPOINT = 1000;
+const ITERATION_BREAKPOINT = 2000;
 
 const f = (x: number) => x;
 
