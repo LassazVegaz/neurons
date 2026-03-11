@@ -10,7 +10,8 @@ class StorageService {
   private createData() {
     const nums: number[] = [];
     for (let i = 0; i < 1000; i++) {
-      nums.push(Math.random() * 100);
+      const sign = Math.random() > 0.5 ? -1 : 1;
+      nums.push(Math.random() * 100 * sign);
     }
     nums.sort((a, b) => a - b);
 
