@@ -299,6 +299,6 @@ export class Network {
   }
 
   private unblockThread() {
-    return new Promise<void>((res) => setInterval(res));
+    return new Promise<void>((res) => setTimeout(res));
   }
 }
