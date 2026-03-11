@@ -38,7 +38,13 @@ export const MseChart = (props: MseChartProps) => (
     height="100%"
     data={props.data}
   >
-    <Line dataKey="mse" dot={false} stroke="yellow" type="monotone" />
+    <Line
+      dataKey="mse"
+      dot={false}
+      stroke="yellow"
+      type="monotone"
+      isAnimationActive={false}
+    />
     <XAxis dataKey="x" type="number" />
     <YAxis />
     <Tooltip
