@@ -170,11 +170,11 @@ export class Network {
   createThetas(value?: number): ModelParameters {
     const thetas: ModelParameters = { b: [], w: [] };
 
-    const variance = 2 / this.layers[0];
-
     // thetas exist in the gaps between layers
     // hence the size of 1st dimension is no of layers - 1
     for (let a = 0; a < this.layers.length - 1; a++) {
+      const variance = Math.sqrt(2 / this.layers[a]);
+
       thetas.b.push([]);
       thetas.w.push([]);
 
