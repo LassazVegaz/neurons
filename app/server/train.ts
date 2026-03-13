@@ -41,6 +41,7 @@ const train = (
     ss.saveModel(model);
 
     socket.emit("finishedTraining", results);
+    socket.removeAllListeners("requestToStopTraining");
   });
 
   network.train({
@@ -54,6 +55,7 @@ const train = (
   socket.on("requestToStopTraining", () => {
     network.requestToStop();
     socket.emit("requestToStopTrainingFulfilled");
+    socket.removeAllListeners("requestToStopTraining");
   });
 };
 
