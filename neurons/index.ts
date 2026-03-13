@@ -1,1 +1,7 @@
-export { Network, type TrainParams, type ModelParameters } from "./Neurone.js";
+export {
+  Network,
+  type TrainParams,
+  type ModelParameters,
+  type NormalizationParameters,
+  type Model,
+} from "./Neurone.js";
