@@ -1,3 +1,5 @@
+import { getMean, getStandardDeviation } from "./lib/statistics.js";
+
 /**
  * Weights and biases in the gaps between layers
  */
@@ -12,6 +14,20 @@ export type ModelParameters = {
   b: number[][];
 };
 
+/**
+ * Normalization parameters need by `Network` to train and predict
+ * data
+ */
+export type NormalizationParameters = {
+  mean: number;
+  standardDeviation: number;
+};
+
+export type Model = {
+  thetas: ModelParameters;
+  norm: NormalizationParameters;
+};
+
 type PredictionResults = {
   activations: number[][];
   preActivations: number[][];
@@ -20,6 +36,7 @@ type PredictionResults = {
 export type TrainParams = {
   inputs: number[];
   thetas: ModelParameters;
+  norm: NormalizationParameters;
   alpha: number;
   iterations: number;
 };
@@ -109,7 +126,7 @@ export class Network {
    * to create new random parameters.
    */
   async train(p: TrainParams) {
-    const inputs = this.normalizeInput(p.inputs);
+    const inputs = this.normalizeInputs(p.inputs, p.norm);
 
     for (let i = 0; i < p.iterations; i++) {
       // request to stop training will be checked at beginning of every itr
@@ -148,9 +165,24 @@ export class Network {
     }
   }
 
-  predict(x: number, thetas: ModelParameters): number {
-    const { activations } = this.h(x, thetas);
-    return activations.at(-1)![0];
+  predict(x: number, model: Model): number {
+    const [normedX] = this.normalizeInputs([x], model.norm);
+    const { activations } = this.h(normedX, model.thetas);
+    const normedY = activations.at(-1)![0];
+    const y = normedY * model.norm.standardDeviation + model.norm.mean;
+    return y;
+  }
+
+  /**
+   * Get normalization parameters of this model
+   * @param inputs Inputs used to train the model (training data)
+   * @returns Normalization parameters needed by this model to be trained using `inputs`
+   */
+  getNormalizationParameters(inputs: number[]): NormalizationParameters {
+    return {
+      mean: getMean(inputs),
+      standardDeviation: getStandardDeviation(inputs),
+    };
   }
 
   /**
@@ -257,9 +289,8 @@ export class Network {
     }
   }
 
-  private normalizeInput(inputs: number[]) {
-    const max = Math.max(...inputs);
-    return inputs.map((x) => x / max);
+  private normalizeInputs(inputs: number[], norm: NormalizationParameters) {
+    return inputs.map((x) => (x - norm.mean) / norm.standardDeviation);
   }
 
   /**
