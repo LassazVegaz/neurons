@@ -7,7 +7,7 @@ import {
 import { Socket } from "socket.io";
 import ss from "./lib/storage-service";
 
-const ITERATION_BREAKPOINT = 2000;
+const DEFAULT_ITERATION_BREAKPOINT = 5000;
 
 const f = (x: number) => x;
 
@@ -20,11 +20,13 @@ const train = (
   const network = new Network(f, p.layers);
   const thetas = ss.getThetas(p.newThetas, network);
   const inputs = ss.getData();
+  const iterationBreakpoint =
+    p.iterations > 10_000 ? DEFAULT_ITERATION_BREAKPOINT : p.iterations / 10;
 
   const MSEs: number[] = [];
   network.on("iterationFinish", (i, mse) => {
     MSEs.push(mse);
-    if (i % ITERATION_BREAKPOINT === 0 || i === p.iterations - 1)
+    if (i % iterationBreakpoint === 0 || i === p.iterations - 1)
       socket.emit("iterationsBreak", i, MSEs);
   });
 
