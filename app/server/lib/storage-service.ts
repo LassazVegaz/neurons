@@ -1,9 +1,10 @@
 import path from "node:path";
 import fs from "node:fs";
-import type { ModelParameters, Network } from "neurons";
+import type { Network } from "neurons";
+import { Model } from "neurons/Neurone";
 
 const DIRECTORY = path.join(process.cwd(), "data");
-const FILE_THETAS = path.join(DIRECTORY, "thetas.json");
+const FILE_MODEL = path.join(DIRECTORY, "model.json");
 const FILE_TRAINING_DATA = path.join(DIRECTORY, "trainingData.json");
 
 class StorageService {
@@ -33,19 +34,22 @@ class StorageService {
     return nums;
   }
 
-  saveThetas(thetas: ModelParameters) {
+  saveModel(model: Model) {
     this.ensureDirectory();
-    fs.writeFileSync(FILE_THETAS, JSON.stringify(thetas), {
+    fs.writeFileSync(FILE_MODEL, JSON.stringify(model), {
       encoding: "utf-8",
     });
   }
 
-  getThetas(newThetas: boolean, network: Network) {
-    if (newThetas || !fs.existsSync(FILE_THETAS))
-      this.saveThetas(network.createThetas());
+  getModel(newThetas: boolean, inputs: number[], network: Network) {
+    if (newThetas || !fs.existsSync(FILE_MODEL))
+      this.saveModel({
+        thetas: network.createThetas(),
+        norm: network.getNormalizationParameters(inputs),
+      });
 
-    const json = fs.readFileSync(FILE_THETAS, { encoding: "utf-8" });
-    return JSON.parse(json) as ModelParameters;
+    const json = fs.readFileSync(FILE_MODEL, { encoding: "utf-8" });
+    return JSON.parse(json) as Model;
   }
 }
 

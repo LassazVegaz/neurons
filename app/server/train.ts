@@ -18,8 +18,8 @@ const train = (
   console.log("Starting training...");
   console.log("Parameters:", p);
   const network = new Network(f, p.layers);
-  const thetas = ss.getThetas(p.newThetas, network);
   const inputs = ss.getData();
+  const model = ss.getModel(p.newThetas, inputs, network);
   const iterationBreakpoint =
     p.iterations > 10_000 ? DEFAULT_ITERATION_BREAKPOINT : p.iterations / 10;
 
@@ -30,15 +30,15 @@ const train = (
       socket.emit("iterationsBreak", i, MSEs);
   });
 
-  network.on("trainingFinish", (thetas) => {
+  network.on("trainingFinish", () => {
     console.log("Training finished...");
 
     const results: FinishedTrainingResults = inputs.map((input) => {
-      const prediction = network.predict(input, thetas);
+      const prediction = network.predict(input, model);
       return { x: input, actual: f(input), prediction };
     });
 
-    ss.saveThetas(thetas);
+    ss.saveModel(model);
 
     socket.emit("finishedTraining", results);
   });
@@ -47,7 +47,8 @@ const train = (
     alpha: p.alpha,
     iterations: p.iterations,
     inputs,
-    thetas,
+    thetas: model.thetas,
+    norm: model.norm,
   });
 
   socket.on("requestToStopTraining", () => {
