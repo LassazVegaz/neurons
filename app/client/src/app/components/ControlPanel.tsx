@@ -140,7 +140,11 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
         )}
       </div>
       <div>{mapTrainingStatusToText[trainingStatus]}</div>
-      {isTraining && <div>Iteration: {props.currentIteration} of 10000</div>}
+      {isTraining && (
+        <div>
+          Iteration: {props.currentIteration} of {iteraionsCount}
+        </div>
+      )}
       {isTraining && completionPercentage && (
         <div>Completion: {completionPercentage}%</div>
       )}
