@@ -152,7 +152,7 @@ export class Network {
       }
       mse /= inputs.length * 2;
 
-      this.applyDerivatives(d, model.thetas, inputs.length, p.alpha);
+      this.applyDerivatives(d, model.thetas, p.alpha);
 
       this.fire("iterationFinish", i, mse);
 
@@ -312,9 +312,9 @@ export class Network {
   private applyDerivatives(
     derivatives: ModelParameters,
     thetas: ModelParameters,
-    m: number,
     alpha: number,
   ) {
+    const m = this.inputs.length;
     for (let a = 0; a < this.layers.length - 1; a++) {
       for (let b = 0; b < this.layers[a + 1]; b++) {
         derivatives.b[a][b] /= m;
