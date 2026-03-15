@@ -271,7 +271,7 @@ export class Network {
     d: ModelParameters,
     r: PredictionResults,
   ) {
-    const errorSignals: number[][] = [];
+    const errorSignals = new Array<number[]>(this.layers.length);
 
     // predicated value of the hypothesis function
     const h = r.activations.at(-1)![0];
