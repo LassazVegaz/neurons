@@ -8,6 +8,7 @@ import { Socket } from "socket.io";
 import ss from "./lib/storage-service";
 
 const DEFAULT_ITERATION_BREAKPOINT = 5000;
+const MAXIMUM_MSES = 10_000;
 
 const f = (x: number) => x;
 
@@ -35,8 +36,9 @@ const train = (
     p.iterations > 10_000 ? DEFAULT_ITERATION_BREAKPOINT : p.iterations / 10;
 
   const MSEs: number[] = [];
+  const iterationsSkipCount = Math.ceil(p.iterations / MAXIMUM_MSES);
   network.on("iterationFinish", (i, mse) => {
-    MSEs.push(mse);
+    if (i % iterationsSkipCount === 0 || i === p.iterations - 1) MSEs.push(mse);
     if (i % iterationBreakpoint === 0 || i === p.iterations - 1)
       socket.emit("iterationsBreak", i, MSEs);
   });
