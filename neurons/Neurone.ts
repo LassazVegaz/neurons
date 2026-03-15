@@ -35,8 +35,7 @@ type PredictionResults = {
 };
 
 export type TrainParams = {
-  thetas: ModelParameters;
-  norm: NormalizationParameters;
+  model: Model;
   alpha: number;
   iterations: number;
 };
@@ -128,7 +127,8 @@ export class Network {
    * to create new random parameters.
    */
   async train(p: TrainParams) {
-    const inputs = this.normalizeInputs(this.inputs, p.norm);
+    const model = p.model; // deconstruction in parameters? NO!
+    const inputs = this.normalizeInputs(this.inputs, model.norm);
 
     for (let i = 0; i < p.iterations; i++) {
       // request to stop training will be checked at beginning of every itr
@@ -144,15 +144,15 @@ export class Network {
 
       // forward
       for (const x of inputs) {
-        const results = this.h(x, p.thetas);
-        this.accumulateDerivatives(x, p.thetas, d, results);
+        const results = this.h(x, model.thetas);
+        this.accumulateDerivatives(x, model.thetas, d, results);
 
         const predicted = results.activations.at(-1)![0];
         mse += (this.f(x) - predicted) ** 2;
       }
       mse /= inputs.length * 2;
 
-      this.applyDerivatives(d, p.thetas, inputs.length, p.alpha);
+      this.applyDerivatives(d, model.thetas, inputs.length, p.alpha);
 
       this.fire("iterationFinish", i, mse);
 
@@ -163,7 +163,7 @@ export class Network {
       this.requestedToStopTraining = false;
       this.fire("trainingStopRequestFulfilled");
     } else {
-      this.fire("trainingFinish", p.thetas);
+      this.fire("trainingFinish", model.thetas);
     }
   }
 
