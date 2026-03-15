@@ -1,4 +1,4 @@
-import { getMean, getStandardDeviation } from "./lib/statistics.js";
+import Statistics from "./lib/statistics.js";
 import { unblockThread } from "./lib/thread.js";
 
 /**
@@ -183,10 +183,12 @@ export class Network {
    * Once initialized, you can save the `Model` for future training.
    */
   initializeModel(): Model {
+    const statistics = new Statistics(this.inputs);
+
     return {
       norm: {
-        mean: getMean(this.inputs),
-        standardDeviation: getStandardDeviation(this.inputs),
+        mean: statistics.mean,
+        standardDeviation: statistics.standardDeviation,
       },
       thetas: this.createThetas(),
     };
