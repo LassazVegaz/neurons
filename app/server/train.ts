@@ -15,10 +15,13 @@ const f = (x: number) => x;
 const getModel = (network: Network, forceCreate: boolean) => {
   let model: Model;
   if (!forceCreate && ss.modelExists()) {
+    console.log("Using the pre trained model");
     model = ss.getModel();
   } else {
+    console.log("Initializing a new model");
     model = network.initializeModel();
     ss.saveModel(model);
+    console.log("Model initialized and saved");
   }
   return model;
 };
@@ -44,7 +47,7 @@ const train = (
   });
 
   network.on("trainingFinish", () => {
-    console.log("Training finished...");
+    console.log("Finished training...");
 
     const results: FinishedTrainingResults = inputs.map((input) => {
       const prediction = network.predict(input, model);
