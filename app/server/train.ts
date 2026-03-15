@@ -11,9 +11,9 @@ const DEFAULT_ITERATION_BREAKPOINT = 5000;
 
 const f = (x: number) => x;
 
-const getModel = (network: Network) => {
+const getModel = (network: Network, forceCreate: boolean) => {
   let model: Model;
-  if (ss.modelExists()) {
+  if (!forceCreate && ss.modelExists()) {
     model = ss.getModel();
   } else {
     model = network.initializeModel();
@@ -30,7 +30,7 @@ const train = (
   console.log("Parameters:", p);
   const inputs = ss.getData();
   const network = new Network(f, p.layers, inputs);
-  const model = getModel(network);
+  const model = getModel(network, p.newThetas);
   const iterationBreakpoint =
     p.iterations > 10_000 ? DEFAULT_ITERATION_BREAKPOINT : p.iterations / 10;
 
