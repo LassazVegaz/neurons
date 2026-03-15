@@ -58,8 +58,7 @@ const train = (
   network.train({
     alpha: p.alpha,
     iterations: p.iterations,
-    thetas: model.thetas,
-    norm: model.norm,
+    model,
   });
 
   socket.on("requestToStopTraining", () => {
