@@ -188,6 +188,23 @@ export class Network {
   }
 
   /**
+   * Initialize the model.\
+   * Weights will be initialized using He. Biases are set to 0.
+   * Normalization parameters are created such that they fit with
+   * `Neurone` training.\
+   * Once initialized, you can save the `Model` for future training.
+   */
+  initializeModel(): Model {
+    return {
+      norm: {
+        mean: getMean(this.inputs),
+        standardDeviation: getStandardDeviation(this.inputs),
+      },
+      thetas: this.createThetas(),
+    };
+  }
+
+  /**
    * Create thetas using He initialization method \
    * 1D size = number of layers - 1. \
    * 2D first element refers to the 2nd layer neurons. \
@@ -221,23 +238,6 @@ export class Network {
     }
 
     return thetas;
-  }
-
-  /**
-   * Initialize the model.\
-   * Weights will be initialized using He. Biases are set to 0.
-   * Normalization parameters are created such that they fit with
-   * `Neurone` training.\
-   * Once initialized, you can save the `Model` for future training.
-   */
-  initializeModel(): Model {
-    return {
-      norm: {
-        mean: getMean(this.inputs),
-        standardDeviation: getStandardDeviation(this.inputs),
-      },
-      thetas: this.createThetas(),
-    };
   }
 
   /**
