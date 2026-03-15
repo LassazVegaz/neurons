@@ -223,6 +223,22 @@ export class Network {
   }
 
   /**
+   * Initialize the model.\
+   * Weights will be initialized using He. Biases are set to 0.
+   * Normalization parameters are created such that they fit with
+   * `Neurone` training.
+   */
+  initializeModel(inputs: number[]): Model {
+    return {
+      norm: {
+        mean: getMean(inputs),
+        standardDeviation: getStandardDeviation(inputs),
+      },
+      thetas: this.createThetas(),
+    };
+  }
+
+  /**
    * Get results from the network
    * @param thetas So far calculated thetas.
    * @returns Values after and before activating each neurone.
