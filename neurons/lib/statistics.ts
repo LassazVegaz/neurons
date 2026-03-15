@@ -1,10 +1,24 @@
-export const getMean = (arr: number[]) =>
-  arr.reduce((pre, cur) => pre + cur, 0) / arr.length;
+export default class Statistics {
+  private _mean: number | undefined;
+  private _standardDeviation: number | undefined;
 
-export const getStandardDeviation = (arr: number[]) => {
-  const mean = getMean(arr);
+  constructor(private readonly arr: number[]) {}
 
-  const squareSum = arr.reduce((pre, cur) => pre + (cur - mean) ** 2, 0);
+  get mean() {
+    this._mean ??=
+      this.arr.reduce((pre, cur) => pre + cur, 0) / this.arr.length;
+    return this._mean;
+  }
 
-  return Math.sqrt(squareSum / arr.length);
-};
+  get standardDeviation() {
+    if (this._standardDeviation === undefined) {
+      const squareSum = this.arr.reduce(
+        (pre, cur) => pre + (cur - this.mean) ** 2,
+        0,
+      );
+      this._standardDeviation = Math.sqrt(squareSum / this.arr.length);
+    }
+
+    return this._standardDeviation;
+  }
+}
