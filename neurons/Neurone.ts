@@ -176,18 +176,6 @@ export class Network {
   }
 
   /**
-   * Get normalization parameters of this model
-   * @param inputs Inputs used to train the model (training data)
-   * @returns Normalization parameters needed by this model to be trained using `inputs`
-   */
-  getNormalizationParameters(inputs: number[]): NormalizationParameters {
-    return {
-      mean: getMean(inputs),
-      standardDeviation: getStandardDeviation(inputs),
-    };
-  }
-
-  /**
    * Initialize the model.\
    * Weights will be initialized using He. Biases are set to 0.
    * Normalization parameters are created such that they fit with
