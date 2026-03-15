@@ -247,7 +247,7 @@ export class Network {
 
       // each neurone in the next layer
       for (let b = 0; b < this.layers[a + 1]; b++) {
-        preActivations[a + 1][b] = thetas.b[a][b];
+        preActivations[a + 1].push(thetas.b[a][b]);
 
         // each neurone in current layer
         for (let c = 0; c < this.layers[a]; c++) {
