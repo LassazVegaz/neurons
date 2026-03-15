@@ -1,4 +1,4 @@
-import { Network } from "neurons";
+import { Model, Network } from "neurons";
 import {
   ClientToServerEvents,
   FinishedTrainingResults,
@@ -11,15 +11,26 @@ const DEFAULT_ITERATION_BREAKPOINT = 5000;
 
 const f = (x: number) => x;
 
+const getModel = (network: Network) => {
+  let model: Model;
+  if (ss.modelExists()) {
+    model = ss.getModel();
+  } else {
+    model = network.initializeModel();
+    ss.saveModel(model);
+  }
+  return model;
+};
+
 const train = (
   socket: Socket<ClientToServerEvents, ServerToClientEvents>,
   p: Parameters<ClientToServerEvents["train"]>[0],
 ) => {
   console.log("Starting training...");
   console.log("Parameters:", p);
-  const network = new Network(f, p.layers);
   const inputs = ss.getData();
-  const model = ss.getModel(p.newThetas, inputs, network);
+  const network = new Network(f, p.layers, inputs);
+  const model = getModel(network);
   const iterationBreakpoint =
     p.iterations > 10_000 ? DEFAULT_ITERATION_BREAKPOINT : p.iterations / 10;
 
@@ -47,7 +58,6 @@ const train = (
   network.train({
     alpha: p.alpha,
     iterations: p.iterations,
-    inputs,
     thetas: model.thetas,
     norm: model.norm,
   });

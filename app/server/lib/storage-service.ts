@@ -1,6 +1,5 @@
 import path from "node:path";
 import fs from "node:fs";
-import type { Network } from "neurons";
 import { Model } from "neurons/Neurone";
 
 const DIRECTORY = path.join(process.cwd(), "data");
@@ -34,6 +33,13 @@ class StorageService {
     return nums;
   }
 
+  /**
+   * Check if the Model was saved before
+   */
+  modelExists() {
+    return fs.existsSync(FILE_MODEL);
+  }
+
   saveModel(model: Model) {
     this.ensureDirectory();
     fs.writeFileSync(FILE_MODEL, JSON.stringify(model), {
@@ -41,13 +47,7 @@ class StorageService {
     });
   }
 
-  getModel(newThetas: boolean, inputs: number[], network: Network) {
-    if (newThetas || !fs.existsSync(FILE_MODEL))
-      this.saveModel({
-        thetas: network.createThetas(),
-        norm: network.getNormalizationParameters(inputs),
-      });
-
+  getModel() {
     const json = fs.readFileSync(FILE_MODEL, { encoding: "utf-8" });
     return JSON.parse(json) as Model;
   }
