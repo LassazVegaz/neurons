@@ -35,7 +35,6 @@ type PredictionResults = {
 };
 
 export type TrainParams = {
-  inputs: number[];
   thetas: ModelParameters;
   norm: NormalizationParameters;
   alpha: number;
@@ -92,10 +91,12 @@ export class Network {
    * @param f The function that can generate actual values
    * @param layers Layers of the netwok including the input and output layers.
    * Each number in the array represents the number of neurons in that layer
+   * @param inputs Training data
    */
   constructor(
     private readonly f: (x: number) => number,
     private readonly layers: number[],
+    private readonly inputs: number[],
   ) {}
 
   /**
@@ -127,7 +128,7 @@ export class Network {
    * to create new random parameters.
    */
   async train(p: TrainParams) {
-    const inputs = this.normalizeInputs(p.inputs, p.norm);
+    const inputs = this.normalizeInputs(this.inputs, p.norm);
 
     for (let i = 0; i < p.iterations; i++) {
       // request to stop training will be checked at beginning of every itr
@@ -192,15 +193,15 @@ export class Network {
    * 2D first element refers to the 2nd layer neurons. \
    * 3D first element refers to the previous layer neurons. \
    */
-  createThetas(): ModelParameters;
+  private createThetas(): ModelParameters;
   /**
    * Create thetas filled with the given `value` \
    * 1D size = number of layers - 1. \
    * 2D first element refers to the 2nd layer neurons. \
    * 3D first element refers to the previous layer neurons. \
    */
-  createThetas(value: number): ModelParameters;
-  createThetas(value?: number): ModelParameters {
+  private createThetas(value: number): ModelParameters;
+  private createThetas(value?: number): ModelParameters {
     const thetas: ModelParameters = { b: [], w: [] };
 
     // thetas exist in the gaps between layers
@@ -226,13 +227,14 @@ export class Network {
    * Initialize the model.\
    * Weights will be initialized using He. Biases are set to 0.
    * Normalization parameters are created such that they fit with
-   * `Neurone` training.
+   * `Neurone` training.\
+   * Once initialized, you can save the `Model` for future training.
    */
-  initializeModel(inputs: number[]): Model {
+  initializeModel(): Model {
     return {
       norm: {
-        mean: getMean(inputs),
-        standardDeviation: getStandardDeviation(inputs),
+        mean: getMean(this.inputs),
+        standardDeviation: getStandardDeviation(this.inputs),
       },
       thetas: this.createThetas(),
     };
