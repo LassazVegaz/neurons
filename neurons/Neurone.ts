@@ -1,4 +1,5 @@
 import { getMean, getStandardDeviation } from "./lib/statistics.js";
+import { unblockThread } from "./lib/thread.js";
 
 /**
  * Weights and biases in the gaps between layers
@@ -154,7 +155,7 @@ export class Network {
 
       this.fire("iterationFinish", i, mse);
 
-      if (i % UNBLOCK_BREAKER === 0) await this.unblockThread();
+      if (i % UNBLOCK_BREAKER === 0) await unblockThread();
     }
 
     if (this.requestedToStopTraining) {
@@ -334,9 +335,5 @@ export class Network {
     for (const listener of this.events[event]) {
       listener(...args);
     }
-  }
-
-  private unblockThread() {
-    return new Promise<void>((res) => setTimeout(res));
   }
 }
