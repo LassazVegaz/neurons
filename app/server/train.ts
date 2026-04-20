@@ -1,0 +1,76 @@
+import { Model, Network } from "neurons";
+import {
+  ClientToServerEvents,
+  FinishedTrainingResults,
+  ServerToClientEvents,
+} from "shared";
+import { Socket } from "socket.io";
+import ss from "./lib/storage-service";
+
+const DEFAULT_ITERATION_BREAKPOINT = 5000;
+const MAXIMUM_MSES = 10_000;
+
+const f = (x: number) => x;
+
+const getModel = (network: Network, forceCreate: boolean) => {
+  let model: Model;
+  if (!forceCreate && ss.modelExists()) {
+    console.log("Using the pre trained model");
+    model = ss.getModel();
+  } else {
+    console.log("Initializing a new model");
+    model = network.initializeModel();
+    ss.saveModel(model);
+    console.log("Model initialized and saved");
+  }
+  return model;
+};
+
+const train = (
+  socket: Socket<ClientToServerEvents, ServerToClientEvents>,
+  p: Parameters<ClientToServerEvents["train"]>[0],
+) => {
+  console.log("Starting training...");
+  console.log("Parameters:", p);
+  const inputs = ss.getData();
+  const network = new Network(f, p.layers, inputs);
+  const model = getModel(network, p.newThetas);
+  const iterationBreakpoint =
+    p.iterations > 10_000 ? DEFAULT_ITERATION_BREAKPOINT : p.iterations / 10;
+
+  const MSEs: number[] = [];
+  const iterationsSkipCount = Math.ceil(p.iterations / MAXIMUM_MSES);
+  network.on("iterationFinish", (i, mse) => {
+    if (i % iterationsSkipCount === 0 || i === p.iterations - 1) MSEs.push(mse);
+    if (i % iterationBreakpoint === 0 || i === p.iterations - 1)
+      socket.emit("iterationsBreak", i, MSEs);
+  });
+
+  network.on("trainingFinish", () => {
+    console.log("Finished training...");
+
+    const results: FinishedTrainingResults = inputs.map((input) => {
+      const prediction = network.predict(input, model);
+      return { x: input, actual: f(input), prediction };
+    });
+
+    ss.saveModel(model);
+
+    socket.emit("finishedTraining", results);
+    socket.removeAllListeners("requestToStopTraining");
+  });
+
+  network.train({
+    alpha: p.alpha,
+    iterations: p.iterations,
+    model,
+  });
+
+  socket.on("requestToStopTraining", () => {
+    network.requestToStop();
+    socket.emit("requestToStopTrainingFulfilled");
+    socket.removeAllListeners("requestToStopTraining");
+  });
+};
+
+export default train;

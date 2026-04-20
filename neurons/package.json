@@ -1,9 +1,9 @@
 {
-  "name": "t",
+  "name": "neurons",
   "version": "1.0.0",
-  "description": "",
+  "description": "Exploring the art of Connectionist Systems in AI ✨",
   "type": "module",
-  "main": "out/main.js",
+  "main": "out/index.js",
   "scripts": {
     "start": "node out/main.js",
     "debug": "node --inspect out/main.js",
@@ -11,11 +11,10 @@
     "build": "tsc"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Lasindu Nuwanga <lasindunuwanga@gmail.com>",
   "packageManager": "pnpm@10.15.0",
   "devDependencies": {
-    "@types/node": "^24.10.1",
+    "@types/node": "^25.3.3",
     "typescript": "^5.9.3"
   }
 }

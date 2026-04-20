@@ -1,0 +1,12 @@
+{
+  "name": "shared",
+  "version": "1.0.0",
+  "description": "Shared library for the client and server",
+  "main": "index.ts",
+  "keywords": [],
+  "author": "Lasindu Nuwanga <lasindunuwanga@gmail.com>",
+  "packageManager": "pnpm@10.28.1",
+  "dependencies": {
+    "neurons": "link:../../neurons"
+  }
+}
