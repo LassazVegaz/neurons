@@ -1,5 +1,3 @@
-﻿using Neurons;
+﻿var a = new double[2][];
 
-var network = new Network();
-
-Console.WriteLine($"Hello, {network.GetType()}");
+foreach (var b in a) Console.WriteLine(b);
