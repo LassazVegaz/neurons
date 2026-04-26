@@ -27,9 +27,14 @@ public class Network(int[] layers, Func<double, double> f)
                     var prevLayerI = b - 1; // prev layer index
                     var gapI = b - 1; // gap index for thetas
 
+                    dT.b[gapI] = new double[layers[b]];
+                    dT.w[gapI] = new double[layers[b]][];
+
                     // for every neurone in the current layer
                     for (var c = 0; c < layers[b]; c++)
                     {
+                        dT.w[gapI][c] = new double[layers[prevLayerI]];
+
                         // accumulating partial derivative of bias
                         dT.b[gapI][c] += eSignal[b][c];
 
@@ -59,12 +64,18 @@ public class Network(int[] layers, Func<double, double> f)
         }
     }
 
+    /// <summary>
+    /// Create empty thetas. Only the 1sr dimension of weights and
+    /// biases are initialized
+    /// </summary>
     private Thetas CreateThetas()
     {
-        var weights = new double[layers.Length - 1][][];
-        var biases = new double[layers.Length - 1][];
-
-        return new() { w = weights, b = biases };
+        var gaps = layers.Length - 1;
+        return new()
+        {
+            w = new double[gaps][][],
+            b = new double[gaps][]
+        };
     }
 
     private ForwardResults H(double x, Thetas t)
