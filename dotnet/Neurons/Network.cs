@@ -1,9 +1,15 @@
 ﻿namespace Neurons;
 
-public class Network(int[] layers, Func<double, double> f)
+public class Network(NetworkParameters networkParams)
 {
+    readonly int[] layers = networkParams.layers;
+    readonly Func<double, double> f = networkParams.f;
+    readonly double divisor = networkParams.divisor;
+
     public void Train(double[] inputs, Thetas t)
     {
+        inputs = [.. inputs.Select(Normalize)];
+
         for (var a = 0; a < 1000; a++) // for every iteration
         {
             // partial derivatives
@@ -112,6 +118,8 @@ public class Network(int[] layers, Func<double, double> f)
 
         return new() { a = a, befA = befA };
     }
+
+    private double Normalize(double x) => x / divisor;
 
     private static double Activate(double x) => x > 0 ? x : 0;
 

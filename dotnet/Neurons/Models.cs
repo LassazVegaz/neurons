@@ -42,3 +42,10 @@ public record BackwardResults
 {
 
 }
+
+public record NetworkParameters
+{
+    public required int[] layers;
+    public required Func<double, double> f;
+    public required double divisor;
+}
