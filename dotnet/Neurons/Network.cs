@@ -6,7 +6,12 @@ public class Network(NetworkParameters networkParams)
     readonly Func<double, double> f = networkParams.f;
     readonly NormalizationParameters normParams = networkParams.normParams;
 
-    public double Predict(double x, Thetas t) => H(x, t).a[^1][0];
+    public double Predict(double x, Thetas t)
+    {
+        x = Normalize(x);
+        var predicted = H(x, t).a[^1][0];
+        return Denormalize(predicted);
+    }
 
     public void Train(double[] inputs, Thetas t)
     {
@@ -138,6 +143,8 @@ public class Network(NetworkParameters networkParams)
     }
 
     private double Normalize(double x) => (x - normParams.mean) / normParams.standardDeviation;
+
+    private double Denormalize(double x) => x * normParams.standardDeviation + normParams.mean;
 
     private static double Activate(double x) => x > 0 ? x : 0;
 
