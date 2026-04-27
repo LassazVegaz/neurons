@@ -1,6 +1,7 @@
 ﻿using Neurons;
 using Neurons.App.Console;
 
+var f = (double x) => x;
 int[] layers = [1, 1, 1];
 double[] trainingData;
 Model model;
@@ -38,6 +39,6 @@ else
 var network = new Network(new()
 {
     layers = layers,
-    f = x => x,
+    f = f,
     normParams = model.normParams
 });
