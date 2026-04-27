@@ -6,6 +6,8 @@ public class Network(NetworkParameters networkParams)
     readonly Func<double, double> f = networkParams.f;
     readonly NormalizationParameters normParams = networkParams.normParams;
 
+    public double Predict(double x, Thetas t) => H(x, t).a[^1][0];
+
     public void Train(double[] inputs, Thetas t)
     {
         inputs = [.. inputs.Select(Normalize)];
