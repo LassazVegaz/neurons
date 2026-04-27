@@ -43,9 +43,15 @@ public record BackwardResults
 
 }
 
+public record NormalizationParameters
+{
+    public required double standardDeviation;
+    public required double mean;
+}
+
 public record NetworkParameters
 {
     public required int[] layers;
     public required Func<double, double> f;
-    public required double divisor;
+    public required NormalizationParameters normParams;
 }

@@ -4,7 +4,7 @@ public class Network(NetworkParameters networkParams)
 {
     readonly int[] layers = networkParams.layers;
     readonly Func<double, double> f = networkParams.f;
-    readonly double divisor = networkParams.divisor;
+    readonly NormalizationParameters normParams = networkParams.normParams;
 
     public void Train(double[] inputs, Thetas t)
     {
@@ -119,7 +119,7 @@ public class Network(NetworkParameters networkParams)
         return new() { a = a, befA = befA };
     }
 
-    private double Normalize(double x) => x / divisor;
+    private double Normalize(double x) => (x - normParams.mean) / normParams.standardDeviation;
 
     private static double Activate(double x) => x > 0 ? x : 0;
 
