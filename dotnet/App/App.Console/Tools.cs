@@ -1,14 +1,8 @@
-﻿using System.Text.Json;
-
-namespace Neurons.App.Console;
+﻿namespace Neurons.App.Console;
 
 internal static class Tools
 {
-    private const string MODEL_FILE = "model.json";
-
-    private static string FullModelFileName =>
-        Path.Combine(Environment.CurrentDirectory, MODEL_FILE);
-
+    private const int TRAINING_DATA_COUNT = 1000;
 
     public static double GetStandardDeviation(double[] numbers)
     {
@@ -17,23 +11,13 @@ internal static class Tools
         return Math.Sqrt(sum / numbers.Length);
     }
 
-    public static async Task SaveModelAsync(Model model)
+    public static double[] GenerateTrainingData()
     {
-        var content = JsonSerializer.Serialize(model);
-        await File.WriteAllTextAsync(FullModelFileName, content);
+        var data = new double[TRAINING_DATA_COUNT];
+
+        for (var i = 0; i < TRAINING_DATA_COUNT; i++)
+            data[i] = Random.Shared.NextDouble() * TRAINING_DATA_COUNT;
+
+        return data;
     }
-
-    public static async Task<Model?> GetModel()
-    {
-        var content = await File.ReadAllTextAsync(FullModelFileName);
-        return JsonSerializer.Deserialize<Model>(content);
-    }
-
-    public static bool ModelExists() => File.Exists(FullModelFileName);
-}
-
-internal class Model
-{
-    public required NormalizationParameters normParams;
-    public required Thetas thetas;
 }
