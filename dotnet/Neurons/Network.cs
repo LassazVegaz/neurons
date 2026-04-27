@@ -69,6 +69,22 @@ public class Network(NetworkParameters networkParams)
                     }
                 }
             }
+
+            // update thetas
+            for (var b = 0; b < layers.Length - 2; b++)
+            {
+                for (var c = 0; c < layers[b + 1]; c++)
+                {
+                    dT.b[b][c] /= inputs.Length;
+                    t.b[b][c] -= dT.b[b][c];
+
+                    for (var d = 0; d < layers[b]; d++)
+                    {
+                        dT.w[b][c][d] /= inputs.Length;
+                        t.w[b][c][d] -= dT.w[b][c][d];
+                    }
+                }
+            }
         }
     }
 
