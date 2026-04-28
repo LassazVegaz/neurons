@@ -117,7 +117,7 @@ public class Network(NetworkParameters networkParams)
 
         // For every layer except for the last one
         // Activations are calculated for the layer ahead
-        for (var i = 0; i < layers.Length - 2; i++)
+        for (var i = 0; i < layers.Length - 1; i++)
         {
             var nxtLayerI = i + 1;
             befA[nxtLayerI] = new double[layers[nxtLayerI]];
