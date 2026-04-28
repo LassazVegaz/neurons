@@ -2,6 +2,8 @@
 
 public class Network(NetworkParameters networkParams)
 {
+    private const int ITERATIONS = 1000;
+
     readonly int[] layers = networkParams.layers;
     readonly Func<double, double> f = networkParams.f;
     readonly NormalizationParameters normParams = networkParams.normParams;
@@ -17,7 +19,7 @@ public class Network(NetworkParameters networkParams)
     {
         inputs = [.. inputs.Select(Normalize)];
 
-        for (var a = 0; a < 1000; a++) // for every iteration
+        for (var a = 0; a < ITERATIONS; a++) // for every iteration
         {
             // partial derivatives
             var dT = CreateThetas();

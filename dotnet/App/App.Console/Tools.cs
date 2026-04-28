@@ -3,6 +3,7 @@
 internal static class Tools
 {
     private const int TRAINING_DATA_COUNT = 1000;
+    private const int TRAINING_DATA_RANGE = 1000;
 
     public static double GetStandardDeviation(double[] numbers)
     {
@@ -16,7 +17,7 @@ internal static class Tools
         var data = new double[TRAINING_DATA_COUNT];
 
         for (var i = 0; i < TRAINING_DATA_COUNT; i++)
-            data[i] = Random.Shared.NextDouble() * TRAINING_DATA_COUNT;
+            data[i] = Random.Shared.NextDouble() * TRAINING_DATA_RANGE;
 
         return data;
     }
