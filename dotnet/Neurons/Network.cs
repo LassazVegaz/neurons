@@ -9,7 +9,7 @@ public class Network(NetworkParameters networkParams)
     public double Predict(double x, Thetas t)
     {
         x = Normalize(x);
-        var predicted = H(x, t).a[^1][0];
+        var predicted = Forward(x, t).a[^1][0];
         return Denormalize(predicted);
     }
 
@@ -25,7 +25,7 @@ public class Network(NetworkParameters networkParams)
             foreach (var x in inputs)
             {
                 // forward propagation
-                var fResult = H(x, t);
+                var fResult = Forward(x, t);
 
                 // backward propagation
                 Backward(t, dT, fResult);
@@ -63,7 +63,7 @@ public class Network(NetworkParameters networkParams)
         };
     }
 
-    private ForwardResults H(double x, Thetas t)
+    private ForwardResults Forward(double x, Thetas t)
     {
         var a = new double[layers.Length][];
         a[0] = [x];
