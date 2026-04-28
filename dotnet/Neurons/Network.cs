@@ -54,7 +54,7 @@ public class Network(NetworkParameters networkParams)
         a[0] = [x];
 
         var befA = new double[layers.Length][];
-        a[0] = [x];
+        befA[0] = [x];
 
         // For every layer except for the last one
         // Activations are calculated for the layer ahead
