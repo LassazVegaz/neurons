@@ -94,7 +94,7 @@ public class Network(NetworkParameters networkParams)
         eSignal[^1] = [E];
 
         // from the last layer to the first one
-        for (var b = layers.Length - 1; b >= 0; b--)
+        for (var b = layers.Length - 1; b > 0; b--)
         {
             var prevLayerI = b - 1; // prev layer index
             var gapI = b - 1; // gap index for thetas
