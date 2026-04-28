@@ -28,21 +28,7 @@ public class Network(NetworkParameters networkParams)
                 Backward(t, dT, fResult);
             }
 
-            // update thetas using
-            for (var b = 0; b < layers.Length - 2; b++)
-            {
-                for (var c = 0; c < layers[b + 1]; c++)
-                {
-                    dT.b[b][c] /= inputs.Length;
-                    t.b[b][c] -= dT.b[b][c];
-
-                    for (var d = 0; d < layers[b]; d++)
-                    {
-                        dT.w[b][c][d] /= inputs.Length;
-                        t.w[b][c][d] -= dT.w[b][c][d];
-                    }
-                }
-            }
+            UpdateThetas(t, dT, inputs.Length);
         }
     }
 
@@ -141,6 +127,24 @@ public class Network(NetworkParameters networkParams)
                 {
                     eSignal[prevLayerI][c] +=
                         DRelU(fResult.befA[prevLayerI][c]) * t.w[gapI][d][c] * eSignal[b][d];
+                }
+            }
+        }
+    }
+
+    private void UpdateThetas(Thetas t, Thetas dT, int m)
+    {
+        for (var b = 0; b < layers.Length - 2; b++)
+        {
+            for (var c = 0; c < layers[b + 1]; c++)
+            {
+                dT.b[b][c] /= m;
+                t.b[b][c] -= dT.b[b][c];
+
+                for (var d = 0; d < layers[b]; d++)
+                {
+                    dT.w[b][c][d] /= m;
+                    t.w[b][c][d] -= dT.w[b][c][d];
                 }
             }
         }
