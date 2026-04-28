@@ -21,7 +21,10 @@ internal static class Storage
 
     public static async Task SaveModel(Model model)
     {
-        var content = JsonSerializer.Serialize(model);
+#pragma warning disable CA1869 // these options are only used here
+        var ops = new JsonSerializerOptions { IncludeFields = true };
+#pragma warning restore CA1869
+        var content = JsonSerializer.Serialize(model, ops);
         await File.WriteAllTextAsync(FullModelFileName, content);
     }
 
