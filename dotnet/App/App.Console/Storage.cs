@@ -7,6 +7,8 @@ internal static class Storage
     private const string MODEL_FILE = "model.json";
     private const string TRAINING_DATA_FILE = "training-data.json";
 
+    private static JsonSerializerOptions jsonOps = new() { IncludeFields = true };
+
     private static string FullModelFileName =>
         Path.Combine(Environment.CurrentDirectory, MODEL_FILE);
 
@@ -21,17 +23,14 @@ internal static class Storage
 
     public static async Task SaveModel(Model model)
     {
-#pragma warning disable CA1869 // these options are only used here
-        var ops = new JsonSerializerOptions { IncludeFields = true };
-#pragma warning restore CA1869
-        var content = JsonSerializer.Serialize(model, ops);
+        var content = JsonSerializer.Serialize(model, jsonOps);
         await File.WriteAllTextAsync(FullModelFileName, content);
     }
 
     public static async Task<Model?> GetModel()
     {
         var content = await File.ReadAllTextAsync(FullModelFileName);
-        return JsonSerializer.Deserialize<Model>(content);
+        return JsonSerializer.Deserialize<Model>(content, jsonOps);
     }
 
 
