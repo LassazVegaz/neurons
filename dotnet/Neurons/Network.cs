@@ -24,10 +24,7 @@ public class Network(NetworkParameters networkParams)
 
             foreach (var x in inputs)
             {
-                // forward propagation
                 var fResult = Forward(x, t);
-
-                // backward propagation
                 Backward(t, dT, fResult);
             }
 
