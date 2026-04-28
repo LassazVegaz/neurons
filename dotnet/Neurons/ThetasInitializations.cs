@@ -14,6 +14,7 @@ public static class ThetasInitializations
         for (var a = 0; a < gaps; a++)
         {
             t.b[a] = new double[layers[a + 1]];
+            t.w[a] = new double[layers[a + 1]][];
 
             // upper bound and lower bound for random numbers
             var uBound = Math.Sqrt(2d / layers[a]); // std
