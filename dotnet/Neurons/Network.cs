@@ -3,6 +3,8 @@
 public class Network(NetworkParameters networkParams)
 {
     private const int ITERATIONS = 1000;
+    private const int MSE_CAL_COUNT = 10;
+    private const int MSE_CAL_AT = ITERATIONS / MSE_CAL_COUNT;
 
     readonly int[] layers = networkParams.layers;
     readonly Func<double, double> f = networkParams.f;
@@ -21,16 +23,28 @@ public class Network(NetworkParameters networkParams)
 
         for (var a = 0; a < ITERATIONS; a++) // for every iteration
         {
-            // partial derivatives
-            var dT = CreateThetas();
+            var calMse = a == 0 || (a + 1) % MSE_CAL_AT == 0;
+            var mse = 0d;
+            var dT = CreateThetas(); // partial derivatives
 
             foreach (var x in inputs)
             {
                 var fResult = Forward(x, t);
                 Backward(t, dT, fResult);
+
+                if (!calMse) continue;
+                var y = f(x);
+                var p = fResult.a[^1][0];
+                mse += Math.Pow(y - p, 2);
             }
 
-            UpdateThetas(t, dT, inputs.Length);
+            var m = inputs.Length;
+            UpdateThetas(t, dT, m);
+            if (calMse)
+            {
+                mse /= 2 * m;
+                Console.WriteLine($"MSE at {a} = {mse:F6}");
+            }
         }
     }
 
