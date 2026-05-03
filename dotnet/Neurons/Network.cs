@@ -2,9 +2,9 @@
 
 public class Network(NetworkParameters networkParams)
 {
-    private const int ITERATIONS = 1000;
-    private const int MSE_CAL_COUNT = 10;
-    private const int MSE_CAL_AT = ITERATIONS / MSE_CAL_COUNT;
+    const int ITERATIONS = 1000;
+    const int MSE_CAL_COUNT = 10;
+    const int MSE_CAL_AT = ITERATIONS / MSE_CAL_COUNT;
 
     readonly int[] layers = networkParams.layers;
     readonly Func<double, double> f = networkParams.f;
