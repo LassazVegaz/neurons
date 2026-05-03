@@ -54,4 +54,5 @@ public record NetworkParameters
     public required int[] layers;
     public required Func<double, double> f;
     public required NormalizationParameters normParams;
+    public required int iterationsCount;
 }

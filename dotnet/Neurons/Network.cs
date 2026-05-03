@@ -2,13 +2,14 @@
 
 public class Network(NetworkParameters networkParams)
 {
-    const int ITERATIONS = 1000;
-    const int MSE_CAL_COUNT = 10;
-    const int MSE_CAL_AT = ITERATIONS / MSE_CAL_COUNT;
-
     readonly int[] layers = networkParams.layers;
     readonly Func<double, double> f = networkParams.f;
     readonly NormalizationParameters normParams = networkParams.normParams;
+    readonly int iterationsCount = networkParams.iterationsCount;
+
+    public event EventHandler<int>? IterationStarted;
+    public event EventHandler<int>? IterationCompleted;
+    public event EventHandler<ForwardResults>? ForwardPropagationCompleted;
 
     public double Predict(double x, Thetas t)
     {
@@ -21,10 +22,10 @@ public class Network(NetworkParameters networkParams)
     {
         inputs = [.. inputs.Select(Normalize)];
 
-        for (var a = 0; a < ITERATIONS; a++) // for every iteration
+        for (var a = 0; a < iterationsCount; a++) // for every iteration
         {
-            var calMse = a == 0 || (a + 1) % MSE_CAL_AT == 0;
-            var mse = 0d;
+            IterationStarted?.Invoke(this, a);
+
             var dT = CreateThetas(); // partial derivatives
 
             foreach (var x in inputs)
@@ -32,19 +33,12 @@ public class Network(NetworkParameters networkParams)
                 var fResult = Forward(x, t);
                 Backward(t, dT, fResult);
 
-                if (!calMse) continue;
-                var y = f(x);
-                var p = fResult.a[^1][0];
-                mse += Math.Pow(y - p, 2);
+                ForwardPropagationCompleted?.Invoke(this, fResult);
             }
 
-            var m = inputs.Length;
-            UpdateThetas(t, dT, m);
-            if (calMse)
-            {
-                mse /= 2 * m;
-                Console.WriteLine($"MSE at {a} = {mse:F6}");
-            }
+            UpdateThetas(t, dT, inputs.Length);
+
+            IterationCompleted?.Invoke(this, a);
         }
     }
 

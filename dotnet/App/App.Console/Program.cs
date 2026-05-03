@@ -1,6 +1,8 @@
 ﻿using Neurons;
 using Neurons.App.Console;
 
+const int ITERATIONS_COUNT = 1000;
+
 var f = (double x) => x;
 int[] layers = [1, 1, 1];
 double[] trainingData;
@@ -40,7 +42,16 @@ var network = new Network(new()
 {
     layers = layers,
     f = f,
-    normParams = model.normParams
+    normParams = model.normParams,
+    iterationsCount = ITERATIONS_COUNT
+});
+
+MSECalculator.LogMse(new()
+{
+    f = f,
+    iterationsCount = ITERATIONS_COUNT,
+    m = trainingData.Length,
+    network = network
 });
 
 network.Train(trainingData, model.thetas);
