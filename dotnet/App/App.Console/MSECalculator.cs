@@ -47,6 +47,8 @@ internal class MSECalculator
 
         var mse = sumOfSquareErrors / 2 * m;
         CMD.WriteLine($"MSE at {i} = {mse:F6}");
+
+        sumOfSquareErrors = 0;
     }
 
     #region STATIC
