@@ -94,7 +94,7 @@ public class Network(NetworkParameters networkParams)
     private void Backward(Thetas t, Thetas dT, ForwardResults fResult)
     {
         var x = fResult.a[0][0];
-        var predicted = fResult.a[^1][0];
+        var predicted = fResult.befA[^1][0];
 
         // error signals comming from every neurone
         var eSignal = new double[layers.Length][];

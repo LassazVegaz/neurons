@@ -37,7 +37,7 @@ internal class MSECalculator
 
         var x = fResults.befA[0][0];
         var y = f(x);
-        var p = fResults.a[^1][0];
+        var p = fResults.befA[^1][0];
         sumOfSquareErrors += Math.Pow(y - p, 2);
     }
 
