@@ -7,7 +7,12 @@ var f = (double x) => x;
 int[] layers = [1, 1, 1];
 
 var trainingData = await EssentialsBuilder.GetTrainingData();
-var model = await EssentialsBuilder.GetModel(layers, trainingData);
+var model = await EssentialsBuilder.GetModel(new()
+{
+    clearModel = true,
+    layers = layers,
+    trainingData = trainingData
+});
 
 var network = new Network(new()
 {

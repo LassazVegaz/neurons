@@ -2,11 +2,11 @@
 
 internal static class EssentialsBuilder
 {
-    public static async Task<Model> GetModel(int[] layers, double[] trainingData)
+    public static async Task<Model> GetModel(GetModelParameters p)
     {
         Model model;
 
-        if (Storage.ModelExists())
+        if (!p.clearModel && Storage.ModelExists())
         {
             model = await Storage.GetModel()
                 ?? throw new Exception("Model is null!");
@@ -15,11 +15,11 @@ internal static class EssentialsBuilder
         {
             model = new()
             {
-                thetas = ThetasInitializations.HeInitialization(layers),
+                thetas = ThetasInitializations.HeInitialization(p.layers),
                 normParams = new()
                 {
-                    mean = trainingData.Average(),
-                    standardDeviation = Tools.GetStandardDeviation(trainingData)
+                    mean = p.trainingData.Average(),
+                    standardDeviation = Tools.GetStandardDeviation(p.trainingData)
                 }
             };
             await Storage.SaveModel(model);
@@ -45,4 +45,11 @@ internal static class EssentialsBuilder
 
         return trainingData;
     }
+}
+
+internal record GetModelParameters
+{
+    public required int[] layers;
+    public required double[] trainingData;
+    public required bool clearModel;
 }
