@@ -49,6 +49,7 @@ internal class MSECalculator
         CMD.WriteLine($"MSE at {i} = {mse:F6}");
 
         sumOfSquareErrors = 0;
+        calMse = false;
     }
 
     #region STATIC
