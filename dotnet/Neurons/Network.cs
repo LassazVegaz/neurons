@@ -6,6 +6,7 @@ public class Network(NetworkParameters networkParams)
     readonly Func<double, double> f = networkParams.f;
     readonly NormalizationParameters normParams = networkParams.normParams;
     readonly int iterationsCount = networkParams.iterationsCount;
+    readonly double alpha = networkParams.alpha;
 
     public event EventHandler<int>? IterationStarted;
     public event EventHandler<int>? IterationCompleted;
@@ -149,12 +150,12 @@ public class Network(NetworkParameters networkParams)
             for (var c = 0; c < layers[b + 1]; c++)
             {
                 dT.b[b][c] /= m;
-                t.b[b][c] -= dT.b[b][c];
+                t.b[b][c] -= alpha * dT.b[b][c];
 
                 for (var d = 0; d < layers[b]; d++)
                 {
                     dT.w[b][c][d] /= m;
-                    t.w[b][c][d] -= dT.w[b][c][d];
+                    t.w[b][c][d] -= alpha * dT.w[b][c][d];
                 }
             }
         }

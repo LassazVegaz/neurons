@@ -55,4 +55,5 @@ public record NetworkParameters
     public required Func<double, double> f;
     public required NormalizationParameters normParams;
     public required int iterationsCount;
+    public required double alpha;
 }

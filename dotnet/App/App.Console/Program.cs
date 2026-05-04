@@ -18,6 +18,7 @@ var network = new Network(new()
 {
     layers = layers,
     f = f,
+    alpha = 0.1,
     normParams = model.normParams,
     iterationsCount = ITERATIONS_COUNT
 });
