@@ -46,7 +46,7 @@ internal class MSECalculator
     {
         if (!calMse) return;
 
-        var mse = sumOfSquareErrors / 2 * m;
+        var mse = sumOfSquareErrors / (2 * m);
         if (i == 0) prevMse = mse;
 
         var mseDrop = -1 * (prevMse - mse);
