@@ -11,6 +11,7 @@ internal class MSECalculator
     readonly int calMseAt;
     readonly int lastIterationIdx;
 
+    double prevMse;
     double sumOfSquareErrors = 0;
     bool calMse = false;
 
@@ -46,14 +47,23 @@ internal class MSECalculator
         if (!calMse) return;
 
         var mse = sumOfSquareErrors / 2 * m;
-        CMD.WriteLine($"MSE at {i} = {mse:F6}");
+        if (i == 0) prevMse = mse;
 
+        var mseDrop = -1 * (prevMse - mse);
+        var mseDropPerc = mseDrop / prevMse * 100;
+        var sign = GetSign(mseDrop);
+
+        CMD.WriteLine($"MSE at {i} = {mse:F6}, Gap = {sign}{mseDrop:F6} ({sign}{mseDropPerc:F2})%");
+
+        prevMse = mse;
         sumOfSquareErrors = 0;
         calMse = false;
     }
 
     #region STATIC
     public static void LogMse(MSECalculatorParams p) => _ = new MSECalculator(p);
+
+    private static string GetSign(double n) => n > 0 ? "+" : "";
     #endregion
 }
 
