@@ -4,7 +4,7 @@ using Neurons.App.Console;
 const int ITERATIONS_COUNT = 1000;
 
 var f = (double x) => x;
-int[] layers = [1, 1, 1];
+int[] layers = [1, 2, 1];
 
 var trainingData = await EssentialsBuilder.GetTrainingData();
 var model = await EssentialsBuilder.GetModel(new()
