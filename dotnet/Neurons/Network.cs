@@ -15,7 +15,7 @@ public class Network(NetworkParameters networkParams)
     public double Predict(double x, Thetas t)
     {
         x = Normalize(x);
-        var predicted = Forward(x, t).a[^1][0];
+        var predicted = Forward(x, t).befA[^1][0];
         return Denormalize(predicted);
     }
 
