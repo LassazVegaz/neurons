@@ -1,7 +1,14 @@
-﻿using Neurons;
+﻿using Microsoft.Extensions.Configuration;
+using Neurons;
 using Neurons.App.Console;
 
 const int ITERATIONS_COUNT = 1000;
+const string LOCAL_APPSETTINGS_FILE = "appsettings.local.json";
+
+var configs = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile(LOCAL_APPSETTINGS_FILE, true, true)
+    .Build();
 
 var f = (double x) => x;
 int[] layers = [1, 2, 1];
@@ -9,7 +16,7 @@ int[] layers = [1, 2, 1];
 var trainingData = await EssentialsBuilder.GetTrainingData();
 var model = await EssentialsBuilder.GetModel(new()
 {
-    clearModel = true,
+    clearModel = configs["ClearModel"]?.ToLower() == "true",
     layers = layers,
     trainingData = trainingData
 });
