@@ -145,7 +145,7 @@ public class Network(NetworkParameters networkParams)
 
     private void UpdateThetas(Thetas t, Thetas dT, int m)
     {
-        for (var b = 0; b < layers.Length - 2; b++)
+        for (var b = 0; b < layers.Length - 1; b++)
         {
             for (var c = 0; c < layers[b + 1]; c++)
             {
