@@ -7,7 +7,7 @@ internal static class Storage
     private const string MODEL_FILE = "model.json";
     private const string TRAINING_DATA_FILE = "training-data.json";
 
-    private static JsonSerializerOptions jsonOps = new() { IncludeFields = true };
+    private static readonly JsonSerializerOptions jsonOps = new() { IncludeFields = true };
 
     private static string FullModelFileName =>
         Path.Combine(Environment.CurrentDirectory, MODEL_FILE);
