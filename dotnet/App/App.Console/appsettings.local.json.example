@@ -2,5 +2,6 @@
 // also remove all these comments
 
 {
-  "ClearModel": false
+  "ClearModel": false,
+  "Iterations": 10000
 }

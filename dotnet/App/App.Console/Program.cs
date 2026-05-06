@@ -2,13 +2,15 @@
 using Neurons;
 using Neurons.App.Console;
 
-const int ITERATIONS_COUNT = 1000;
 const string LOCAL_APPSETTINGS_FILE = "appsettings.local.json";
 
 var configs = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile(LOCAL_APPSETTINGS_FILE, true, true)
     .Build();
+
+var iterations = int.Parse(configs["Iterations"]
+    ?? throw new Exception("Iterations not found in appsettings"));
 
 var f = (double x) => x;
 int[] layers = [1, 2, 1];
@@ -27,13 +29,13 @@ var network = new Network(new()
     f = f,
     alpha = 0.1,
     normParams = model.normParams,
-    iterationsCount = ITERATIONS_COUNT
+    iterationsCount = iterations
 });
 
 MSECalculator.LogMse(new()
 {
     f = f,
-    iterationsCount = ITERATIONS_COUNT,
+    iterationsCount = iterations,
     m = trainingData.Length,
     network = network
 });
