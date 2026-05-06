@@ -27,7 +27,8 @@ public class Network(NetworkParameters networkParams)
         {
             IterationStarted?.Invoke(this, a);
 
-            var dT = CreateThetas(); // partial derivatives
+            // partial derivatives
+            var dT = ThetasInitializations.ZeroInitialization(layers);
 
             foreach (var x in inputs)
             {
@@ -108,14 +109,9 @@ public class Network(NetworkParameters networkParams)
             var prevLayerI = b - 1; // prev layer index
             var gapI = b - 1; // gap index for thetas
 
-            dT.b[gapI] = new double[layers[b]];
-            dT.w[gapI] = new double[layers[b]][];
-
             // for every neurone in the current layer
             for (var c = 0; c < layers[b]; c++)
             {
-                dT.w[gapI][c] = new double[layers[prevLayerI]];
-
                 // accumulating partial derivative of bias
                 dT.b[gapI][c] += eSignal[b][c];
 
