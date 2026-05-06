@@ -53,7 +53,7 @@ internal class MSECalculator
         var mseDropPerc = mseDrop / prevMse * 100;
         var sign = GetSign(mseDrop);
 
-        CMD.WriteLine($"MSE at {i} = {mse:F6}, Gap = {sign}{mseDrop:F6} ({sign}{mseDropPerc:F2})%");
+        CMD.WriteLine($"MSE at {i} = {mse}, Gap = {sign}{mseDrop} ({sign}{mseDropPerc:F2})%");
 
         prevMse = mse;
         sumOfSquareErrors = 0;
