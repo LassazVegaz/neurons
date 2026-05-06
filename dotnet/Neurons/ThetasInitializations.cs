@@ -34,4 +34,26 @@ public static class ThetasInitializations
 
         return t;
     }
+
+    public static Thetas ZeroInitialization(int[] layers)
+    {
+        var gaps = layers.Length - 1;
+        var t = new Thetas()
+        {
+            b = new double[gaps][],
+            w = new double[gaps][][]
+        };
+
+        for (var a = 0; a < gaps; a++)
+        {
+            int nxtLayerNeuronsCount = layers[a + 1];
+            t.b[a] = new double[nxtLayerNeuronsCount];
+            t.w[a] = new double[nxtLayerNeuronsCount][];
+
+            for (var b = 0; b < nxtLayerNeuronsCount; b++)
+                t.w[a][b] = new double[layers[a]];
+        }
+
+        return t;
+    }
 }
