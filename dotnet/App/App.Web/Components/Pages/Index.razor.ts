@@ -1,0 +1,1 @@
+export const f = () => alert("Hello World");

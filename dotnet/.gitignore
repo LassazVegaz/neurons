@@ -430,3 +430,7 @@ FodyWeavers.xsd
 
 # local appsettings
 appsettings.local.json
+
+# razor ts ouputs
+*.razor.js
+*.razor.js.map
