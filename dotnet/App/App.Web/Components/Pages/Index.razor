@@ -1,0 +1,33 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@inject IJSRuntime JSRuntime
+
+<h1>Hello @name</h1>
+<button onclick="@OnClick">Clicked @n</button>
+
+<canvas id="canvas"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="@Assets["script.js"]"></script>
+
+@code {
+    string? name;
+    int n;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        name = "yes man";
+        Console.WriteLine("Hello World");
+
+        if (firstRender)
+        {
+            int[] data = [1, 2, 3, 4, 5];
+            await JSRuntime.InvokeVoidAsync("createChart", "canvas", data);
+        }
+    }
+
+    void OnClick()
+    {
+        n++;
+    }
+}
