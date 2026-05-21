@@ -20,15 +20,13 @@ export default function Home() {
 
   useEffect(() => {
     let mounted = true;
-    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
-    if (!serverUrl)
+    const networkHub = process.env.NEXT_PUBLIC_NETWORK_HUB;
+    if (!networkHub)
       throw new Error(
-        "NEXT_PUBLIC_SERVER_URL is not defined in environment variables",
+        "NEXT_PUBLIC_NETWORK_HUB is not defined in environment variables",
       );
 
-    const connection = new HubConnectionBuilder()
-      .withUrl(serverUrl + "/network")
-      .build();
+    const connection = new HubConnectionBuilder().withUrl(networkHub).build();
 
     connection
       .start()
@@ -38,7 +36,7 @@ export default function Home() {
         console.error("SignalR connection faield", e);
       });
 
-    socket = io(serverUrl);
+    socket = io(networkHub);
 
     socket.on("finishedTraining", (res) => {
       setTrainingResults(res);
