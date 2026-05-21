@@ -1,7 +1,52 @@
 ﻿@page "/"
+@using BlazorExpress.ChartJS
 @rendermode InteractiveServer
 
 <h1>Charts</h1>
 
+<LineChart @ref="chart" Width="600" />
+
 @code {
+    private LineChart chart = default!;
+    private LineChartOptions chartOptions = new();
+    private ChartData chartData = new();
+
+    protected override void OnInitialized()
+    {
+        var f = (double x) => 2 * x;
+
+        var y = new double[10];
+        var x = new List<double>(y.Count);
+
+        for (var i = 0; i < y.Count; i++)
+        {
+            y[i] = i;
+            x[i] = f(i);
+        }
+
+        var dataset = new LineChartDataset
+        {
+            Label = "MSE",
+            Data = y.Select(d => (double?)d).ToList(),
+            BackgroundColor = "yellow",
+            // BorderColor = "red",
+            // BorderWidth = 2.0,
+            PointRadius = new List<double> { 4.0 }
+        };
+
+        chartData.Datasets = [dataset];
+
+        chartData.Labels = ["1", "2", "3", "4", "5"];
+
+        chartOptions.Responsive = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await chart.InitializeAsync(chartData, chartOptions);
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
 }
