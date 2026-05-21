@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="../Neurons/Neurons.csproj" />
   <Project Path="App.Console/App.Console.csproj" />
+  <Project Path="App.Web/App.Web.csproj" Id="769d8b6d-1f21-4d94-9de6-21779c2a1160" />
 </Solution>
