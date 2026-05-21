@@ -5,6 +5,7 @@ import { io } from "socket.io-client";
 import ControlPanel from "./components/ControlPanel";
 import Socket from "@/types/socket.type";
 import { MseChart, MseChartProps, PredictionsChart } from "./components/Charts";
+import { HubConnectionBuilder } from "@microsoft/signalr";
 
 let socket: Socket | undefined;
 
@@ -18,20 +19,26 @@ export default function Home() {
   );
 
   useEffect(() => {
+    let mounted = true;
     const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
     if (!serverUrl)
       throw new Error(
         "NEXT_PUBLIC_SERVER_URL is not defined in environment variables",
       );
+
+    const connection = new HubConnectionBuilder()
+      .withUrl(serverUrl + "/network")
+      .build();
+
+    connection
+      .start()
+      .then(() => mounted && setConnected(true))
+      .catch((e) => {
+        if (mounted) setConnected(false);
+        console.error("SignalR connection faield", e);
+      });
+
     socket = io(serverUrl);
-
-    socket.on("connect", () => {
-      setConnected(true);
-    });
-
-    socket.on("disconnect", () => {
-      setConnected(false);
-    });
 
     socket.on("finishedTraining", (res) => {
       setTrainingResults(res);
@@ -44,10 +51,14 @@ export default function Home() {
     });
 
     return () => {
+      mounted = false;
+
+      connection
+        .stop()
+        .catch((e) => console.error("SignalR disconnecting failed", e));
+
       if (!socket) return;
 
-      socket.off("connect");
-      socket.off("disconnect");
       socket.off("finishedTraining");
       socket.off("iterationsBreak");
       socket.disconnect();
