@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button, Checkbox, TextField } from "./Fields";
 import TrainingStatus from "../types/trainin-status.enum";
-import Socket from "@/types/socket.type";
+import { HubConnection } from "@microsoft/signalr";
 
 type ControlPanelProps = {
-  socket?: Socket;
+  networkHub?: HubConnection;
   connectedToServer?: boolean;
   currentIteration?: number;
 };
@@ -37,28 +37,28 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
   );
 
   useEffect(() => {
-    if (!props.socket) return;
+    if (!props.networkHub) return;
 
-    props.socket.on("requestToStopTrainingFulfilled", () => {
+    props.networkHub.on("requestToStopTrainingFulfilled", () => {
       setTrainingStatus(TrainingStatus.RequestToStopFulfilled);
     });
 
-    props.socket.on("finishedTraining", () => {
+    props.networkHub.on("finishedTraining", () => {
       setTrainingStatus(TrainingStatus.Finished);
       setForm((prev) => ({ ...prev, useNewThetas: false }));
     });
 
     return () => {
-      if (!props.socket) return;
-      props.socket.off("requestToStopTrainingFulfilled");
-      props.socket.off("finishedTraining");
+      if (!props.networkHub) return;
+      props.networkHub.off("requestToStopTrainingFulfilled");
+      props.networkHub.off("finishedTraining");
     };
-  }, [props.socket]);
+  }, [props.networkHub]);
 
-  const onStartClick = () => {
-    if (!props.socket) return;
+  const onStartClick = async () => {
+    if (!props.networkHub) return;
     const iterations = Number.parseInt(form.iterations);
-    props.socket.emit("train", {
+    await props.networkHub.send("Train", {
       layers: form.layers.split(",").map(Number),
       newThetas: form.useNewThetas,
       alpha: Number.parseFloat(form.alpha),
@@ -69,8 +69,8 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
   };
 
   const onStopClick = () => {
-    if (!props.socket) return;
-    props.socket.emit("requestToStopTraining");
+    if (!props.networkHub) return;
+    props.networkHub.send("requestToStopTraining");
     setTrainingStatus(TrainingStatus.RequestedToStop);
   };
 

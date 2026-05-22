@@ -1,13 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import { FinishedTrainingResults } from "shared";
-import { io } from "socket.io-client";
 import ControlPanel from "./components/ControlPanel";
-import Socket from "@/types/socket.type";
 import { MseChart, MseChartProps, PredictionsChart } from "./components/Charts";
-import { HubConnectionBuilder } from "@microsoft/signalr";
+import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 
-let socket: Socket | undefined;
+let networkHub: HubConnection | undefined;
 
 export default function Home() {
   const [connected, setConnected] = useState(false);
@@ -20,15 +18,15 @@ export default function Home() {
 
   useEffect(() => {
     let mounted = true;
-    const networkHub = process.env.NEXT_PUBLIC_NETWORK_HUB;
-    if (!networkHub)
+    const networkHubUrl = process.env.NEXT_PUBLIC_NETWORK_HUB;
+    if (!networkHubUrl)
       throw new Error(
         "NEXT_PUBLIC_NETWORK_HUB is not defined in environment variables",
       );
 
-    const connection = new HubConnectionBuilder().withUrl(networkHub).build();
+    networkHub = new HubConnectionBuilder().withUrl(networkHubUrl).build();
 
-    connection
+    networkHub
       .start()
       .then(() => mounted && setConnected(true))
       .catch((e) => {
@@ -36,31 +34,31 @@ export default function Home() {
         console.error("SignalR connection faield", e);
       });
 
-    socket = io(networkHub);
-
-    socket.on("finishedTraining", (res) => {
+    networkHub.on("finishedTraining", (res) => {
       setTrainingResults(res);
       setCurrentIteration(undefined);
     });
 
-    socket.on("iterationsBreak", (itr, MSEs) => {
-      setMseChartData(MSEs.map((mse, idx) => ({ x: idx + 1, mse })));
+    networkHub.on("iterationsBreak", (itr, MSEs) => {
+      setMseChartData(
+        MSEs.map((mse: number, idx: number) => ({ x: idx + 1, mse })),
+      );
       setCurrentIteration(itr);
     });
 
     return () => {
       mounted = false;
 
-      connection
-        .stop()
+      networkHub
+        ?.stop()
         .catch((e) => console.error("SignalR disconnecting failed", e));
 
-      if (!socket) return;
+      if (!networkHub) return;
 
-      socket.off("finishedTraining");
-      socket.off("iterationsBreak");
-      socket.disconnect();
-      socket = undefined;
+      networkHub.off("finishedTraining");
+      networkHub.off("iterationsBreak");
+      networkHub.stop().then().catch(console.error);
+      networkHub = undefined;
     };
   }, []);
 
@@ -72,9 +70,9 @@ export default function Home() {
       </div>
 
       <ControlPanel
-        socket={socket}
         connectedToServer={connected}
         currentIteration={currentIteration}
+        networkHub={networkHub}
       />
 
       {!connected && (
