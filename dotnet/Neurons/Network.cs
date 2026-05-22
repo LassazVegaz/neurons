@@ -12,6 +12,7 @@ public class Network(NetworkParameters networkParams)
     public event EventHandler<int>? IterationCompleted;
     public event EventHandler<ForwardResults>? ForwardPropagationCompleted;
 
+
     public double Predict(double x, Thetas t)
     {
         x = Normalize(x);
@@ -44,19 +45,6 @@ public class Network(NetworkParameters networkParams)
         }
     }
 
-    /// <summary>
-    /// Create empty thetas. Only the 1sr dimension of weights and
-    /// biases are initialized
-    /// </summary>
-    private Thetas CreateThetas()
-    {
-        var gaps = layers.Length - 1;
-        return new()
-        {
-            w = new double[gaps][][],
-            b = new double[gaps][]
-        };
-    }
 
     private ForwardResults Forward(double x, Thetas t)
     {
