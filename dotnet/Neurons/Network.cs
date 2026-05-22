@@ -11,6 +11,10 @@ public class Network(NetworkParameters networkParams)
     public event EventHandler<int>? IterationStarted;
     public event EventHandler<int>? IterationCompleted;
     public event EventHandler<ForwardResults>? ForwardPropagationCompleted;
+    public event EventHandler? TrainingStopped;
+    public event EventHandler<Thetas>? TrainingFinished;
+
+    private CancellationTokenSource? tokenSource;
 
 
     public double Predict(double x, Thetas t)
@@ -22,10 +26,25 @@ public class Network(NetworkParameters networkParams)
 
     public void Train(double[] inputs, Thetas t)
     {
+        tokenSource?.Cancel();
+        tokenSource = new CancellationTokenSource();
+
+        Task.Run(() => Train(inputs, t, tokenSource.Token));
+    }
+
+
+    private void Train(double[] inputs, Thetas t, CancellationToken token)
+    {
         inputs = [.. inputs.Select(Normalize)];
 
         for (var a = 0; a < iterationsCount; a++) // for every iteration
         {
+            if (token.IsCancellationRequested)
+            {
+                TrainingStopped?.Invoke(this, EventArgs.Empty);
+                break;
+            }
+
             IterationStarted?.Invoke(this, a);
 
             // partial derivatives
@@ -43,8 +62,9 @@ public class Network(NetworkParameters networkParams)
 
             IterationCompleted?.Invoke(this, a);
         }
-    }
 
+        TrainingFinished?.Invoke(this, t);
+    }
 
     private ForwardResults Forward(double x, Thetas t)
     {
