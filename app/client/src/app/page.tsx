@@ -1,16 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
-import { FinishedTrainingResults } from "shared";
 import ControlPanel from "./components/ControlPanel";
 import { MseChart, MseChartProps, PredictionsChart } from "./components/Charts";
-import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
-
-let networkHub: HubConnection | undefined;
+import networkHub from "./signalr/network.hub";
+import { TrainingResult } from "./signalr/network.hub.types";
 
 export default function Home() {
   const [connected, setConnected] = useState(false);
-  const [trainingResults, setTrainingResults] =
-    useState<FinishedTrainingResults>([]);
+  const [trainingResults, setTrainingResults] = useState<TrainingResult[]>([]);
   const [mseChartData, setMseChartData] = useState<MseChartProps["data"]>([]);
   const [currentIteration, setCurrentIteration] = useState<number | undefined>(
     undefined,
@@ -24,9 +21,7 @@ export default function Home() {
         "NEXT_PUBLIC_NETWORK_HUB is not defined in environment variables",
       );
 
-    networkHub = new HubConnectionBuilder().withUrl(networkHubUrl).build();
-
-    networkHub
+    networkHub.connection
       .start()
       .then(() => mounted && setConnected(true))
       .catch((e) => {
@@ -34,12 +29,12 @@ export default function Home() {
         console.error("SignalR connection faield", e);
       });
 
-    networkHub.on("finishedTraining", (res) => {
+    networkHub.on("TrainingFinished", (res) => {
       setTrainingResults(res);
       setCurrentIteration(undefined);
     });
 
-    networkHub.on("iterationsBreak", (itr, MSEs) => {
+    networkHub.on("IterationBreak", (itr, MSEs) => {
       setMseChartData(
         MSEs.map((mse: number, idx: number) => ({ x: idx + 1, mse })),
       );
@@ -49,16 +44,11 @@ export default function Home() {
     return () => {
       mounted = false;
 
-      networkHub
-        ?.stop()
-        .catch((e) => console.error("SignalR disconnecting failed", e));
-
       if (!networkHub) return;
 
-      networkHub.off("finishedTraining");
-      networkHub.off("iterationsBreak");
-      networkHub.stop().then().catch(console.error);
-      networkHub = undefined;
+      networkHub.off("TrainingFinished");
+      networkHub.off("IterationBreak");
+      networkHub.connection.stop().then().catch(console.error);
     };
   }, []);
 
@@ -72,7 +62,6 @@ export default function Home() {
       <ControlPanel
         connectedToServer={connected}
         currentIteration={currentIteration}
-        networkHub={networkHub}
       />
 
       {!connected && (

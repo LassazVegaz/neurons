@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { Button, Checkbox, TextField } from "./Fields";
 import TrainingStatus from "../types/trainin-status.enum";
-import { HubConnection } from "@microsoft/signalr";
+import networkHub from "../signalr/network.hub";
 
 type ControlPanelProps = {
-  networkHub?: HubConnection;
   connectedToServer?: boolean;
   currentIteration?: number;
 };
@@ -37,28 +36,24 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
   );
 
   useEffect(() => {
-    if (!props.networkHub) return;
-
-    props.networkHub.on("requestToStopTrainingFulfilled", () => {
+    networkHub.on("TrainingStopped", () => {
       setTrainingStatus(TrainingStatus.RequestToStopFulfilled);
     });
 
-    props.networkHub.on("finishedTraining", () => {
+    networkHub.on("TrainingFinished", () => {
       setTrainingStatus(TrainingStatus.Finished);
       setForm((prev) => ({ ...prev, useNewThetas: false }));
     });
 
     return () => {
-      if (!props.networkHub) return;
-      props.networkHub.off("requestToStopTrainingFulfilled");
-      props.networkHub.off("finishedTraining");
+      networkHub.off("TrainingStopped");
+      networkHub.off("TrainingFinished");
     };
-  }, [props.networkHub]);
+  }, []);
 
   const onStartClick = async () => {
-    if (!props.networkHub) return;
     const iterations = Number.parseInt(form.iterations);
-    await props.networkHub.send("Train", {
+    await networkHub.invoke("Train", {
       layers: form.layers.split(",").map(Number),
       newThetas: form.useNewThetas,
       alpha: Number.parseFloat(form.alpha),
@@ -68,9 +63,8 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
     setIteraionsCount(iterations);
   };
 
-  const onStopClick = () => {
-    if (!props.networkHub) return;
-    props.networkHub.send("requestToStopTraining");
+  const onStopClick = async () => {
+    await networkHub.invoke("StopTraining");
     setTrainingStatus(TrainingStatus.RequestedToStop);
   };
 

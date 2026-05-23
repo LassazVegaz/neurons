@@ -7,10 +7,10 @@ import {
   ReferenceLine,
   TooltipContentProps,
 } from "recharts";
-import { FinishedTrainingResults } from "shared";
+import { TrainingResult } from "../signalr/network.hub.types";
 
 type PredictionChartProps = {
-  data: FinishedTrainingResults;
+  data: TrainingResult[];
 };
 
 export type MseChartProps = {
@@ -61,7 +61,7 @@ export const PredictionsChart = (props: PredictionChartProps) => (
     height="100%"
     data={props.data}
   >
-    <Line dataKey="actual" dot={false} stroke="green" />
+    <Line dataKey="y" dot={false} stroke="green" />
     <Line dataKey="prediction" dot={false} stroke="red" />
     <ReferenceLine x={0} stroke="gray" />
     <ReferenceLine y={0} stroke="gray" />
