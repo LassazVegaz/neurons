@@ -15,11 +15,6 @@ export default function Home() {
 
   useEffect(() => {
     let mounted = true;
-    const networkHubUrl = process.env.NEXT_PUBLIC_NETWORK_HUB;
-    if (!networkHubUrl)
-      throw new Error(
-        "NEXT_PUBLIC_NETWORK_HUB is not defined in environment variables",
-      );
 
     networkHub.connection
       .start()
