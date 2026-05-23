@@ -56,4 +56,6 @@ public record NetworkParameters
     public required NormalizationParameters normParams;
     public required int iterationsCount;
     public required double alpha;
+    public required double[] inputs;
+    public required Thetas t;
 }

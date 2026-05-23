@@ -28,18 +28,18 @@ public class Network
         return Denormalize(predicted);
     }
 
-    public void Train(NetworkParameters networkParams, double[] inputs, Thetas t)
+    public void Train(NetworkParameters p)
     {
-        layers = networkParams.layers;
-        f = networkParams.f;
-        normParams = networkParams.normParams;
-        iterationsCount = networkParams.iterationsCount;
-        alpha = networkParams.alpha;
+        layers = p.layers;
+        f = p.f;
+        normParams = p.normParams;
+        iterationsCount = p.iterationsCount;
+        alpha = p.alpha;
 
         tokenSource?.Cancel();
         tokenSource = new CancellationTokenSource();
 
-        Task.Run(() => Train(inputs, t, tokenSource.Token));
+        Task.Run(() => Train(p.inputs, p.t, tokenSource.Token));
     }
 
     public void StopTraining() => tokenSource?.Cancel();

@@ -28,12 +28,13 @@ public record TrainParams
 }
 
 public class NetworkHub(Network network, Storage storage, IOptions<AppSettings> options,
-    MSECalculator mseCalculator) : Hub<INetworkClient>
+    MSECalculator mseCalculator, Function func) : Hub<INetworkClient>
 {
     readonly Network _network = network;
     readonly Storage _storage = storage;
     readonly MSECalculator _mseCal = mseCalculator;
     readonly AppSettings settings = options.Value;
+    readonly Func<double, double> f = func.f;
 
 
     public async Task Train(TrainParams p)
@@ -52,7 +53,16 @@ public class NetworkHub(Network network, Storage storage, IOptions<AppSettings> 
             TotalIterations = p.Iterations
         });
 
-        _network.Train(inputs, model.thetas);
+        _network.Train(new()
+        {
+            alpha = p.Alpha,
+            f = f,
+            iterationsCount = p.Iterations,
+            layers = p.Layers,
+            normParams = model.normParams,
+            inputs = inputs,
+            t = model.thetas
+        });
     }
 
     public async Task StopTraining()
