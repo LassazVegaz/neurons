@@ -8,6 +8,10 @@ public class Network(NetworkParameters networkParams)
     readonly int iterationsCount = networkParams.iterationsCount;
     readonly double alpha = networkParams.alpha;
 
+    /// <summary>
+    /// Get notified when an iteration starts. Event argument is the index
+    /// which is 0-based
+    /// </summary>
     public event EventHandler<int>? IterationStarted;
     public event EventHandler<ForwardResults>? ForwardPropagationCompleted;
     public event EventHandler<int>? IterationCompleted;
