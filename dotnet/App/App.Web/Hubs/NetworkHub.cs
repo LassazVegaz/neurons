@@ -56,7 +56,7 @@ public class NetworkHub(Network network, Storage storage, IOptions<AppSettings> 
             await _storage.SaveTrainingData(MakeTrainingData());
         var inputs = await _storage.GetTrainingData();
 
-        if (!_storage.ModelFileExists())
+        if (p.NewThetas || !_storage.ModelFileExists())
             await _storage.SaveModel(BuildModel(inputs, p.Layers));
         var model = await _storage.GetModel();
 
