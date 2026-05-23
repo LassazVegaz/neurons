@@ -36,6 +36,8 @@ public class Network(NetworkParameters networkParams)
         Task.Run(() => Train(inputs, t, tokenSource.Token));
     }
 
+    public void StopTraining() => tokenSource?.Cancel();
+
 
     private void Train(double[] inputs, Thetas t, CancellationToken token)
     {
