@@ -8,6 +8,7 @@ public class Storage(IOptions<AppSettings> options)
 {
     readonly string modelFile = options.Value.ModelFileName;
     readonly string dataFile = options.Value.DataFileName;
+    static readonly JsonSerializerOptions jsonOps = new() { IncludeFields = true };
 
 
     public bool ModelFileExists() => FileExists(modelFile);
@@ -23,14 +24,14 @@ public class Storage(IOptions<AppSettings> options)
     {
         var fullFileName = Path.Combine(Environment.CurrentDirectory, fileName);
         var fileContent = await File.ReadAllTextAsync(fullFileName);
-        return JsonSerializer.Deserialize<T>(fileContent)
+        return JsonSerializer.Deserialize<T>(fileContent, jsonOps)
             ?? throw new Exception("JSON cannot be null");
     }
 
     private static async Task SaveJson(object o, string fileName)
     {
         var fullFileName = Path.Combine(Environment.CurrentDirectory, fileName);
-        var json = JsonSerializer.Serialize(o);
+        var json = JsonSerializer.Serialize(o, jsonOps);
         await File.WriteAllTextAsync(fullFileName, json);
     }
 
