@@ -1,12 +1,12 @@
 ﻿namespace Neurons;
 
-public class Network(NetworkParameters networkParams)
+public class Network
 {
-    readonly int[] layers = networkParams.layers;
-    readonly Func<double, double> f = networkParams.f;
-    readonly NormalizationParameters normParams = networkParams.normParams;
-    readonly int iterationsCount = networkParams.iterationsCount;
-    readonly double alpha = networkParams.alpha;
+    int[] layers = [];
+    Func<double, double> f = (x) => 0;
+    NormalizationParameters normParams = new() { mean = 0, standardDeviation = 1 };
+    int iterationsCount;
+    double alpha;
 
     /// <summary>
     /// Get notified when an iteration starts. Event argument is the index
@@ -28,8 +28,14 @@ public class Network(NetworkParameters networkParams)
         return Denormalize(predicted);
     }
 
-    public void Train(double[] inputs, Thetas t)
+    public void Train(NetworkParameters networkParams, double[] inputs, Thetas t)
     {
+        layers = networkParams.layers;
+        f = networkParams.f;
+        normParams = networkParams.normParams;
+        iterationsCount = networkParams.iterationsCount;
+        alpha = networkParams.alpha;
+
         tokenSource?.Cancel();
         tokenSource = new CancellationTokenSource();
 
