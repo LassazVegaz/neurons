@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button, Checkbox, TextField } from "./Fields";
 import TrainingStatus from "../types/trainin-status.enum";
-import networkHub from "../signalr/network.hub";
+import networkHub from "../../signalr/network.hub";
 
 type ControlPanelProps = {
   connectedToServer?: boolean;

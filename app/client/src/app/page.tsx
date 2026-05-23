@@ -2,8 +2,8 @@
 import { useEffect, useState } from "react";
 import ControlPanel from "./components/ControlPanel";
 import { MseChart, MseChartProps, PredictionsChart } from "./components/Charts";
-import networkHub from "./signalr/network.hub";
-import { TrainingResult } from "./signalr/network.hub.types";
+import networkHub from "../signalr/network.hub";
+import { TrainingResult } from "../signalr/network.hub.types";
 
 export default function Home() {
   const [connected, setConnected] = useState(false);
