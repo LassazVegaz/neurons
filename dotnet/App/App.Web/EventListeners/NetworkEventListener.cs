@@ -35,6 +35,7 @@ public class NetworkEventListener
 
         var trainingData = await _storage.GetTrainingData();
         var results = trainingData
+            .Order()
             .Select(x => new TrainingResult
             {
                 X = x,
