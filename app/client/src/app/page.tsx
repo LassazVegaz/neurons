@@ -31,6 +31,10 @@ export default function Home() {
         console.error("SignalR connection faield", e);
       });
 
+    networkHub.connection.onclose(() => mounted && setConnected(false));
+    networkHub.connection.onreconnecting(() => mounted && setConnected(false));
+    networkHub.connection.onreconnected(() => mounted && setConnected(true));
+
     networkHub.on("TrainingFinished", (res) => {
       setTrainingResults(res);
       setCurrentIteration(undefined);
