@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Neurons\Neurons.csproj" />
+    <ProjectReference Include="..\App.Shared\App.Shared.csproj" />
   </ItemGroup>
 
 </Project>

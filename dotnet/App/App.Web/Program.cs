@@ -1,4 +1,7 @@
+using App.Web;
+using App.Web.EventListeners;
 using App.Web.Hubs;
+using Neurons;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,12 +13,19 @@ builder.Services.AddCors(
 
 builder.Services.AddSignalR();
 
+builder.Services.AddSingleton<NetworkEventListener>();
+builder.Services.AddSingleton<Function>();
+builder.Services.AddSingleton<Network>();
+builder.Services.AddSingleton<MSECalculator>();
+
 
 var app = builder.Build();
 
 app.UseCors();
 
 app.MapHub<NetworkHub>("/network");
+
+app.Services.GetRequiredService<NetworkEventListener>();
 
 
 app.Run();
