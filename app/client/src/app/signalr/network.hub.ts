@@ -35,8 +35,8 @@ class NetworkHub {
     else this.connection.off(eventName, method);
   }
 
-  invoke<M extends keyof Methods>(methodName: M, ...args: Methods[M]) {
-    this.connection.invoke(methodName, ...args);
+  async invoke<M extends keyof Methods>(methodName: M, ...args: Methods[M]) {
+    await this.connection.invoke(methodName, ...args);
   }
 }
 
