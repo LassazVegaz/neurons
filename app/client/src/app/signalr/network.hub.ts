@@ -13,7 +13,7 @@ type Methods = {
 };
 
 class NetworkHub {
-  constructor(private readonly connection: HubConnection) {}
+  constructor(public readonly connection: HubConnection) {}
 
   on<E extends keyof Events>(
     methodName: E,
