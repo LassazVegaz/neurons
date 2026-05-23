@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
+import NetworkHub from "@/signalr/network.hub";
+import { TrainingResult } from "@/signalr/network.hub.types";
 import ControlPanel from "./components/ControlPanel";
 import { MseChart, MseChartProps, PredictionsChart } from "./components/Charts";
-import networkHub from "../signalr/network.hub";
-import { TrainingResult } from "../signalr/network.hub.types";
 
 export default function Home() {
   const [connected, setConnected] = useState(false);
@@ -12,13 +12,20 @@ export default function Home() {
   const [currentIteration, setCurrentIteration] = useState<number | undefined>(
     undefined,
   );
+  const [networkHub, setNetworkHub] = useState<NetworkHub | undefined>();
 
   useEffect(() => {
     let mounted = true;
 
+    const networkHub = NetworkHub.instance;
+
     networkHub.connection
       .start()
-      .then(() => mounted && setConnected(true))
+      .then(() => {
+        if (!mounted) return;
+        setConnected(true);
+        setNetworkHub(networkHub);
+      })
       .catch((e) => {
         if (mounted) setConnected(false);
         console.error("SignalR connection faield", e);
@@ -57,6 +64,7 @@ export default function Home() {
       <ControlPanel
         connectedToServer={connected}
         currentIteration={currentIteration}
+        networkHub={networkHub}
       />
 
       {!connected && (
