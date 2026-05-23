@@ -9,8 +9,8 @@ public class Network(NetworkParameters networkParams)
     readonly double alpha = networkParams.alpha;
 
     public event EventHandler<int>? IterationStarted;
-    public event EventHandler<int>? IterationCompleted;
     public event EventHandler<ForwardResults>? ForwardPropagationCompleted;
+    public event EventHandler<int>? IterationCompleted;
     public event EventHandler? TrainingStopped;
     public event EventHandler<Thetas>? TrainingFinished;
 
