@@ -51,6 +51,7 @@ export default class NetworkHub {
         );
       const connection = new HubConnectionBuilder()
         .withUrl(networkHubUrl)
+        .withAutomaticReconnect()
         .build();
 
       this._instance = new NetworkHub(connection);
