@@ -106,7 +106,10 @@ public class NetworkHub(Network network, Storage storage, IOptions<AppSettings> 
         var data = new double[settings.TrainingDataCount];
 
         for (var i = 0; i < settings.TrainingDataCount; i++)
-            data[i] = Random.Shared.NextDouble() * settings.TrainingDataCount;
+        {
+            var sign = Random.Shared.NextDouble() > 0.5 ? -1 : 1;
+            data[i] = Random.Shared.NextDouble() * settings.TrainingDataCount * sign;
+        }
 
         return data;
     }
