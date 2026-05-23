@@ -17,6 +17,7 @@ builder.Services.AddSingleton<NetworkEventListener>();
 builder.Services.AddSingleton<Function>();
 builder.Services.AddSingleton<Network>();
 builder.Services.AddSingleton<MSECalculator>();
+builder.Services.AddSingleton<Storage>();
 
 
 var app = builder.Build();
