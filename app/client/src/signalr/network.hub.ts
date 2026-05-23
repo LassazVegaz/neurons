@@ -13,8 +13,8 @@ type Methods = {
   StopTraining: [];
 };
 
-class NetworkHub {
-  constructor(public readonly connection: HubConnection) {}
+export default class NetworkHub {
+  private constructor(public readonly connection: HubConnection) {}
 
   on<E extends keyof Events>(
     methodName: E,
@@ -39,16 +39,23 @@ class NetworkHub {
   async invoke<M extends keyof Methods>(methodName: M, ...args: Methods[M]) {
     await this.connection.invoke(methodName, ...args);
   }
+
+  //#region SINGLETON
+  private static _instance: NetworkHub | undefined;
+  static get instance(): NetworkHub {
+    if (this._instance === undefined) {
+      const networkHubUrl = process.env.NEXT_PUBLIC_NETWORK_HUB;
+      if (!networkHubUrl)
+        throw new Error(
+          "NEXT_PUBLIC_NETWORK_HUB is not defined in environment variables",
+        );
+      const connection = new HubConnectionBuilder()
+        .withUrl(networkHubUrl)
+        .build();
+
+      this._instance = new NetworkHub(connection);
+    }
+    return this._instance;
+  }
+  //#endregion
 }
-
-const buildConnection = () => {
-  const networkHubUrl = process.env.NEXT_PUBLIC_NETWORK_HUB;
-  if (!networkHubUrl)
-    throw new Error(
-      "NEXT_PUBLIC_NETWORK_HUB is not defined in environment variables",
-    );
-  return new HubConnectionBuilder().withUrl(networkHubUrl).build();
-};
-
-const networkHub = new NetworkHub(buildConnection());
-export default networkHub;
