@@ -37,6 +37,19 @@ public class NetworkHub(Network network, Storage storage, IOptions<AppSettings> 
     readonly Func<double, double> f = func.f;
 
 
+    public override Task OnConnectedAsync()
+    {
+        Console.WriteLine("A user connected: " + Context.ConnectionId);
+        return base.OnConnectedAsync();
+    }
+
+    public override Task OnDisconnectedAsync(Exception? exception)
+    {
+        Console.WriteLine("A user disconnected: " + Context.ConnectionId);
+        return base.OnDisconnectedAsync(exception);
+    }
+
+
     public async Task Train(TrainParams p)
     {
         if (!_storage.DataFileExists())
