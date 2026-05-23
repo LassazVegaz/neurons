@@ -97,7 +97,7 @@ public class NetworkHub(Network network, Storage storage, IOptions<AppSettings> 
                 mean = mean,
                 standardDeviation = std
             },
-            thetas = ThetasInitializations.ZeroInitialization(layers)
+            thetas = ThetasInitializations.HeInitialization(layers)
         };
     }
 
