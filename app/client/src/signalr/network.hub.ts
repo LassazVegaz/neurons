@@ -1,3 +1,4 @@
+"use client";
 import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 import { TrainingResult, TrainParams } from "./network.hub.types";
 
