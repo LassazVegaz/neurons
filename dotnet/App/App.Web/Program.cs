@@ -19,6 +19,9 @@ builder.Services.AddSingleton<Network>();
 builder.Services.AddSingleton<MSECalculator>();
 builder.Services.AddSingleton<Storage>();
 
+builder.Services.AddOptions<AppSettings>()
+                .BindConfiguration(AppSettings.KEY);
+
 
 var app = builder.Build();
 

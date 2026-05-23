@@ -2,6 +2,8 @@
 
 public record AppSettings
 {
+    public const string KEY = "Settings";
+
     /// <summary>
     /// Maximum number of MSEs that can be sent to the clients
     /// </summary>
