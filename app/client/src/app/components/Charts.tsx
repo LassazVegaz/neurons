@@ -19,14 +19,16 @@ export type MseChartProps = {
 };
 
 const CustomTooltip = ({ active, payload, label }: TooltipContentProps) => {
-  if (
-    active &&
-    payload?.length &&
-    typeof payload[0].value === "number" &&
-    typeof payload[1].value === "number"
-  ) {
-    const diff = Math.abs(payload[0].value - payload[1].value);
-    const perc = Math.abs((diff / payload[0].value) * 100).toFixed(2);
+  if (active && payload?.length) {
+    let diff: number | undefined;
+    let perc: string | undefined;
+    if (
+      typeof payload[0]?.value === "number" &&
+      typeof payload[1]?.value === "number"
+    ) {
+      diff = Math.abs(payload[0].value - payload[1].value);
+      perc = Math.abs((diff / payload[0].value) * 100).toFixed(2);
+    }
 
     return (
       <div className="bg-[#999] p-3 rounded-lg border border-gray-600">
