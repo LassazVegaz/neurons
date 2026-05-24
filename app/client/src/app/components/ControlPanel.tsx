@@ -7,6 +7,8 @@ type ControlPanelProps = {
   connectedToServer?: boolean;
   currentIteration?: number;
   networkHub?: NetworkHub;
+  showActualLine: boolean;
+  onShowActualLineChange?: (v: boolean) => void;
 };
 
 const defaultForm = {
@@ -96,6 +98,12 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
 
   return (
     <div className="flex flex-col gap-4 pt-4 pr-4">
+      <Checkbox
+        label="Show actual"
+        name="showActual"
+        checked={props.showActualLine}
+        onChange={(e) => props.onShowActualLineChange?.(e.target.checked)}
+      />
       <Checkbox
         label="Use new thetas"
         name="useNewThetas"

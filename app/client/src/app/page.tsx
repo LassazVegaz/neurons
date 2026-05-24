@@ -13,6 +13,7 @@ export default function Home() {
     undefined,
   );
   const [networkHub, setNetworkHub] = useState<NetworkHub | undefined>();
+  const [showActualLine, setShowActualLine] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -61,7 +62,10 @@ export default function Home() {
   return (
     <div className="h-full w-full grid grid-cols-[1fr_200px]">
       <div className="p-4 w-full h-full grid grid-rows-[1fr_1fr] gap-2">
-        <PredictionsChart data={trainingResults} />
+        <PredictionsChart
+          data={trainingResults}
+          showActualLine={showActualLine}
+        />
         <MseChart data={mseChartData} />
       </div>
 
@@ -69,6 +73,8 @@ export default function Home() {
         connectedToServer={connected}
         currentIteration={currentIteration}
         networkHub={networkHub}
+        showActualLine={showActualLine}
+        onShowActualLineChange={(v) => setShowActualLine(v)}
       />
 
       {!connected && (

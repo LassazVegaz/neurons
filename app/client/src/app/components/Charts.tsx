@@ -11,6 +11,7 @@ import { TrainingResult } from "../../signalr/network.hub.types";
 
 type PredictionChartProps = {
   data: TrainingResult[];
+  showActualLine: boolean;
 };
 
 export type MseChartProps = {
@@ -61,7 +62,7 @@ export const PredictionsChart = (props: PredictionChartProps) => (
     height="100%"
     data={props.data}
   >
-    <Line dataKey="y" dot={false} stroke="green" />
+    {props.showActualLine && <Line dataKey="y" dot={false} stroke="green" />}
     <Line dataKey="prediction" dot={false} stroke="red" />
     <ReferenceLine x={0} stroke="gray" />
     <ReferenceLine y={0} stroke="gray" />
