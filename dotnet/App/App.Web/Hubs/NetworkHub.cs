@@ -53,9 +53,7 @@ public class NetworkHub(Network network, Storage storage, IOptions<AppSettings> 
 
     public async Task Train(TrainParams p)
     {
-        if (!_storage.DataFileExists())
-            await _storage.SaveTrainingData(_cook.MakeTrainingData());
-        var tData = await _storage.GetTrainingData();
+        var tData = await GetTrainingData();
 
         if (p.NewThetas || !_storage.ModelFileExists())
             await _storage.SaveModel(BuildModel(p.Layers));
@@ -89,4 +87,29 @@ public class NetworkHub(Network network, Storage storage, IOptions<AppSettings> 
     {
         thetas = ThetasInitializations.HeInitialization(layers)
     };
+
+    private async Task<TrainingData> GetTrainingData()
+    {
+        TrainingData tData;
+        var saveData = false;
+
+        if (!_storage.DataFileExists())
+        {
+            tData = _cook.MakeTrainingData();
+            saveData = true;
+        }
+        else
+        {
+            tData = await _storage.GetTrainingData();
+            if (!_cook.AreXYValid(tData.x, tData.y))
+            {
+                tData = _cook.MakeTrainingData();
+                saveData = true;
+            }
+        }
+
+        if (saveData) await _storage.SaveTrainingData(tData);
+
+        return tData;
+    }
 }
