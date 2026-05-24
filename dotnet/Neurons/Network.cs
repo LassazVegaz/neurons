@@ -3,8 +3,6 @@
 public class Network
 {
     int[] layers = [];
-    Func<double, double> f = (x) => 0;
-    NormalizationParameters normParams = new() { mean = 0, standardDeviation = 1 };
     int iterationsCount;
     double alpha;
 
@@ -21,34 +19,25 @@ public class Network
     private CancellationTokenSource? tokenSource;
 
 
-    public double Predict(double x, Thetas t)
-    {
-        x = Normalize(x);
-        var predicted = Forward(x, t).befA[^1][0];
-        return Denormalize(predicted);
-    }
+    public double Predict(double x, Thetas t) => Forward(x, t).befA[^1][0];
 
     public void Train(NetworkParameters p)
     {
         layers = p.layers;
-        f = p.f;
-        normParams = p.normParams;
         iterationsCount = p.iterationsCount;
         alpha = p.alpha;
 
         tokenSource?.Cancel();
         tokenSource = new CancellationTokenSource();
 
-        Task.Run(() => Train(p.inputs, p.t, tokenSource.Token));
+        Task.Run(() => Train(p.inputs, p.targets, p.t, tokenSource.Token));
     }
 
     public void StopTraining() => tokenSource?.Cancel();
 
 
-    private void Train(double[] inputs, Thetas t, CancellationToken token)
+    private void Train(double[] inputs, double[] targets, Thetas t, CancellationToken token)
     {
-        inputs = [.. inputs.Select(Normalize)];
-
         for (var a = 0; a < iterationsCount; a++) // for every iteration
         {
             if (token.IsCancellationRequested)
@@ -62,10 +51,13 @@ public class Network
             // partial derivatives
             var dT = ThetasInitializations.ZeroInitialization(layers);
 
-            foreach (var x in inputs)
+            for (int b = 0; b < inputs.Length; b++)
             {
+                var x = inputs[b];
+                var y = targets[b];
+
                 var fResult = Forward(x, t);
-                Backward(t, dT, fResult);
+                Backward(t, dT, fResult, y);
 
                 ForwardPropagationCompleted?.Invoke(this, fResult);
             }
@@ -113,14 +105,13 @@ public class Network
         return new() { a = a, befA = befA };
     }
 
-    private void Backward(Thetas t, Thetas dT, ForwardResults fResult)
+    private void Backward(Thetas t, Thetas dT, ForwardResults fResult, double y)
     {
-        var x = fResult.a[0][0];
         var predicted = fResult.befA[^1][0];
 
         // error signals comming from every neurone
         var eSignal = new double[layers.Length][];
-        var E = -(f(x) - predicted);
+        var E = -(y - predicted);
         eSignal[^1] = [E];
 
         // from the last layer to the first one
@@ -176,10 +167,6 @@ public class Network
             }
         }
     }
-
-    private double Normalize(double x) => (x - normParams.mean) / normParams.standardDeviation;
-
-    private double Denormalize(double x) => x * normParams.standardDeviation + normParams.mean;
 
     private static double Activate(double x) => x > 0 ? x : 0;
 
