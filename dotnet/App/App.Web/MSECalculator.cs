@@ -61,13 +61,13 @@ public class MSECalculator
         if (i == 0) mses.Clear();
     }
 
-    private void Network_ForwardPropagationCompleted(object? sender, ForwardResults e)
+    private void Network_ForwardPropagationCompleted(object? sender, ForwardEventArgs e)
     {
         if (!calMse) return;
 
-        var x = e.befA[0][0];
-        var predicted = e.befA[^1][0];
-        mse += Math.Pow(f(x) - predicted, 2);
+        var fRes = e.fResults;
+        var predicted = fRes.befA[^1][0];
+        mse += Math.Pow(e.y - predicted, 2);
     }
 
     private async void Network_IterationCompleted(object? sender, int i)
