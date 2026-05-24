@@ -18,6 +18,7 @@ builder.Services.AddSingleton<Function>();
 builder.Services.AddSingleton<Network>();
 builder.Services.AddSingleton<MSECalculator>();
 builder.Services.AddSingleton<Storage>();
+builder.Services.AddSingleton<TrainingDataCook>();
 
 builder.Services.AddOptions<AppSettings>()
                 .BindConfiguration(AppSettings.KEY);

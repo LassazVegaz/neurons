@@ -28,8 +28,9 @@ public record TrainParams
 }
 
 public class NetworkHub(Network network, Storage storage, IOptions<AppSettings> options,
-    MSECalculator mseCalculator, Function func) : Hub<INetworkClient>
+    MSECalculator mseCalculator, Function func, TrainingDataCook cook) : Hub<INetworkClient>
 {
+    readonly TrainingDataCook _cook = cook;
     readonly Network _network = network;
     readonly Storage _storage = storage;
     readonly MSECalculator _mseCal = mseCalculator;
@@ -53,7 +54,7 @@ public class NetworkHub(Network network, Storage storage, IOptions<AppSettings> 
     public async Task Train(TrainParams p)
     {
         if (!_storage.DataFileExists())
-            await _storage.SaveTrainingData(MakeTrainingData());
+            await _storage.SaveTrainingData(_cook.MakeTrainingData());
         var tData = await _storage.GetTrainingData();
 
         if (p.NewThetas || !_storage.ModelFileExists())
@@ -88,36 +89,4 @@ public class NetworkHub(Network network, Storage storage, IOptions<AppSettings> 
     {
         thetas = ThetasInitializations.HeInitialization(layers)
     };
-
-    private TrainingData MakeTrainingData()
-    {
-        var x = new double[settings.TrainingDataCount]
-            .Select((_) =>
-            {
-                var sign = Random.Shared.NextDouble() > 0.5 ? -1 : 1;
-                return Random.Shared.NextDouble() * settings.TrainingDataCount * sign;
-            })
-            .Order()
-            .ToArray();
-        var xNormParams = Normalization.GetNormalizationParameters(x);
-        var xNorm = x.Select(x => Normalization.Normalize(x, xNormParams))
-                     .ToArray();
-
-        var y = x.Select(x => f(x))
-                 .ToArray();
-        var yNormParams = Normalization.GetNormalizationParameters(y);
-        var yNorm = y.Select(y => Normalization.Normalize(y, yNormParams))
-                     .ToArray();
-
-        return new()
-        {
-            x = x,
-            xNormParams = xNormParams,
-            xNorm = xNorm,
-
-            y = y,
-            yNormParams = yNormParams,
-            yNorm = yNorm
-        };
-    }
 }
