@@ -19,42 +19,40 @@ export type MseChartProps = {
 };
 
 const CustomTooltip = ({ active, payload, label }: TooltipContentProps) => {
-  if (active && payload?.length) {
-    let diff: number | undefined;
-    let perc: string | undefined;
-    if (
-      typeof payload[0]?.value === "number" &&
-      typeof payload[1]?.value === "number"
-    ) {
-      diff = Math.abs(payload[0].value - payload[1].value);
-      perc = Math.abs((diff / payload[0].value) * 100).toFixed(2);
-    }
+  if (!active || !payload?.length) return <></>;
 
-    return (
-      <div className="bg-[#999] p-3 rounded-lg border border-gray-600">
-        {/* The Label (X-Value) */}
-        <p className="text-black font-bold mb-2">{label}</p>
-
-        {/* Mapping through your lines (Actual and Prediction) */}
-        {payload.map((entry) => (
-          <p
-            key={entry.dataKey?.toString()}
-            style={{ color: "#333" }}
-            className="text-sm"
-          >
-            {entry.name}: <span className="font-mono">{entry.value}</span>
-          </p>
-        ))}
-
-        {/* --- YOUR NEW ELEMENT HERE --- */}
-        <div className="mt-2 pt-2 border-t border-gray-400 text-xs text-red-800 italic">
-          ⚠️ Diff: {diff} ({perc})%
-        </div>
-      </div>
-    );
+  let diff: number | undefined;
+  let perc: string | undefined;
+  if (
+    typeof payload[0]?.value === "number" &&
+    typeof payload[1]?.value === "number"
+  ) {
+    diff = Math.abs(payload[0].value - payload[1].value);
+    perc = Math.abs((diff / payload[0].value) * 100).toFixed(2);
   }
 
-  return <></>;
+  return (
+    <div className="bg-[#999] p-3 rounded-lg border border-gray-600">
+      {/* The Label (X-Value) */}
+      <p className="text-black font-bold mb-2">{label}</p>
+
+      {/* Mapping through your lines (Actual and Prediction) */}
+      {payload.map((entry) => (
+        <p
+          key={entry.dataKey?.toString()}
+          style={{ color: "#333" }}
+          className="text-sm"
+        >
+          {entry.name}: <span className="font-mono">{entry.value}</span>
+        </p>
+      ))}
+
+      {/* --- YOUR NEW ELEMENT HERE --- */}
+      <div className="mt-2 pt-2 border-t border-gray-400 text-xs text-red-800 italic">
+        ⚠️ Diff: {diff} ({perc})%
+      </div>
+    </div>
+  );
 };
 
 export const PredictionsChart = (props: PredictionChartProps) => (
