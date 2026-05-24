@@ -8,6 +8,20 @@ public class TrainingDataCook(IOptions<AppSettings> options, Function func)
     readonly Func<double, double> f = func.f;
     readonly AppSettings settings = options.Value;
 
+
+    public bool AreXYValid(double[] x, double[] y)
+    {
+        if (x.Length != y.Length) return false;
+
+        for (int i = 0; i < 10; i++)
+        {
+            int idx = Random.Shared.Next(x.Length);
+            if (y[idx] != f(x[idx])) return false;
+        }
+
+        return true;
+    }
+
     public TrainingData MakeTrainingData()
     {
         var x = new double[settings.TrainingDataCount]
