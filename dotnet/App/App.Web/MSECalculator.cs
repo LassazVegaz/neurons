@@ -50,7 +50,9 @@ public class MSECalculator
     {
         m = data.M;
         lastItrIdx = data.TotalIterations - 1;
-        calMseAt = data.TotalIterations / settings.MaxMsesToSend;
+        calMseAt = data.TotalIterations < settings.MaxMsesToSend ?
+            settings.MaxMsesToSend :
+            data.TotalIterations / settings.MaxMsesToSend;
     }
 
     private void Network_IterationStarted(object? sender, int i)
