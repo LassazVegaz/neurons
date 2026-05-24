@@ -11,7 +11,7 @@ public class Network
     /// which is 0-based
     /// </summary>
     public event EventHandler<int>? IterationStarted;
-    public event EventHandler<ForwardResults>? ForwardPropagationCompleted;
+    public event EventHandler<ForwardEventArgs>? ForwardPropagationCompleted;
     public event EventHandler<int>? IterationCompleted;
     public event EventHandler? TrainingStopped;
     public event EventHandler<Thetas>? TrainingFinished;
@@ -59,7 +59,7 @@ public class Network
                 var fResult = Forward(x, t);
                 Backward(t, dT, fResult, y);
 
-                ForwardPropagationCompleted?.Invoke(this, fResult);
+                ForwardPropagationCompleted?.Invoke(this, new() { fResults = fResult, y = y });
             }
 
             UpdateThetas(t, dT, inputs.Length);
