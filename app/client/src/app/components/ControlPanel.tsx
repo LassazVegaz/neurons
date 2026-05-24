@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ChangeEventHandler, useEffect, useState } from "react";
 import { Button, Checkbox, TextField } from "./Fields";
 import TrainingStatus from "../types/trainin-status.enum";
 import NetworkHub from "@/signalr/network.hub";
@@ -71,6 +71,14 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
     setTrainingStatus(TrainingStatus.RequestedToStop);
   };
 
+  const onFieldValueChange: ChangeEventHandler<
+    HTMLInputElement,
+    HTMLInputElement
+  > = (e) => {
+    const value = e.target.type === "text" ? e.target.value : e.target.checked;
+    setForm((prev) => ({ ...prev, [e.target.name]: value }));
+  };
+
   const showStartBtn =
     trainingStatus === TrainingStatus.Finished ||
     trainingStatus === TrainingStatus.NotStarted ||
@@ -92,33 +100,25 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
         label="Use new thetas"
         name="useNewThetas"
         checked={form.useNewThetas}
-        onChange={(e) =>
-          setForm((prev) => ({ ...prev, useNewThetas: e.target.checked }))
-        }
+        onChange={onFieldValueChange}
       />
       <TextField
         label="Alpha (learning rate)"
         name="alpha"
         value={form.alpha}
-        onChange={(e) =>
-          setForm((prev) => ({ ...prev, alpha: e.target.value }))
-        }
+        onChange={onFieldValueChange}
       />
       <TextField
         label="Iterations"
         name="iterations"
         value={form.iterations}
-        onChange={(e) =>
-          setForm((prev) => ({ ...prev, iterations: e.target.value }))
-        }
+        onChange={onFieldValueChange}
       />
       <TextField
         label="Layers"
         name="layers"
         value={form.layers}
-        onChange={(e) =>
-          setForm((prev) => ({ ...prev, layers: e.target.value }))
-        }
+        onChange={onFieldValueChange}
       />
       <div className="flex gap-4">
         {showStartBtn && (
