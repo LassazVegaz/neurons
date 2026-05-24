@@ -16,8 +16,8 @@ public class Storage(IOptions<AppSettings> options)
     public async Task SaveModel(Model m) => await SaveJson(m, modelFile);
 
     public bool DataFileExists() => FileExists(dataFile);
-    public async Task<double[]> GetTrainingData() => await GetJson<double[]>(dataFile);
-    public async Task SaveTrainingData(double[] d) => await SaveJson(d, dataFile);
+    public async Task<TrainingData> GetTrainingData() => await GetJson<TrainingData>(dataFile);
+    public async Task SaveTrainingData(TrainingData d) => await SaveJson(d, dataFile);
 
 
     private static async Task<T> GetJson<T>(string fileName)

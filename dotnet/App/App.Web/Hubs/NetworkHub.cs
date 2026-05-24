@@ -54,15 +54,15 @@ public class NetworkHub(Network network, Storage storage, IOptions<AppSettings> 
     {
         if (!_storage.DataFileExists())
             await _storage.SaveTrainingData(MakeTrainingData());
-        var inputs = await _storage.GetTrainingData();
+        var tData = await _storage.GetTrainingData();
 
         if (p.NewThetas || !_storage.ModelFileExists())
-            await _storage.SaveModel(BuildModel(inputs, p.Layers));
+            await _storage.SaveModel(BuildModel(p.Layers));
         var model = await _storage.GetModel();
 
         _mseCal.SetData(new()
         {
-            M = inputs.Length,
+            M = tData.x.Length,
             TotalIterations = p.Iterations
         });
 
@@ -72,8 +72,8 @@ public class NetworkHub(Network network, Storage storage, IOptions<AppSettings> 
             f = f,
             iterationsCount = p.Iterations,
             layers = p.Layers,
-            normParams = model.normParams,
-            inputs = inputs,
+            inputs = tData.xNorm,
+            targets = tData.yNorm,
             t = model.thetas
         });
     }
@@ -84,33 +84,40 @@ public class NetworkHub(Network network, Storage storage, IOptions<AppSettings> 
     }
 
 
-    private static Model BuildModel(double[] trainingData, int[] layers)
+    private static Model BuildModel(int[] layers) => new()
     {
-        var mean = trainingData.Average();
-        var sum = trainingData.Sum(d => Math.Pow(d - mean, 2));
-        var std = Math.Sqrt(sum / trainingData.Length);
+        thetas = ThetasInitializations.HeInitialization(layers)
+    };
+
+    private TrainingData MakeTrainingData()
+    {
+        var x = new double[settings.TrainingDataCount]
+            .Select((_) =>
+            {
+                var sign = Random.Shared.NextDouble() > 0.5 ? -1 : 1;
+                return Random.Shared.NextDouble() * settings.TrainingDataCount * sign;
+            })
+            .Order()
+            .ToArray();
+        var xNormParams = Normalization.GetNormalizationParameters(x);
+        var xNorm = x.Select(x => Normalization.Normalize(x, xNormParams))
+                     .ToArray();
+
+        var y = x.Select(x => f(x))
+                 .ToArray();
+        var yNormParams = Normalization.GetNormalizationParameters(y);
+        var yNorm = y.Select(y => Normalization.Normalize(y, yNormParams))
+                     .ToArray();
 
         return new()
         {
-            normParams = new()
-            {
-                mean = mean,
-                standardDeviation = std
-            },
-            thetas = ThetasInitializations.HeInitialization(layers)
+            x = x,
+            xNormParams = xNormParams,
+            xNorm = xNorm,
+
+            y = y,
+            yNormParams = yNormParams,
+            yNorm = yNorm
         };
-    }
-
-    private double[] MakeTrainingData()
-    {
-        var data = new double[settings.TrainingDataCount];
-
-        for (var i = 0; i < settings.TrainingDataCount; i++)
-        {
-            var sign = Random.Shared.NextDouble() > 0.5 ? -1 : 1;
-            data[i] = Random.Shared.NextDouble() * settings.TrainingDataCount * sign;
-        }
-
-        return data;
     }
 }

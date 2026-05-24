@@ -34,15 +34,20 @@ public class NetworkEventListener
         await SaveThetas(t);
 
         var trainingData = await _storage.GetTrainingData();
-        var results = trainingData
-            .Order()
-            .Select(x => new TrainingResult
+        var results = new TrainingResult[trainingData.x.Length];
+
+        for (var i = 0; i < results.Length; i++)
+        {
+            var pNorm = _network.Predict(trainingData.xNorm[i], t);
+
+            results[i] = new()
             {
-                X = x,
-                Y = f(x),
-                Prediction = _network.Predict(x, t)
-            })
-            .ToArray();
+                X = trainingData.x[i],
+                Y = trainingData.y[i],
+                Prediction = Normalization.Denormalize(pNorm, trainingData.yNormParams)
+            };
+        }
+
         await _hub.Clients.All.TrainingFinished(results);
     }
 
