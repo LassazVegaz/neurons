@@ -38,11 +38,15 @@ public class Network
 
     private void Train(double[] inputs, double[] targets, Thetas t, CancellationToken token)
     {
+        // True if execution was stopped in the middle
+        var stopped = false;
+
         for (var a = 0; a < iterationsCount; a++) // for every iteration
         {
             if (token.IsCancellationRequested)
             {
                 TrainingStopped?.Invoke(this, EventArgs.Empty);
+                stopped = true;
                 break;
             }
 
@@ -67,7 +71,7 @@ public class Network
             IterationCompleted?.Invoke(this, a);
         }
 
-        TrainingFinished?.Invoke(this, t);
+        if (!stopped) TrainingFinished?.Invoke(this, t);
     }
 
     private ForwardResults Forward(double x, Thetas t)
