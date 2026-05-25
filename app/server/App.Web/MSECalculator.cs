@@ -13,7 +13,6 @@ public record Data
 
 public class MSECalculator
 {
-    readonly Network _network;
     readonly IHubContext<NetworkHub, INetworkClient> _hub;
 
     readonly List<double> mses = [];
@@ -36,7 +35,6 @@ public class MSECalculator
     public MSECalculator(Network network, IHubContext<NetworkHub, INetworkClient> networkHub,
         Function _func, IOptions<AppSettings> options)
     {
-        _network = network;
         _hub = networkHub;
         f = _func.f;
         settings = options.Value;
@@ -50,9 +48,9 @@ public class MSECalculator
     {
         m = data.M;
         lastItrIdx = data.TotalIterations - 1;
-        calMseAt = data.TotalIterations < settings.MaxMsesToSend ?
-            settings.MaxMsesToSend :
-            data.TotalIterations / settings.MaxMsesToSend;
+        calMseAt = (data.TotalIterations < settings.MaxMsesToSend ?
+            data.TotalIterations :
+            (int)Math.Ceiling((double)data.TotalIterations / settings.MaxMsesToSend));
     }
 
     private void Network_IterationStarted(object? sender, int i)
