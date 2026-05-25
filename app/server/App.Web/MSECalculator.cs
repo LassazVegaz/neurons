@@ -32,7 +32,7 @@ public class MSECalculator
     bool calMse = false;
 
     public MSECalculator(Network network, IHubContext<NetworkHub, INetworkClient> networkHub,
-        Function _func, IOptions<AppSettings> options)
+        IOptions<AppSettings> options)
     {
         _hub = networkHub;
         settings = options.Value;
