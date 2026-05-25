@@ -18,10 +18,7 @@ public class MSECalculator
     readonly List<double> mses = [];
     readonly AppSettings settings;
 
-    /// <summary>
-    /// Calculate MSE at this much of intervals of iterations
-    /// </summary>
-    int calMseAt;
+
     int lastItrIdx; // Last iteration index
     int m;
     double mse;
@@ -30,6 +27,8 @@ public class MSECalculator
     /// Set when iteration starts
     /// </summary>
     bool calMse = false;
+    double step;
+    double accumulator;
 
     public MSECalculator(Network network, IHubContext<NetworkHub, INetworkClient> networkHub,
         IOptions<AppSettings> options)
@@ -44,17 +43,26 @@ public class MSECalculator
 
     public void SetData(Data data)
     {
+        mses.Clear();
         m = data.M;
         lastItrIdx = data.TotalIterations - 1;
-        calMseAt = (data.TotalIterations < settings.MaxMsesToSend ?
-            data.TotalIterations :
-            (int)Math.Ceiling((double)data.TotalIterations / settings.MaxMsesToSend));
+
+        var allowedMsesCount = Math.Min(data.TotalIterations, settings.MaxMsesToSend);
+        step = (double)allowedMsesCount / data.TotalIterations;
+        accumulator = 0;
     }
 
     private void Network_IterationStarted(object? sender, int i)
     {
-        calMse = i % calMseAt == 0 || i == 0 || i == lastItrIdx;
-        if (i == 0) mses.Clear();
+        accumulator += step;
+
+        if (accumulator >= 1 || i == 0 || i == lastItrIdx)
+        {
+            calMse = true;
+            accumulator -= 1;
+        }
+        else
+            calMse = false;
     }
 
     private void Network_ForwardPropagationCompleted(object? sender, ForwardEventArgs e)
