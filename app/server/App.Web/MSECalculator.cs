@@ -16,7 +16,6 @@ public class MSECalculator
     readonly IHubContext<NetworkHub, INetworkClient> _hub;
 
     readonly List<double> mses = [];
-    readonly Func<double, double> f;
     readonly AppSettings settings;
 
     /// <summary>
@@ -36,7 +35,6 @@ public class MSECalculator
         Function _func, IOptions<AppSettings> options)
     {
         _hub = networkHub;
-        f = _func.f;
         settings = options.Value;
 
         network.IterationStarted += Network_IterationStarted;
