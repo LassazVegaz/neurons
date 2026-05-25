@@ -1,5 +1,5 @@
 <Solution>
-  <Project Path="../Neurons/Neurons.csproj" />
+  <Project Path="../../neurons/Neurons.csproj" />
   <Project Path="App.Console/App.Console.csproj" />
   <Project Path="App.Shared/App.Shared.csproj" Id="2359a39a-e6cb-48e7-af67-5188e6b30968" />
   <Project Path="App.Web/App.Web.csproj" Id="769d8b6d-1f21-4d94-9de6-21779c2a1160" />
