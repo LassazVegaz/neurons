@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { ChangeEventHandler, useEffect, useState } from "react";
 import { Button, Checkbox, TextField } from "./Fields";
 import TrainingStatus from "../types/trainin-status.enum";
-import Socket from "@/types/socket.type";
+import NetworkHub from "@/signalr/network.hub";
 
 type ControlPanelProps = {
-  socket?: Socket;
   connectedToServer?: boolean;
   currentIteration?: number;
+  networkHub?: NetworkHub;
+  showActualLine: boolean;
+  onShowActualLineChange?: (v: boolean) => void;
 };
 
 const defaultForm = {
@@ -36,29 +38,27 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
     TrainingStatus.NotStarted,
   );
 
-  useEffect(() => {
-    if (!props.socket) return;
+  const networkHub = props.networkHub;
 
-    props.socket.on("requestToStopTrainingFulfilled", () => {
+  useEffect(() => {
+    networkHub?.on("TrainingStopped", () => {
       setTrainingStatus(TrainingStatus.RequestToStopFulfilled);
     });
 
-    props.socket.on("finishedTraining", () => {
+    networkHub?.on("TrainingFinished", () => {
       setTrainingStatus(TrainingStatus.Finished);
       setForm((prev) => ({ ...prev, useNewThetas: false }));
     });
 
     return () => {
-      if (!props.socket) return;
-      props.socket.off("requestToStopTrainingFulfilled");
-      props.socket.off("finishedTraining");
+      networkHub?.off("TrainingStopped");
+      networkHub?.off("TrainingFinished");
     };
-  }, [props.socket]);
+  }, [networkHub]);
 
-  const onStartClick = () => {
-    if (!props.socket) return;
+  const onStartClick = async () => {
     const iterations = Number.parseInt(form.iterations);
-    props.socket.emit("train", {
+    await networkHub?.invoke("Train", {
       layers: form.layers.split(",").map(Number),
       newThetas: form.useNewThetas,
       alpha: Number.parseFloat(form.alpha),
@@ -68,10 +68,17 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
     setIteraionsCount(iterations);
   };
 
-  const onStopClick = () => {
-    if (!props.socket) return;
-    props.socket.emit("requestToStopTraining");
+  const onStopClick = async () => {
+    await networkHub?.invoke("StopTraining");
     setTrainingStatus(TrainingStatus.RequestedToStop);
+  };
+
+  const onFieldValueChange: ChangeEventHandler<
+    HTMLInputElement,
+    HTMLInputElement
+  > = (e) => {
+    const value = e.target.type === "text" ? e.target.value : e.target.checked;
+    setForm((prev) => ({ ...prev, [e.target.name]: value }));
   };
 
   const showStartBtn =
@@ -92,36 +99,34 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
   return (
     <div className="flex flex-col gap-4 pt-4 pr-4">
       <Checkbox
+        label="Show actual"
+        name="showActual"
+        checked={props.showActualLine}
+        onChange={(e) => props.onShowActualLineChange?.(e.target.checked)}
+      />
+      <Checkbox
         label="Use new thetas"
         name="useNewThetas"
         checked={form.useNewThetas}
-        onChange={(e) =>
-          setForm((prev) => ({ ...prev, useNewThetas: e.target.checked }))
-        }
+        onChange={onFieldValueChange}
       />
       <TextField
         label="Alpha (learning rate)"
         name="alpha"
         value={form.alpha}
-        onChange={(e) =>
-          setForm((prev) => ({ ...prev, alpha: e.target.value }))
-        }
+        onChange={onFieldValueChange}
       />
       <TextField
         label="Iterations"
         name="iterations"
         value={form.iterations}
-        onChange={(e) =>
-          setForm((prev) => ({ ...prev, iterations: e.target.value }))
-        }
+        onChange={onFieldValueChange}
       />
       <TextField
         label="Layers"
         name="layers"
         value={form.layers}
-        onChange={(e) =>
-          setForm((prev) => ({ ...prev, layers: e.target.value }))
-        }
+        onChange={onFieldValueChange}
       />
       <div className="flex gap-4">
         {showStartBtn && (

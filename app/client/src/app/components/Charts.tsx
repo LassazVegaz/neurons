@@ -7,45 +7,52 @@ import {
   ReferenceLine,
   TooltipContentProps,
 } from "recharts";
-import { FinishedTrainingResults } from "shared";
+import { TrainingResult } from "../../signalr/network.hub.types";
 
 type PredictionChartProps = {
-  data: FinishedTrainingResults;
+  data: TrainingResult[];
+  showActualLine: boolean;
 };
 
 export type MseChartProps = {
   data: { x: number; mse: number }[];
 };
 
-const CustomTooltip = ({
-  active,
-  payload,
-  label,
-}: TooltipContentProps<number, number>) => {
-  if (active && payload?.length) {
-    const diff = Math.abs(payload[0].value - payload[1].value);
-    const perc = Math.abs((diff / payload[0].value) * 100).toFixed(2);
+const CustomTooltip = ({ active, payload, label }: TooltipContentProps) => {
+  if (!active || !payload?.length) return <></>;
 
-    return (
-      <div className="bg-[#999] p-3 rounded-lg border border-gray-600">
-        {/* The Label (X-Value) */}
-        <p className="text-black font-bold mb-2">{label}</p>
-
-        {/* Mapping through your lines (Actual and Prediction) */}
-        {payload.map((entry) => (
-          <p key={entry.dataKey} style={{ color: "#333" }} className="text-sm">
-            {entry.name}: <span className="font-mono">{entry.value}</span>
-          </p>
-        ))}
-
-        {/* --- YOUR NEW ELEMENT HERE --- */}
-        <div className="mt-2 pt-2 border-t border-gray-400 text-xs text-red-800 italic">
-          ⚠️ Diff: {diff} ({perc})%
-        </div>
-      </div>
-    );
+  let diff: number | undefined;
+  let perc: string | undefined;
+  if (
+    typeof payload[0]?.value === "number" &&
+    typeof payload[1]?.value === "number"
+  ) {
+    diff = Math.abs(payload[0].value - payload[1].value);
+    perc = Math.abs((diff / payload[0].value) * 100).toFixed(2);
   }
-  return null;
+
+  return (
+    <div className="bg-[#999] p-3 rounded-lg border border-gray-600">
+      {/* The Label (X-Value) */}
+      <p className="text-black font-bold mb-2">{label}</p>
+
+      {/* Mapping through your lines (Actual and Prediction) */}
+      {payload.map((entry) => (
+        <p
+          key={entry.dataKey?.toString()}
+          style={{ color: "#333" }}
+          className="text-sm"
+        >
+          {entry.name}: <span className="font-mono">{entry.value}</span>
+        </p>
+      ))}
+
+      {/* --- YOUR NEW ELEMENT HERE --- */}
+      <div className="mt-2 pt-2 border-t border-gray-400 text-xs text-red-800 italic">
+        ⚠️ Diff: {diff} ({perc})%
+      </div>
+    </div>
+  );
 };
 
 export const PredictionsChart = (props: PredictionChartProps) => (
@@ -55,7 +62,7 @@ export const PredictionsChart = (props: PredictionChartProps) => (
     height="100%"
     data={props.data}
   >
-    <Line dataKey="actual" dot={false} stroke="green" />
+    {props.showActualLine && <Line dataKey="y" dot={false} stroke="green" />}
     <Line dataKey="prediction" dot={false} stroke="red" />
     <ReferenceLine x={0} stroke="gray" />
     <ReferenceLine y={0} stroke="gray" />

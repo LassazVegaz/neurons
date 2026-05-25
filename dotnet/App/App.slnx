@@ -1,4 +1,0 @@
-<Solution>
-  <Project Path="../Neurons/Neurons.csproj" />
-  <Project Path="App.Console/App.Console.csproj" />
-</Solution>
