@@ -23,11 +23,6 @@ public class TrainParameters
     public required int initialState;
 
     /// <summary>
-    /// The initial action of each game
-    /// </summary>
-    public required int initialAction;
-
-    /// <summary>
     /// Decay greedy-e completely at which iteration
     /// </summary>
     public required int eDecayCompletelyAt;
