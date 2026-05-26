@@ -9,23 +9,16 @@ public class HubTrainParameters
     public double Alpha { get; set; }
 }
 
-public class QLearningHub : Hub
+public class QLearningHub(QLearning qLearning, IOptions<QLearningSettings> settings)
+    : Hub
 {
     const int ALLOWED_STEPS = 9; // 0-based
     const int STATES = 100;
     const int ACTIONS = 4;
 
-    readonly QLearning _qLearning;
-    readonly QLearningSettings _settings;
-    readonly double[] rewards;
-
-
-    public QLearningHub(QLearning qLearning, IOptions<QLearningSettings> settings)
-    {
-        _qLearning = qLearning;
-        _settings = settings.Value;
-        rewards = MakeRewards();
-    }
+    readonly QLearning _qLearning = qLearning;
+    readonly QLearningSettings _settings = settings.Value;
+    readonly double[] rewards = MakeRewards();
 
     public async Task Train(HubTrainParameters p)
     {
