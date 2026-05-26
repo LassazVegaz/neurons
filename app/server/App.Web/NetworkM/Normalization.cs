@@ -1,6 +1,6 @@
 ﻿using Neurons.Network;
 
-namespace App.Web;
+namespace App.Web.NetworkM;
 
 public static class Normalization
 {

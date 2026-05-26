@@ -1,4 +1,4 @@
-﻿namespace App.Web;
+﻿namespace App.Web.NetworkM;
 
 public class Function
 {

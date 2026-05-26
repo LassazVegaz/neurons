@@ -1,7 +1,7 @@
 ﻿using App.Shared;
 using Microsoft.Extensions.Options;
 
-namespace App.Web;
+namespace App.Web.NetworkM;
 
 public class TrainingDataCook(IOptions<AppSettings> options, Function func)
 {

@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
-namespace App.Web;
+namespace App.Web.NetworkM;
 
 public class Storage(IOptions<AppSettings> options)
 {

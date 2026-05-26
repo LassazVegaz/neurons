@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Neurons.Network;
 
-namespace App.Web.Hubs;
+namespace App.Web.NetworkM;
 
 public record TrainingResult
 {

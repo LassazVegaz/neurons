@@ -1,8 +1,7 @@
-﻿using App.Web.Hubs;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Neurons.Network;
 
-namespace App.Web.EventListeners;
+namespace App.Web.NetworkM;
 
 public class NetworkEventListener
 {

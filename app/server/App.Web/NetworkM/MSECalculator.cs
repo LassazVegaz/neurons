@@ -1,9 +1,8 @@
-﻿using App.Web.Hubs;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Neurons.Network;
 
-namespace App.Web;
+namespace App.Web.NetworkM;
 
 public record Data
 {
