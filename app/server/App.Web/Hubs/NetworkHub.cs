@@ -1,7 +1,7 @@
 ﻿using App.Shared;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
-using Neurons;
+using Neurons.Network;
 
 namespace App.Web.Hubs;
 

@@ -1,4 +1,4 @@
-﻿namespace Neurons;
+﻿namespace Neurons.Network;
 
 public static class ThetasInitializations
 {

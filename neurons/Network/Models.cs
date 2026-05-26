@@ -1,4 +1,4 @@
-﻿namespace Neurons;
+﻿namespace Neurons.Network;
 
 /// <summary>
 /// Weights and biases of the network.

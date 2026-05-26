@@ -1,4 +1,4 @@
-﻿using Neurons;
+﻿using Neurons.Network;
 
 namespace App.Web;
 
