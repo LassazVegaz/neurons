@@ -36,6 +36,13 @@ public class TrainParameters
     /// Perform an action
     /// </summary>
     public required Func<ActionDetails, ActionResults> Act;
+
+    /// <summary>
+    /// A pre-trained Q-Table. If not provided, an empty table will be
+    /// created internally. Listen to <see cref="QLearning.TrainingFinished"/>
+    /// to get the trained Q-Table.
+    /// </summary>
+    public double[][]? qTable;
 }
 
 public class ActionDetails

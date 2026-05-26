@@ -8,7 +8,7 @@ public class QLearning
     private CancellationTokenSource? tknCtx;
 
     public event EventHandler? TrainingStopped;
-    public event EventHandler? TrainingFinished;
+    public event EventHandler<double[][]>? TrainingFinished;
 
     public void Train(TrainParameters p)
     {
@@ -23,7 +23,7 @@ public class QLearning
     {
         noOfActions = p.noOfActions;
         noOfStates = p.noOfStates;
-        table = BuildTable();
+        table = p.qTable ?? BuildTable();
 
         var stopped = false;
         var greediness = 0.0;
@@ -65,7 +65,7 @@ public class QLearning
             }
         }
 
-        if (!stopped) TrainingFinished?.Invoke(this, EventArgs.Empty);
+        if (!stopped) TrainingFinished?.Invoke(this, table);
     }
 
     private double[][] BuildTable()
