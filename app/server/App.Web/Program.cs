@@ -28,7 +28,5 @@ app.UseCors();
 
 app.MapHub<NetworkHub>("/network");
 
-app.Services.GetRequiredService<NetworkEventListener>();
-
 
 app.Run();
