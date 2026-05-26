@@ -22,11 +22,6 @@ public class TrainParameters
     /// </summary>
     public required int initialState;
 
-    /// <summary>
-    /// Decay greedy-e completely at which iteration
-    /// </summary>
-    public required int eDecayCompletelyAt;
-
     public required double alpha;
 
     public required double lambda;
