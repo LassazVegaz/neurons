@@ -1,0 +1,82 @@
+﻿namespace Neurons.QLearning;
+
+public class TrainParameters
+{
+    /// <summary>
+    /// Number of states
+    /// </summary>
+    public required int noOfStates;
+
+    /// <summary>
+    /// Number of actions
+    /// </summary>
+    public required int noOfActions;
+
+    /// <summary>
+    /// Number of iterations the game should be trained for
+    /// </summary>
+    public required int iterations;
+
+    /// <summary>
+    /// The initial state of each game
+    /// </summary>
+    public required int initialState;
+
+    /// <summary>
+    /// The initial action of each game
+    /// </summary>
+    public required int initialAction;
+
+    /// <summary>
+    /// Decay greedy-e completely at which iteration
+    /// </summary>
+    public required int eDecayCompletelyAt;
+
+    public required double alpha;
+
+    public required double lambda;
+
+    // I know this is not understandable. But I like this word
+    /// <summary>
+    /// Perform an action
+    /// </summary>
+    public required Func<ActionDetails, ActionResults> Act;
+}
+
+public class ActionDetails
+{
+    /// <summary>
+    /// Current step. 0-based
+    /// </summary>
+    public required int step;
+
+    /// <summary>
+    /// Current state. 0-based
+    /// </summary>
+    public required int currentState;
+
+    /// <summary>
+    /// Action to be taken from <see cref="ActionDetails.currentState"/>
+    /// </summary>
+    public required int actionToTake;
+}
+
+public class ActionResults
+{
+    /// <summary>
+    /// Reward if <see cref="ActionDetails.actionToTake"/> was taken
+    /// from <see cref="ActionDetails.currentState"/>
+    /// </summary>
+    public required double reward;
+
+    /// <summary>
+    /// If true will stop after performing the action.
+    /// </summary>
+    public required bool gameOver;
+
+    /// <summary>
+    /// Next state after performing <see cref="ActionDetails.actionToTake"/>
+    /// from <see cref="ActionDetails.currentState"/>
+    /// </summary>
+    public required int nextState;
+}
