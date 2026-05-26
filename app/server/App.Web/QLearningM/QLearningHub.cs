@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Neurons.QLearning;
+using System.Text.Json;
 
 namespace App.Web.QLearningM;
 
@@ -31,6 +32,7 @@ public class QLearningHub(QLearning qLearning, IOptions<QLearningSettings> setti
             lambda = _settings.Lambda,
             noOfActions = ACTIONS,
             noOfStates = STATES,
+            qTable = await GetSavedTable()
         });
     }
 
@@ -52,6 +54,15 @@ public class QLearningHub(QLearning qLearning, IOptions<QLearningSettings> setti
             gameOver = ctx.step == ALLOWED_STEPS,
             reward = rewards[nextState]
         };
+    }
+
+    async Task<double[][]?> GetSavedTable()
+    {
+        var fileName = Path.Combine(Environment.CurrentDirectory, _settings.QTableFile);
+        if (!File.Exists(fileName)) return null;
+
+        var json = await File.ReadAllTextAsync(fileName);
+        return JsonSerializer.Deserialize<double[][]>(json);
     }
 
     static double[] MakeRewards()
