@@ -12,10 +12,10 @@ public class QLearning
     public event EventHandler<double[][]>? TrainingFinished;
 
     /// <summary>
-    /// Get notified when a step is finished. Event arguments include the actions taken
-    /// during the step
+    /// Get notified when a period is finished. Event arguments include the actions taken
+    /// during the period
     /// </summary>
-    public event EventHandler<int[]>? StepFinished;
+    public event EventHandler<int[]>? PeriodFinished;
     #endregion
 
     public void Train(TrainParameters p)
@@ -48,13 +48,13 @@ public class QLearning
 
             greediness += greedinessRate;
             var state = p.initialState;
-            var step = -1;
+            var period = -1;
 
             var actions = new List<int>();
 
             while (true)
             {
-                step++;
+                period++;
 
                 var action = Random.Shared.NextDouble() < greediness ?
                     BestAction(state) : Random.Shared.Next(noOfActions);
@@ -63,20 +63,20 @@ public class QLearning
                 {
                     actionToTake = action,
                     currentState = state,
-                    step = step
+                    period = period
                 });
 
                 actions.Add(action);
 
                 var currentQ = table[state][action];
-                double nxtMaxQ = table[res.nextState].Max(); // max Q value fron next state
+                double nxtMaxQ = table[res.nextState].Max(); // max Q value from next state
                 var qValue = currentQ + p.alpha * (res.reward + p.lambda * nxtMaxQ - currentQ);
                 table[state][action] = qValue;
 
                 if (res.gameOver) break;
             }
 
-            StepFinished?.Invoke(this, [.. actions]);
+            PeriodFinished?.Invoke(this, [.. actions]);
         }
 
         if (!stopped) TrainingFinished?.Invoke(this, table);

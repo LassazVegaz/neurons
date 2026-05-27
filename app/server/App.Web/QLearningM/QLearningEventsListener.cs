@@ -29,12 +29,12 @@ public class QLearningEventsListener
         _settings = settings.Value;
         _hub = hub;
 
-        _qLearning.StepFinished += QLearning_StepFinished;
+        _qLearning.PeriodFinished += QLearning_StepFinished;
         _qLearning.TrainingStopped += QLearning_TrainingStopped;
         _qLearning.TrainingFinished += QLearning_TrainingFinished;
     }
 
-    public ActionResults Act(StepContext ctx)
+    public ActionResults Act(PeriodContext ctx)
     {
         var s = ctx.currentState;
         var a = ctx.actionToTake;
@@ -48,7 +48,7 @@ public class QLearningEventsListener
         return new()
         {
             nextState = nextState,
-            gameOver = ctx.step == Constants.ALLOWED_STEPS,
+            gameOver = ctx.period == Constants.ALLOWED_STEPS,
             reward = rewards[nextState]
         };
     }

@@ -30,7 +30,7 @@ public class TrainParameters
     /// <summary>
     /// Perform an action
     /// </summary>
-    public required Func<StepContext, ActionResults> Act;
+    public required Func<PeriodContext, ActionResults> Act;
 
     /// <summary>
     /// A pre-trained Q-Table. If not provided, an empty table will be
@@ -40,12 +40,12 @@ public class TrainParameters
     public double[][]? qTable;
 }
 
-public class StepContext
+public class PeriodContext
 {
     /// <summary>
-    /// Current step. 0-based
+    /// Current period index. 0-based
     /// </summary>
-    public required int step;
+    public required int period;
 
     /// <summary>
     /// Current state. 0-based
@@ -53,7 +53,7 @@ public class StepContext
     public required int currentState;
 
     /// <summary>
-    /// Action to be taken from <see cref="StepContext.currentState"/>
+    /// Action to be taken from <see cref="PeriodContext.currentState"/>
     /// </summary>
     public required int actionToTake;
 }
@@ -61,19 +61,19 @@ public class StepContext
 public class ActionResults
 {
     /// <summary>
-    /// Reward if <see cref="StepContext.actionToTake"/> was taken
-    /// from <see cref="StepContext.currentState"/>
+    /// Reward if <see cref="PeriodContext.actionToTake"/> was taken
+    /// from <see cref="PeriodContext.currentState"/>
     /// </summary>
     public required double reward;
 
     /// <summary>
-    /// If true will stop after performing the action.
+    /// If true game will stop after performing the action.
     /// </summary>
     public required bool gameOver;
 
     /// <summary>
-    /// Next state after performing <see cref="StepContext.actionToTake"/>
-    /// from <see cref="StepContext.currentState"/>
+    /// Next state after performing <see cref="PeriodContext.actionToTake"/>
+    /// from <see cref="PeriodContext.currentState"/>
     /// </summary>
     public required int nextState;
 }
