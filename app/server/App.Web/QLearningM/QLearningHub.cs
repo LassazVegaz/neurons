@@ -26,7 +26,6 @@ public class QLearningHub
         _qLearning = qLearning;
         _settings = settings.Value;
         _listener = eventsListener;
-        eventsListener.Setup();
     }
 
     public async Task Train(HubTrainParameters p)
