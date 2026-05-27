@@ -12,17 +12,22 @@ public class HubTrainParameters
     public bool CreateNewTable { get; set; }
 }
 
-public class QLearningHub(QLearning qLearning, IOptions<QLearningSettings> settings)
+public class QLearningHub
     : Hub
 {
-    const int ALLOWED_STEPS = 9; // 0-based
-    const int STATES = 100;
-    const int ACTIONS = 4;
+    readonly QLearning _qLearning;
+    readonly QLearningSettings _settings;
+    readonly QLearningEventsListener _listener;
 
-    readonly QLearning _qLearning = qLearning;
-    readonly QLearningSettings _settings = settings.Value;
-    readonly double[] rewards = MakeRewards();
 
+    public QLearningHub(QLearning qLearning, IOptions<QLearningSettings> settings,
+        QLearningEventsListener eventsListener)
+    {
+        _qLearning = qLearning;
+        _settings = settings.Value;
+        _listener = eventsListener;
+        eventsListener.Setup();
+    }
 
     public async Task Train(HubTrainParameters p)
     {
@@ -30,36 +35,17 @@ public class QLearningHub(QLearning qLearning, IOptions<QLearningSettings> setti
 
         _qLearning.Train(new()
         {
-            Act = Act,
+            Act = _listener.Act,
             alpha = p.Alpha,
             lambda = p.Lambda,
             initialState = 0,
             iterations = _settings.Iterations,
-            noOfActions = ACTIONS,
-            noOfStates = STATES,
+            noOfActions = Constants.ACTIONS,
+            noOfStates = Constants.STATES,
             qTable = qTable
         });
     }
 
-
-    ActionResults Act(ActionDetails ctx)
-    {
-        var s = ctx.currentState;
-        var a = ctx.actionToTake;
-        var nextState = s;
-
-        if (a == 0 && s > 9) nextState -= 10;
-        else if (a == 1 && s % 10 != 9) nextState++;
-        else if (a == 2 && s < 89) nextState += 10;
-        else if (a == 3 && s % 10 != 0) nextState--;
-
-        return new()
-        {
-            nextState = nextState,
-            gameOver = ctx.step == ALLOWED_STEPS,
-            reward = rewards[nextState]
-        };
-    }
 
     async Task<double[][]?> GetSavedTable()
     {
@@ -68,20 +54,6 @@ public class QLearningHub(QLearning qLearning, IOptions<QLearningSettings> setti
 
         var json = await File.ReadAllTextAsync(fileName);
         return JsonSerializer.Deserialize<double[][]>(json);
-    }
-
-    static double[] MakeRewards()
-    {
-        var r = new double[STATES];
-
-        for (var i = 0; i < STATES; i++)
-        {
-            var col = (i % 10) + 1;
-            var row = (i / 10) + 1;
-            r[i] = 10 - Math.Sqrt(Math.Pow(10 - col, 2) + Math.Pow(10 - row, 2));
-        }
-
-        return r;
     }
 }
 
