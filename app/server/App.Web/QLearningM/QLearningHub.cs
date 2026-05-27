@@ -8,6 +8,8 @@ namespace App.Web.QLearningM;
 public class HubTrainParameters
 {
     public double Alpha { get; set; }
+    public double Lambda { get; set; }
+    public bool CreateNewTable { get; set; }
 }
 
 public class QLearningHub(QLearning qLearning, IOptions<QLearningSettings> settings)
@@ -21,18 +23,21 @@ public class QLearningHub(QLearning qLearning, IOptions<QLearningSettings> setti
     readonly QLearningSettings _settings = settings.Value;
     readonly double[] rewards = MakeRewards();
 
+
     public async Task Train(HubTrainParameters p)
     {
+        var qTable = p.CreateNewTable ? null : await GetSavedTable();
+
         _qLearning.Train(new()
         {
             Act = Act,
             alpha = p.Alpha,
+            lambda = p.Lambda,
             initialState = 0,
             iterations = _settings.Iterations,
-            lambda = _settings.Lambda,
             noOfActions = ACTIONS,
             noOfStates = STATES,
-            qTable = await GetSavedTable()
+            qTable = qTable
         });
     }
 
