@@ -16,7 +16,7 @@ public class QLearningEventsListener
         _qLearning.TrainingFinished += QLearning_TrainingFinished;
     }
 
-    public ActionResults Act(ActionDetails ctx)
+    public ActionResults Act(StepContext ctx)
     {
         var s = ctx.currentState;
         var a = ctx.actionToTake;

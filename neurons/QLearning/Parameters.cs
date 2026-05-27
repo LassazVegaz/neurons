@@ -30,7 +30,7 @@ public class TrainParameters
     /// <summary>
     /// Perform an action
     /// </summary>
-    public required Func<ActionDetails, ActionResults> Act;
+    public required Func<StepContext, ActionResults> Act;
 
     /// <summary>
     /// A pre-trained Q-Table. If not provided, an empty table will be
@@ -40,7 +40,7 @@ public class TrainParameters
     public double[][]? qTable;
 }
 
-public class ActionDetails
+public class StepContext
 {
     /// <summary>
     /// Current step. 0-based
@@ -53,7 +53,7 @@ public class ActionDetails
     public required int currentState;
 
     /// <summary>
-    /// Action to be taken from <see cref="ActionDetails.currentState"/>
+    /// Action to be taken from <see cref="StepContext.currentState"/>
     /// </summary>
     public required int actionToTake;
 }
@@ -61,8 +61,8 @@ public class ActionDetails
 public class ActionResults
 {
     /// <summary>
-    /// Reward if <see cref="ActionDetails.actionToTake"/> was taken
-    /// from <see cref="ActionDetails.currentState"/>
+    /// Reward if <see cref="StepContext.actionToTake"/> was taken
+    /// from <see cref="StepContext.currentState"/>
     /// </summary>
     public required double reward;
 
@@ -72,8 +72,8 @@ public class ActionResults
     public required bool gameOver;
 
     /// <summary>
-    /// Next state after performing <see cref="ActionDetails.actionToTake"/>
-    /// from <see cref="ActionDetails.currentState"/>
+    /// Next state after performing <see cref="StepContext.actionToTake"/>
+    /// from <see cref="StepContext.currentState"/>
     /// </summary>
     public required int nextState;
 }
