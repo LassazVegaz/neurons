@@ -10,6 +10,7 @@ public class HubTrainParameters
     public double Alpha { get; set; }
     public double Lambda { get; set; }
     public bool CreateNewTable { get; set; }
+    public int Iterations { get; set; }
 }
 
 public interface IQlearningClient
@@ -18,15 +19,18 @@ public interface IQlearningClient
 }
 
 public class QLearningHub(QLearning qLearning, IOptions<QLearningSettings> settings,
-    ActionPerformer actionPerformer)
+    QLearningEventsListener eventsListener, ActionPerformer actionPerformer)
     : Hub<IQlearningClient>
 {
     readonly QLearning _qLearning = qLearning;
     readonly QLearningSettings _settings = settings.Value;
+    readonly QLearningEventsListener _listener = eventsListener;
     readonly ActionPerformer _actionPerformer = actionPerformer;
 
     public async Task Train(HubTrainParameters p)
     {
+        _listener.SetTrainData(new() { iterations = p.Iterations });
+
         var qTable = p.CreateNewTable ? null : await GetSavedTable();
 
         _qLearning.Train(new()
