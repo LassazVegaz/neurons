@@ -12,8 +12,12 @@ public class HubTrainParameters
     public bool CreateNewTable { get; set; }
 }
 
-public class QLearningHub
-    : Hub
+public interface IQlearningClient
+{
+    Task GameFinished(int[] actions);
+}
+
+public class QLearningHub : Hub<IQlearningClient>
 {
     readonly QLearning _qLearning;
     readonly QLearningSettings _settings;
