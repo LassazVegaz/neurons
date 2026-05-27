@@ -7,8 +7,16 @@ public class QLearning
     private double[][] table = [];
     private CancellationTokenSource? tknCtx;
 
+    #region EVENTS
     public event EventHandler? TrainingStopped;
     public event EventHandler<double[][]>? TrainingFinished;
+
+    /// <summary>
+    /// Get notified when a step is finished. Event arguments include the actions taken
+    /// during the step
+    /// </summary>
+    public event EventHandler<int[]>? StepFinished;
+    #endregion
 
     public void Train(TrainParameters p)
     {
@@ -42,6 +50,8 @@ public class QLearning
             var state = p.initialState;
             var step = -1;
 
+            var actions = new List<int>();
+
             while (true)
             {
                 step++;
@@ -56,6 +66,8 @@ public class QLearning
                     step = step
                 });
 
+                actions.Add(action);
+
                 var currentQ = table[state][action];
                 double nxtMaxQ = table[res.nextState].Max(); // max Q value fron next state
                 var qValue = currentQ + p.alpha * (res.reward + p.lambda * nxtMaxQ - currentQ);
@@ -63,6 +75,8 @@ public class QLearning
 
                 if (res.gameOver) break;
             }
+
+            StepFinished?.Invoke(this, [.. actions]);
         }
 
         if (!stopped) TrainingFinished?.Invoke(this, table);
