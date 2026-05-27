@@ -18,12 +18,12 @@ public interface IQlearningClient
 }
 
 public class QLearningHub(QLearning qLearning, IOptions<QLearningSettings> settings,
-    QLearningEventsListener eventsListener)
+    ActionPerformer actionPerformer)
     : Hub<IQlearningClient>
 {
     readonly QLearning _qLearning = qLearning;
     readonly QLearningSettings _settings = settings.Value;
-    readonly QLearningEventsListener _listener = eventsListener;
+    readonly ActionPerformer _actionPerformer = actionPerformer;
 
     public async Task Train(HubTrainParameters p)
     {
@@ -31,7 +31,7 @@ public class QLearningHub(QLearning qLearning, IOptions<QLearningSettings> setti
 
         _qLearning.Train(new()
         {
-            Act = _listener.Act,
+            Act = _actionPerformer.Act,
             alpha = p.Alpha,
             lambda = p.Lambda,
             initialState = 0,
