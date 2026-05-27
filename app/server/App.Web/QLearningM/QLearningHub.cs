@@ -17,20 +17,13 @@ public interface IQlearningClient
     Task GameFinished(int[] actions);
 }
 
-public class QLearningHub : Hub<IQlearningClient>
+public class QLearningHub(QLearning qLearning, IOptions<QLearningSettings> settings,
+    QLearningEventsListener eventsListener)
+    : Hub<IQlearningClient>
 {
-    readonly QLearning _qLearning;
-    readonly QLearningSettings _settings;
-    readonly QLearningEventsListener _listener;
-
-
-    public QLearningHub(QLearning qLearning, IOptions<QLearningSettings> settings,
-        QLearningEventsListener eventsListener)
-    {
-        _qLearning = qLearning;
-        _settings = settings.Value;
-        _listener = eventsListener;
-    }
+    readonly QLearning _qLearning = qLearning;
+    readonly QLearningSettings _settings = settings.Value;
+    readonly QLearningEventsListener _listener = eventsListener;
 
     public async Task Train(HubTrainParameters p)
     {
@@ -59,9 +52,3 @@ public class QLearningHub : Hub<IQlearningClient>
         return JsonSerializer.Deserialize<double[][]>(json);
     }
 }
-
-/**
- * 
- * ACTIONS: up, right, down, left
- * 
- */

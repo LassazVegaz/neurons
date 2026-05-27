@@ -99,3 +99,9 @@ public class QLearningEventsListener
         return r;
     }
 }
+
+/**
+ * 
+ * ACTIONS: up, right, down, left
+ * 
+ */
