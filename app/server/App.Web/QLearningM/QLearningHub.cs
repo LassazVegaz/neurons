@@ -16,6 +16,8 @@ public class HubTrainParameters
 public interface IQlearningClient
 {
     Task GameFinished(int[] actions);
+    Task TrainingStopped();
+    Task TrainingFinished();
 }
 
 public class QLearningHub(QLearning qLearning, IOptions<QLearningSettings> settings,

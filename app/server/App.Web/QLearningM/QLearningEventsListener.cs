@@ -57,11 +57,11 @@ public class QLearningEventsListener
 
     void QLearning_TrainingFinished(object? sender, double[][] e)
     {
-        throw new NotImplementedException();
+        _hub.Clients.All.TrainingFinished();
     }
 
     void QLearning_TrainingStopped(object? sender, EventArgs e)
     {
-        throw new NotImplementedException();
+        _hub.Clients.All.TrainingStopped();
     }
 }
