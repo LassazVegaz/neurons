@@ -1,3 +1,4 @@
+import { TrainingResult } from "@/signalr/network.hub.types";
 import {
   LineChart,
   Line,
@@ -7,7 +8,6 @@ import {
   ReferenceLine,
   TooltipContentProps,
 } from "recharts";
-import { TrainingResult } from "../../signalr/network.hub.types";
 
 type PredictionChartProps = {
   data: TrainingResult[];
