@@ -11,7 +11,6 @@ public class TrainData
 
 public class QLearningEventsListener
 {
-    readonly QLearning _qLearning;
     readonly QLearningSettings _settings;
     readonly IHubContext<QLearningHub, IQlearningClient> _hub;
 
@@ -24,13 +23,12 @@ public class QLearningEventsListener
     public QLearningEventsListener(QLearning qLearning, IOptions<QLearningSettings> settings,
         IHubContext<QLearningHub, IQlearningClient> hub)
     {
-        _qLearning = qLearning;
         _settings = settings.Value;
         _hub = hub;
 
-        _qLearning.PeriodFinished += QLearning_StepFinished;
-        _qLearning.TrainingStopped += QLearning_TrainingStopped;
-        _qLearning.TrainingFinished += QLearning_TrainingFinished;
+        qLearning.PeriodFinished += QLearning_StepFinished;
+        qLearning.TrainingStopped += QLearning_TrainingStopped;
+        qLearning.TrainingFinished += QLearning_TrainingFinished;
     }
 
     public void SetTrainData(TrainData p)
