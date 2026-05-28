@@ -48,6 +48,8 @@ public class QLearningHub(QLearning qLearning, IOptions<QLearningSettings> setti
         });
     }
 
+    public void StopTraining() => _qLearning.StopTraining();
+
 
     async Task<double[][]?> GetSavedTable()
     {

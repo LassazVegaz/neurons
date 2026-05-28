@@ -26,6 +26,8 @@ public class QLearning
         Task.Run(() => Train(p, tknCtx.Token));
     }
 
+    public void StopTraining() => tknCtx?.Cancel();
+
 
     private async Task Train(TrainParameters p, CancellationToken token)
     {
