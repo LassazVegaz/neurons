@@ -13,6 +13,8 @@ type Methods = {
   StopTraining: [];
 };
 
+export type NetworkHub = ReturnType<typeof getNetworkHub>;
+
 export default function getNetworkHub() {
   return makeHub<Events, Methods>(process.env.NEXT_PUBLIC_NETWORK_HUB);
 }

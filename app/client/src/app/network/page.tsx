@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import NetworkHub from "@/signalr/network.hub";
 import { TrainingResult } from "@/signalr/network.hub.types";
 import ControlPanel from "./components/ControlPanel";
 import { MseChart, MseChartProps, PredictionsChart } from "./components/Charts";
+import getNetworkHub, { NetworkHub } from "@/signalr/network.hub";
 
 export default function Home() {
   const [connected, setConnected] = useState(false);
@@ -18,7 +18,7 @@ export default function Home() {
   useEffect(() => {
     let mounted = true;
 
-    const networkHub = NetworkHub.instance;
+    const networkHub = getNetworkHub();
 
     networkHub.connection
       .start()
