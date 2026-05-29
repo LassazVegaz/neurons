@@ -3,6 +3,7 @@ import ControlPanelContainer from "@/components/ControlPanelContainer";
 import { Button, Checkbox, TextField } from "@/components/Fields";
 import trainingStatusText from "@/constants/training-status-text.constant";
 import getQLearningHub, { QLearningHub } from "@/signalr/qlearning.hub";
+import { GameResults } from "@/signalr/qlearning.hub.types";
 import TrainingStatus from "@/types/training-status.enum";
 import { ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
@@ -17,11 +18,21 @@ const defaultForm = {
   createNewTable: true,
 };
 
+const totalGameResults = Number.parseInt(
+  process.env.NEXT_PUBLIC_TOTAL_GAME_RESULTS_TO_RECIEVE!,
+);
+
 export default function QLearningPage() {
   const hub = useRef<QLearningHub>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [form, setForm] = useState(defaultForm);
   const [status, setStatus] = useState(TrainingStatus.NotStarted);
+  const [trainingCompletion, setTrainingCompletion] = useState("");
+
+  const onGameFinished = (results: GameResults) => {
+    const completion = ((results.iteration + 1) / totalGameResults) * 100;
+    setTrainingCompletion(` ${completion.toFixed(2)}%`);
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -33,13 +44,15 @@ export default function QLearningPage() {
     _hub.connection.onreconnecting(() => mounted && setIsConnected(false));
     _hub.connection.onclose(() => mounted && setIsConnected(false));
 
-    _hub.on("TrainingFinished", () => setStatus(TrainingStatus.Finished));
+    _hub.on("GameFinished", onGameFinished);
     _hub.on("TrainingStopped", () => setStatus(TrainingStatus.Stopped));
+    _hub.on("TrainingFinished", () => setStatus(TrainingStatus.Finished));
 
     return () => {
       mounted = false;
-      _hub.off("TrainingFinished");
+      _hub.off("GameFinished");
       _hub.off("TrainingStopped");
+      _hub.off("TrainingFinished");
     };
   }, []);
 
@@ -127,7 +140,10 @@ export default function QLearningPage() {
             </Button>
           )}
 
-          <div>Status: {trainingStatusText[status]}</div>
+          <div>
+            Status: {trainingStatusText[status]}
+            {status === TrainingStatus.InProgress && trainingCompletion}
+          </div>
         </ControlPanelContainer>
         <div className="bg-blue-950 col-span-2"></div>
       </div>
