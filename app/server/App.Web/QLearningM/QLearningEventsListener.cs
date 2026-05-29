@@ -49,7 +49,12 @@ public class QLearningEventsListener
         {
             accumulator--;
 
-            _hub.Clients.All.GameFinished(results);
+            _hub.Clients.All.GameFinished(new()
+            {
+                Actions = results.actions,
+                Iteration = results.iteration,
+                TotalRewards = results.totalRewards
+            });
         }
     }
 

@@ -13,9 +13,16 @@ public class HubTrainParameters
     public int Iterations { get; set; }
 }
 
+public class HubGameResults
+{
+    public required double TotalRewards { get; set; }
+    public required int[] Actions { get; set; }
+    public required int Iteration { get; set; }
+}
+
 public interface IQlearningClient
 {
-    Task GameFinished(GameResults results);
+    Task GameFinished(HubGameResults results);
     Task TrainingStopped();
     Task TrainingFinished();
 }
