@@ -30,12 +30,13 @@ public class ActionPerformer
     static double[] MakeRewards()
     {
         var r = new double[Constants.STATES];
+        var maxDistance = Math.Sqrt(9 * 9 * 2);
 
         for (var i = 0; i < Constants.STATES; i++)
         {
             var col = (i % 10) + 1;
             var row = (i / 10) + 1;
-            r[i] = 10 - Math.Sqrt(Math.Pow(10 - col, 2) + Math.Pow(10 - row, 2));
+            r[i] = maxDistance - Math.Sqrt(Math.Pow(10 - col, 2) + Math.Pow(10 - row, 2));
         }
 
         return r;
