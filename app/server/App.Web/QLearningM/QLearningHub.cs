@@ -51,6 +51,19 @@ public class QLearningHub(QLearning qLearning, IOptions<QLearningSettings> setti
     public void StopTraining() => _qLearning.StopTraining();
 
 
+    public override Task OnConnectedAsync()
+    {
+        Console.WriteLine($"User connected: {Context.ConnectionId}");
+        return base.OnConnectedAsync();
+    }
+
+    public override Task OnDisconnectedAsync(Exception? exception)
+    {
+        Console.WriteLine($"User connected: {Context.ConnectionId}");
+        return base.OnDisconnectedAsync(exception);
+    }
+
+
     async Task<double[][]?> GetSavedTable()
     {
         var fileName = Path.Combine(Environment.CurrentDirectory, _settings.QTableFile);
