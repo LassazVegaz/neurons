@@ -38,7 +38,7 @@ public class QLearning
 
         var stopped = false;
         var greediness = 0.0;
-        var greedinessRate = 1d / p.iterations;
+        var greedinessRate = 1d / (p.iterations - 1);
 
         for (var i = 0; i < p.iterations; i++)
         {
