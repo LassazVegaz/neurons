@@ -1,38 +1,145 @@
 "use client";
 import ControlPanelContainer from "@/components/ControlPanelContainer";
 import { Button, Checkbox, TextField } from "@/components/Fields";
+import trainingStatusText from "@/constants/training-status-text.constant";
+import getQLearningHub, { QLearningHub } from "@/signalr/qlearning.hub";
+import TrainingStatus from "@/types/training-status.enum";
+import { ChangeEventHandler, useEffect, useRef, useState } from "react";
+import { twMerge } from "tailwind-merge";
 
 const arr = [] as number[];
 for (let i = 0; i < 100; i++) arr.push(i);
 
+const defaultForm = {
+  alpha: "0.1",
+  lambda: "0.1",
+  iterations: "10000",
+  createNewTable: true,
+};
+
 export default function QLearningPage() {
+  const hub = useRef<QLearningHub>(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [form, setForm] = useState(defaultForm);
+  const [status, setStatus] = useState(TrainingStatus.NotStarted);
+
+  useEffect(() => {
+    let mounted = true;
+    const _hub = getQLearningHub();
+    hub.current = _hub;
+
+    _hub.connection.start().then(() => mounted && setIsConnected(true));
+    _hub.connection.onreconnected(() => mounted && setIsConnected(true));
+    _hub.connection.onreconnecting(() => mounted && setIsConnected(false));
+    _hub.connection.onclose(() => mounted && setIsConnected(false));
+
+    _hub.on("TrainingFinished", () => setStatus(TrainingStatus.Finished));
+    _hub.on("TrainingStopped", () => setStatus(TrainingStatus.Stopped));
+
+    return () => {
+      mounted = false;
+      _hub.off("TrainingFinished");
+      _hub.off("TrainingStopped");
+    };
+  }, []);
+
+  const onTrainClick = () => {
+    if (!hub.current) return;
+    hub.current.invoke("Train", {
+      alpha: Number.parseFloat(form.alpha),
+      lambda: Number.parseFloat(form.lambda),
+      iterations: Number.parseInt(form.iterations),
+      createNewTable: form.createNewTable,
+    });
+    setStatus(TrainingStatus.InProgress);
+    setForm((prev) => ({ ...prev, createNewTable: false }));
+  };
+
+  const onStopClick = () => {
+    if (!hub.current) return;
+    hub.current.invoke("StopTraining");
+    setStatus(TrainingStatus.RequestedToStop);
+  };
+
+  const onFieldChange: ChangeEventHandler<
+    HTMLInputElement,
+    HTMLInputElement
+  > = (e) => {
+    const prevValue = form[e.target.name as keyof typeof form];
+    setForm((prev) => ({
+      ...prev,
+      [e.target.name]:
+        typeof prevValue === "boolean" ? e.target.checked : e.target.value,
+    }));
+  };
+
   return (
-    <div className="h-full grid grid-cols-[1fr_300px] grid-rows-[1fr_150px]">
-      <div className="flex justify-center items-center">
-        <div className="grid grid-cols-10 gap-1">
-          {arr.map((i) => (
-            <div key={i} className="h-10 w-10 border border-blue-300 rounded" />
-          ))}
+    <>
+      <div className="h-full grid grid-cols-[1fr_300px] grid-rows-[1fr_150px]">
+        <div className="flex justify-center items-center">
+          <div className="grid grid-cols-10 gap-1">
+            {arr.map((i) => (
+              <div
+                key={i}
+                className="h-10 w-10 border border-blue-300 rounded"
+              />
+            ))}
+          </div>
         </div>
+        <ControlPanelContainer className="border-l border-blue-400">
+          <Checkbox
+            checked={form.createNewTable}
+            label="New table"
+            name="createNewTable"
+            onChange={onFieldChange}
+          />
+          <TextField
+            label="Iterations"
+            name="iterations"
+            value={form.iterations}
+            onChange={onFieldChange}
+          />
+          <TextField
+            label="Alpha"
+            name="alpha"
+            value={form.alpha}
+            onChange={onFieldChange}
+          />
+          <TextField
+            label="Lambda"
+            name="lambda"
+            value={form.lambda}
+            onChange={onFieldChange}
+          />
+
+          <div className="h-10" />
+
+          {(status === TrainingStatus.Finished ||
+            status === TrainingStatus.NotStarted ||
+            status === TrainingStatus.Stopped) && (
+            <Button className="border border-blue-600" onClick={onTrainClick}>
+              Train
+            </Button>
+          )}
+          {status === TrainingStatus.InProgress && (
+            <Button className="border border-red-600" onClick={onStopClick}>
+              Stop
+            </Button>
+          )}
+
+          <div>Status: {trainingStatusText[status]}</div>
+        </ControlPanelContainer>
+        <div className="bg-blue-950 col-span-2"></div>
       </div>
-      <ControlPanelContainer className="border-l border-blue-400">
-        <Checkbox
-          checked
-          label="New table"
-          name="CreateNewTable"
-          onChange={() => {}}
-        />
-        <TextField
-          label="Iterations"
-          name="Iterations"
-          value=""
-          onChange={() => {}}
-        />
-        <TextField label="Alpha" name="Alpha" value="" onChange={() => {}} />
-        <TextField label="Lambda" name="Lambda" value="" onChange={() => {}} />
-        <Button className="border border-blue-600 mt-10">Train</Button>
-      </ControlPanelContainer>
-      <div className="bg-blue-950 col-span-2"></div>
-    </div>
+
+      <div
+        className={twMerge(
+          "absolute bottom-0 left-0 right-0",
+          isConnected && "hidden",
+        )}
+      >
+        connecting...
+      </div>
+    </>
   );
 }
