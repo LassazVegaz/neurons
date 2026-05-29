@@ -30,11 +30,14 @@ export default function QLearningPage() {
   const [form, setForm] = useState(defaultForm);
   const [status, setStatus] = useState(TrainingStatus.NotStarted);
   const [trainingCompletion, setTrainingCompletion] = useState("");
+  const [games, setGames] = useState<GameResults[]>([]);
+  const [currentGame, setCurrentGame] = useState(-1);
 
   const onGameFinished = (results: GameResults) => {
     const completion = ((results.iteration + 1) / totalGameResults) * 100;
     setTrainingCompletion(` ${completion.toFixed(2)}%`);
     player.current.addGame(results.actions);
+    setGames((prev) => [...prev, results]);
   };
 
   useEffect(() => {
@@ -53,6 +56,7 @@ export default function QLearningPage() {
     _hub.on("TrainingFinished", () => setStatus(TrainingStatus.Finished));
 
     const _player = player.current;
+    _player.onGameChange = setCurrentGame;
 
     return () => {
       mounted = false;
@@ -100,7 +104,7 @@ export default function QLearningPage() {
       <div className="h-full grid grid-cols-[1fr_300px] grid-rows-[1fr_150px]">
         <div className="flex justify-center items-center">
           <div className="grid grid-cols-10 gap-1">
-            {arr.map((i) => (
+            {boxes.map((i) => (
               <div
                 key={i}
                 className="h-10 w-10 border border-blue-300 rounded"
@@ -154,7 +158,21 @@ export default function QLearningPage() {
             {status === TrainingStatus.InProgress && trainingCompletion}
           </div>
         </ControlPanelContainer>
-        <div className="bg-blue-950 col-span-2"></div>
+
+        <div className="bg-blue-950 col-span-2 flex justify-center items-center gap-4">
+          {games.map((g, idx) => (
+            <div
+              key={g.iteration}
+              className={twMerge(
+                "border border-blue-400 flex flex-col gap-1 justify-center items-center w-20 py-2 rounded cursor-pointer duration-300 hover:border-blue-700",
+                currentGame === idx && "bg-gray-950",
+              )}
+            >
+              <div className="text-blue-300 text-sm">{g.iteration}</div>
+              <div>{g.totalRewards}</div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div

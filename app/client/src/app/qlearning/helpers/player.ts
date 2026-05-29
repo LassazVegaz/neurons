@@ -1,8 +1,15 @@
+type OnGameChange = (idx: number) => void;
+
 export default class Player {
   private games: number[][] = [];
   private currentTimer: NodeJS.Timeout | undefined;
   private currentGame = -1;
   private running = false;
+
+  private _onGameChange: OnGameChange | undefined;
+  set onGameChange(v: OnGameChange) {
+    this._onGameChange = v;
+  }
 
   addGame(actions: number[]) {
     this.games.push(actions);
@@ -13,6 +20,7 @@ export default class Player {
     this.stopTimmer();
     this.games = [];
     this.currentGame = -1;
+    this._onGameChange?.(this.currentGame);
   }
 
   pause() {
@@ -25,6 +33,8 @@ export default class Player {
     if (this.games.length === 0) return;
     if (this.currentGame >= this.games.length || this.currentGame < 0)
       this.currentGame = 0;
+
+    this._onGameChange?.(this.currentGame);
     this.runGame(this.games[this.currentGame]);
   }
 
@@ -35,6 +45,7 @@ export default class Player {
     this.currentGame++;
     if (this.currentGame === this.games.length) this.currentGame = 0;
 
+    this._onGameChange?.(this.currentGame);
     this.runGame(this.games[this.currentGame]);
   }
 
