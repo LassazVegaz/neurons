@@ -1,4 +1,4 @@
-import { makeHub } from "./hub";
+import Hub, { makeHub } from "./hub";
 import { HubTrainParameters } from "./qlearning.hub.types";
 
 type Events = {
@@ -12,8 +12,11 @@ type Methods = {
   StopTraining: [];
 };
 
-export default function getQLearningHub() {
-  return makeHub<Events, Methods>(process.env.NEXT_PUBLIC_QLEARNING_HUB);
-}
+export type QLearningHub = Hub<Events, Methods>;
 
-export type QLearningHub = ReturnType<typeof getQLearningHub>;
+let hub: QLearningHub | undefined;
+
+export default function getQLearningHub() {
+  hub ??= makeHub<Events, Methods>(process.env.NEXT_PUBLIC_QLEARNING_HUB);
+  return hub;
+}

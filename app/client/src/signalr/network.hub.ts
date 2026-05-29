@@ -1,6 +1,6 @@
 "use client";
 import { TrainingResult, TrainParams } from "./network.hub.types";
-import { makeHub } from "./hub";
+import Hub, { makeHub } from "./hub";
 
 type Events = {
   TrainingFinished: [TrainingResult[]];
@@ -13,8 +13,11 @@ type Methods = {
   StopTraining: [];
 };
 
-export type NetworkHub = ReturnType<typeof getNetworkHub>;
+export type NetworkHub = Hub<Events, Methods>;
+
+let hub: NetworkHub | undefined;
 
 export default function getNetworkHub() {
-  return makeHub<Events, Methods>(process.env.NEXT_PUBLIC_NETWORK_HUB);
+  hub ??= makeHub<Events, Methods>(process.env.NEXT_PUBLIC_NETWORK_HUB);
+  return hub;
 }
