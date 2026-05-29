@@ -77,3 +77,10 @@ public class ActionResults
     /// </summary>
     public required int nextState;
 }
+
+public class GameResults
+{
+    public required double totalRewards;
+    public required int[] actions;
+    public required int iteration;
+}

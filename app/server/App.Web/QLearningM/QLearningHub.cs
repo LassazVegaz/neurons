@@ -15,7 +15,7 @@ public class HubTrainParameters
 
 public interface IQlearningClient
 {
-    Task GameFinished(int[] actions);
+    Task GameFinished(GameResults results);
     Task TrainingStopped();
     Task TrainingFinished();
 }

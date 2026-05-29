@@ -15,7 +15,7 @@ public class QLearning
     /// Get notified when a game is finished. Event arguments include the actions taken
     /// during the game
     /// </summary>
-    public event EventHandler<int[]>? GameFinished;
+    public event EventHandler<GameResults>? GameFinished;
     #endregion
 
     public void Train(TrainParameters p)
@@ -53,6 +53,7 @@ public class QLearning
             var state = p.initialState;
             var period = -1;
 
+            var totalRewards = 0.0;
             var actions = new List<int>();
 
             while (true)
@@ -70,6 +71,7 @@ public class QLearning
                 });
 
                 actions.Add(action);
+                totalRewards += res.reward;
 
                 var currentQ = table[state][action];
                 double nxtMaxQ = table[res.nextState].Max(); // max Q value from next state
@@ -79,7 +81,12 @@ public class QLearning
                 if (res.gameOver) break;
             }
 
-            GameFinished?.Invoke(this, [.. actions]);
+            GameFinished?.Invoke(this, new()
+            {
+                actions = [.. actions],
+                iteration = i,
+                totalRewards = totalRewards
+            });
         }
 
         if (!stopped) TrainingFinished?.Invoke(this, table);

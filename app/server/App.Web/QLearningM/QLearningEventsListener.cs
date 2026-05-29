@@ -42,7 +42,7 @@ public class QLearningEventsListener
     }
 
 
-    void QLearning_GameFinished(object? sender, int[] actions)
+    void QLearning_GameFinished(object? sender, GameResults results)
     {
         accumulator += step;
 
@@ -50,7 +50,7 @@ public class QLearningEventsListener
         {
             accumulator--;
 
-            _hub.Clients.All.GameFinished(actions);
+            _hub.Clients.All.GameFinished(results);
         }
     }
 
