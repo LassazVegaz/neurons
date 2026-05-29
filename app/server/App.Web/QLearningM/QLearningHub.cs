@@ -41,7 +41,7 @@ public class QLearningHub(QLearning qLearning, IOptions<QLearningSettings> setti
             alpha = p.Alpha,
             lambda = p.Lambda,
             initialState = 0,
-            iterations = _settings.Iterations,
+            iterations = p.Iterations,
             noOfActions = Constants.ACTIONS,
             noOfStates = Constants.STATES,
             qTable = qTable
