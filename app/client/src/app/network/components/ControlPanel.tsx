@@ -2,6 +2,7 @@ import { ChangeEventHandler, useEffect, useState } from "react";
 import { NetworkHub } from "@/signalr/network.hub";
 import TrainingStatus from "@/types/training-status.enum";
 import { Button, Checkbox, TextField } from "@/components/Fields";
+import trainingStatusText from "@/constants/training-status-text.constant";
 
 type ControlPanelProps = {
   connectedToServer?: boolean;
@@ -16,14 +17,6 @@ const defaultForm = {
   iterations: "10000",
   useNewThetas: true,
   layers: "1,2,1",
-};
-
-const mapTrainingStatusToText: Record<TrainingStatus, string> = {
-  [TrainingStatus.NotStarted]: "Click start to begin training.",
-  [TrainingStatus.InProgress]: "Training in progress...",
-  [TrainingStatus.Finished]: "Training finished!",
-  [TrainingStatus.RequestedToStop]: "Requested to stop training...",
-  [TrainingStatus.Stopped]: "Training stopped.",
 };
 
 export default function ControlPanel(props: Readonly<ControlPanelProps>) {
@@ -144,7 +137,7 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
           </Button>
         )}
       </div>
-      <div>{mapTrainingStatusToText[trainingStatus]}</div>
+      <div>{trainingStatusText[trainingStatus]}</div>
       {isTraining && (
         <div>
           Iteration: {props.currentIteration} of {iteraionsCount}
