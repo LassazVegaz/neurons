@@ -4,3 +4,9 @@ export type HubTrainParameters = {
   iterations: number;
   createNewTable: boolean;
 };
+
+export type GameResults = {
+  totalRewards: number;
+  actions: number[];
+  iteration: number;
+};

@@ -1,8 +1,8 @@
 import Hub, { makeHub } from "./hub";
-import { HubTrainParameters } from "./qlearning.hub.types";
+import { GameResults, HubTrainParameters } from "./qlearning.hub.types";
 
 type Events = {
-  GameFinished: [number[]];
+  GameFinished: [GameResults];
   TrainingStopped: [];
   TrainingFinished: [];
 };
