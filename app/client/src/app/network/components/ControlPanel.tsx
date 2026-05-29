@@ -23,7 +23,7 @@ const mapTrainingStatusToText: Record<TrainingStatus, string> = {
   [TrainingStatus.InProgress]: "Training in progress...",
   [TrainingStatus.Finished]: "Training finished!",
   [TrainingStatus.RequestedToStop]: "Requested to stop training...",
-  [TrainingStatus.RequestToStopFulfilled]: "Training stopped.",
+  [TrainingStatus.Stopped]: "Training stopped.",
 };
 
 export default function ControlPanel(props: Readonly<ControlPanelProps>) {
@@ -42,7 +42,7 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
 
   useEffect(() => {
     networkHub?.on("TrainingStopped", () => {
-      setTrainingStatus(TrainingStatus.RequestToStopFulfilled);
+      setTrainingStatus(TrainingStatus.Stopped);
     });
 
     networkHub?.on("TrainingFinished", () => {
@@ -84,7 +84,7 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
   const showStartBtn =
     trainingStatus === TrainingStatus.Finished ||
     trainingStatus === TrainingStatus.NotStarted ||
-    trainingStatus === TrainingStatus.RequestToStopFulfilled;
+    trainingStatus === TrainingStatus.Stopped;
   const showStopBtn = trainingStatus === TrainingStatus.InProgress;
 
   const isTraining =

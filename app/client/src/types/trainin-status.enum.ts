@@ -3,7 +3,7 @@ enum TrainingStatus {
   InProgress,
   RequestedToStop,
   Finished,
-  RequestToStopFulfilled,
+  Stopped,
 }
 
 export default TrainingStatus;
