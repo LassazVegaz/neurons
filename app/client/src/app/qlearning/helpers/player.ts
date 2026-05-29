@@ -56,6 +56,9 @@ export default class Player {
     let period = -1;
     let s = 0;
     this.running = true;
+    this.lastPlayerState = 0;
+
+    document.getElementById("box-" + s)?.classList.add("box-player");
 
     this.currentTimer = setInterval(() => {
       period++;
