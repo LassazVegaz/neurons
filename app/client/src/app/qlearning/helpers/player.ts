@@ -1,6 +1,6 @@
 type OnGameChange = (idx: number) => void;
 
-const SPEED = 500;
+const SPEED = 300;
 
 export default class Player {
   private games: number[][] = [];
@@ -56,8 +56,11 @@ export default class Player {
     let period = -1;
     let s = 0;
     this.running = true;
-    this.lastPlayerState = 0;
 
+    document
+      .getElementById("box-" + this.lastPlayerState)
+      ?.classList.remove("box-player");
+    this.lastPlayerState = 0;
     document.getElementById("box-" + s)?.classList.add("box-player");
 
     this.currentTimer = setInterval(() => {
