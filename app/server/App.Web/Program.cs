@@ -1,4 +1,5 @@
 using App.Web.NetworkM;
+using App.Web.QLearningM;
 using Neurons.Network;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,8 @@ builder.Services.AddSingleton<TrainingDataCook>();
 
 builder.Services.AddOptions<NetworkSettings>()
                 .BindConfiguration(NetworkSettings.KEY);
+builder.Services.AddOptions<QLearningSettings>()
+                .BindConfiguration(QLearningSettings.KEY);
 
 
 var app = builder.Build();

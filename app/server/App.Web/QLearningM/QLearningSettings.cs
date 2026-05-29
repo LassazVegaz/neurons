@@ -2,7 +2,8 @@
 
 public class QLearningSettings
 {
-    public int Iterations { get; set; }
+    public const string KEY = "QLearningSettings";
+
     public required string QTableFile { get; set; }
 
     /// <summary>
