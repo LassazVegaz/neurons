@@ -78,6 +78,8 @@ public class QLearning
                 var qValue = currentQ + p.alpha * (res.reward + p.lambda * nxtMaxQ - currentQ);
                 table[state][action] = qValue;
 
+                state = res.nextState;
+
                 if (res.gameOver) break;
             }
 
