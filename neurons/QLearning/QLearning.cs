@@ -87,12 +87,12 @@ public class QLearning
 
     private double[][] BuildTable()
     {
-        var table = new double[noOfStates][];
+        var qTable = new double[noOfStates][];
 
         for (var i = 0; i < noOfStates; i++)
-            table[i] = new double[noOfActions];
+            qTable[i] = new double[noOfActions];
 
-        return table;
+        return qTable;
     }
 
     private int BestAction(int state)
