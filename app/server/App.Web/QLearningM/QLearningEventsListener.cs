@@ -27,7 +27,7 @@ public class QLearningEventsListener
         _settings = settings.Value;
         _hub = hub;
 
-        qLearning.PeriodFinished += QLearning_StepFinished;
+        qLearning.GameFinished += QLearning_GameFinished;
         qLearning.TrainingStopped += QLearning_TrainingStopped;
         qLearning.TrainingFinished += QLearning_TrainingFinished;
     }
@@ -42,7 +42,7 @@ public class QLearningEventsListener
     }
 
 
-    void QLearning_StepFinished(object? sender, int[] actions)
+    void QLearning_GameFinished(object? sender, int[] actions)
     {
         accumulator += step;
 

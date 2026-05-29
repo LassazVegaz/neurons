@@ -12,10 +12,10 @@ public class QLearning
     public event EventHandler<double[][]>? TrainingFinished;
 
     /// <summary>
-    /// Get notified when a period is finished. Event arguments include the actions taken
-    /// during the period
+    /// Get notified when a game is finished. Event arguments include the actions taken
+    /// during the game
     /// </summary>
-    public event EventHandler<int[]>? PeriodFinished;
+    public event EventHandler<int[]>? GameFinished;
     #endregion
 
     public void Train(TrainParameters p)
@@ -79,7 +79,7 @@ public class QLearning
                 if (res.gameOver) break;
             }
 
-            PeriodFinished?.Invoke(this, [.. actions]);
+            GameFinished?.Invoke(this, [.. actions]);
         }
 
         if (!stopped) TrainingFinished?.Invoke(this, table);
