@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Neurons.QLearning;
+using System.Text.Json;
 
 namespace App.Web.QLearningM;
 
@@ -53,13 +54,21 @@ public class QLearningEventsListener
         }
     }
 
-    void QLearning_TrainingFinished(object? sender, double[][] e)
+    async void QLearning_TrainingFinished(object? sender, double[][] qTable)
     {
-        _hub.Clients.All.TrainingFinished();
+        await SaveTable(qTable);
+        await _hub.Clients.All.TrainingFinished();
     }
 
     void QLearning_TrainingStopped(object? sender, EventArgs e)
     {
         _hub.Clients.All.TrainingStopped();
+    }
+
+    async Task SaveTable(double[][] qTable)
+    {
+        var fileName = Path.Combine(Environment.CurrentDirectory, _settings.QTableFile);
+        var json = JsonSerializer.Serialize(qTable);
+        await File.WriteAllTextAsync(fileName, json);
     }
 }
