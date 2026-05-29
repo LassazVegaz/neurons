@@ -7,6 +7,7 @@ import { GameResults } from "@/signalr/qlearning.hub.types";
 import TrainingStatus from "@/types/training-status.enum";
 import { ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
+import Player from "./helpers/player";
 
 const arr = [] as number[];
 for (let i = 0; i < 100; i++) arr.push(i);
@@ -24,6 +25,7 @@ const totalGameResults = Number.parseInt(
 
 export default function QLearningPage() {
   const hub = useRef<QLearningHub>(null);
+  const player = useRef(new Player());
   const [isConnected, setIsConnected] = useState(false);
   const [form, setForm] = useState(defaultForm);
   const [status, setStatus] = useState(TrainingStatus.NotStarted);
@@ -32,10 +34,12 @@ export default function QLearningPage() {
   const onGameFinished = (results: GameResults) => {
     const completion = ((results.iteration + 1) / totalGameResults) * 100;
     setTrainingCompletion(` ${completion.toFixed(2)}%`);
+    player.current.addGame(results.actions);
   };
 
   useEffect(() => {
     let mounted = true;
+
     const _hub = getQLearningHub();
     hub.current = _hub;
 
@@ -48,16 +52,21 @@ export default function QLearningPage() {
     _hub.on("TrainingStopped", () => setStatus(TrainingStatus.Stopped));
     _hub.on("TrainingFinished", () => setStatus(TrainingStatus.Finished));
 
+    const _player = player.current;
+
     return () => {
       mounted = false;
       _hub.off("GameFinished");
       _hub.off("TrainingStopped");
       _hub.off("TrainingFinished");
+      _player.reset();
     };
   }, []);
 
   const onTrainClick = () => {
     if (!hub.current) return;
+
+    player.current.reset();
     hub.current.invoke("Train", {
       alpha: Number.parseFloat(form.alpha),
       lambda: Number.parseFloat(form.lambda),
