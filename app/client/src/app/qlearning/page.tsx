@@ -14,12 +14,13 @@ export default function QLearningPage() {
 
   return (
     <>
-      <div className="h-full grid grid-cols-[1fr_300px] grid-rows-[1fr_150px]">
+      <div className="q-learning h-full grid grid-cols-[1fr_300px] grid-rows-[1fr_150px]">
         <div className="flex justify-center items-center">
           <div className="grid grid-cols-10 gap-1">
             {boxes.map((i) => (
               <div
                 key={i}
+                id={"box-" + i}
                 className="h-10 w-10 border border-blue-300 rounded"
               />
             ))}

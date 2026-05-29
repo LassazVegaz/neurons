@@ -28,3 +28,7 @@ body {
   margin: 0;
   overflow: hidden;
 }
+
+.q-learning .box-player {
+  background-color: #0fe71d;
+}
