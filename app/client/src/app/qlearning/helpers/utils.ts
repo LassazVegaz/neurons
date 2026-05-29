@@ -63,6 +63,7 @@ export default function useUtils() {
     if (!hub.current) return;
 
     player.current.reset();
+    setGames([]);
     hub.current.invoke("Train", {
       alpha: Number.parseFloat(form.alpha),
       lambda: Number.parseFloat(form.lambda),
