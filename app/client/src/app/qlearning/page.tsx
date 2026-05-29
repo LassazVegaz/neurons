@@ -90,7 +90,7 @@ export default function QLearningPage() {
               )}
             >
               <div className="text-blue-300 text-sm">{g.iteration}</div>
-              <div>{g.totalRewards}</div>
+              <div>{g.totalRewards.toFixed(2)}</div>
             </div>
           ))}
         </div>
