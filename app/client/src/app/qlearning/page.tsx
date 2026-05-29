@@ -9,8 +9,8 @@ import { ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import Player from "./helpers/player";
 
-const arr = [] as number[];
-for (let i = 0; i < 100; i++) arr.push(i);
+const boxes = [] as number[];
+for (let i = 0; i < 100; i++) boxes.push(i);
 
 const defaultForm = {
   alpha: "0.1",
