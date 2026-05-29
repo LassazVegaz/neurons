@@ -1,4 +1,4 @@
-type OnGameChange = (idx: number) => void;
+type OnNumericChange = (idx: number) => void;
 
 const SPEED = Number.parseInt(process.env.NEXT_PUBLIC_PLAYER_SPEED!);
 
@@ -9,9 +9,14 @@ export default class Player {
   private running = false;
   private lastPlayerState = 0;
 
-  private _onGameChange: OnGameChange | undefined;
-  set onGameChange(v: OnGameChange) {
+  private _onGameChange: OnNumericChange | undefined;
+  set onGameChange(v: OnNumericChange) {
     this._onGameChange = v;
+  }
+
+  private _onWinnerFound: OnNumericChange | undefined;
+  set OnWinnerFound(v: OnNumericChange) {
+    this._onWinnerFound = v;
   }
 
   addGame(actions: number[]) {
@@ -77,6 +82,8 @@ export default class Player {
       else if (a === 1 && s % 10 !== 9) s++;
       else if (a === 2 && s < 89) s += 10;
       else if (a === 3 && s % 10 !== 0) s--;
+
+      if (s === 99) this._onWinnerFound?.(this.currentGame);
 
       document
         .getElementById("box-" + this.lastPlayerState)

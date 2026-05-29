@@ -87,6 +87,7 @@ export default function QLearningPage() {
               className={twMerge(
                 "border border-blue-400 flex flex-col gap-1 justify-center items-center w-20 py-2 rounded cursor-pointer duration-300 hover:border-blue-700",
                 utils.currentGame === idx && "bg-gray-950",
+                idx === utils.winner && "border-3 border-red-600",
               )}
             >
               <div className="text-blue-300 text-sm">{g.iteration}</div>
