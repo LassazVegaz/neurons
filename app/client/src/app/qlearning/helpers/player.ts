@@ -1,10 +1,13 @@
 type OnGameChange = (idx: number) => void;
 
+const SPEED = 500;
+
 export default class Player {
   private games: number[][] = [];
   private currentTimer: NodeJS.Timeout | undefined;
   private currentGame = -1;
   private running = false;
+  private lastPlayerState = 0;
 
   private _onGameChange: OnGameChange | undefined;
   set onGameChange(v: OnGameChange) {
@@ -61,17 +64,20 @@ export default class Player {
         this.playNextGame();
         return;
       }
-      const a = actions[period];
 
-      document.getElementById("box-" + s)?.classList.remove("box-player");
+      const a = actions[period];
 
       if (a === 0 && s > 9) s -= 10;
       else if (a === 1 && s % 10 !== 9) s++;
       else if (a === 2 && s < 89) s += 10;
       else if (a === 3 && s % 10 !== 0) s--;
 
+      document
+        .getElementById("box-" + this.lastPlayerState)
+        ?.classList.remove("box-player");
       document.getElementById("box-" + s)?.classList.add("box-player");
-    }, 1000);
+      this.lastPlayerState = s;
+    }, SPEED);
   }
 
   private stopTimmer() {
