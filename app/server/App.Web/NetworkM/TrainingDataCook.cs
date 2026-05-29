@@ -3,10 +3,10 @@ using Microsoft.Extensions.Options;
 
 namespace App.Web.NetworkM;
 
-public class TrainingDataCook(IOptions<AppSettings> options, Function func)
+public class TrainingDataCook(IOptions<NetworkSettings> options, Function func)
 {
     readonly Func<double, double> f = func.f;
-    readonly AppSettings settings = options.Value;
+    readonly NetworkSettings settings = options.Value;
 
 
     public bool AreXYValid(double[] x, double[] y)

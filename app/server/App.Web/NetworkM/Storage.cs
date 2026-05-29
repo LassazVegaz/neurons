@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace App.Web.NetworkM;
 
-public class Storage(IOptions<AppSettings> options)
+public class Storage(IOptions<NetworkSettings> options)
 {
     readonly string modelFile = options.Value.ModelFileName;
     readonly string dataFile = options.Value.DataFileName;

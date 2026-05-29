@@ -18,8 +18,8 @@ builder.Services.AddSingleton<MSECalculator>();
 builder.Services.AddSingleton<Storage>();
 builder.Services.AddSingleton<TrainingDataCook>();
 
-builder.Services.AddOptions<AppSettings>()
-                .BindConfiguration(AppSettings.KEY);
+builder.Services.AddOptions<NetworkSettings>()
+                .BindConfiguration(NetworkSettings.KEY);
 
 
 var app = builder.Build();

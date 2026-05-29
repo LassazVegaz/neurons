@@ -1,8 +1,8 @@
 ﻿namespace App.Web.NetworkM;
 
-public record AppSettings
+public record NetworkSettings
 {
-    public const string KEY = "Settings";
+    public const string KEY = "NetworkSettings";
 
     /// <summary>
     /// Maximum number of MSEs that can be sent to the clients

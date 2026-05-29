@@ -15,7 +15,7 @@ public class MSECalculator
     readonly IHubContext<NetworkHub, INetworkClient> _hub;
 
     readonly List<double> mses = [];
-    readonly AppSettings settings;
+    readonly NetworkSettings settings;
 
 
     int lastItrIdx; // Last iteration index
@@ -30,7 +30,7 @@ public class MSECalculator
     double accumulator;
 
     public MSECalculator(Network network, IHubContext<NetworkHub, INetworkClient> networkHub,
-        IOptions<AppSettings> options)
+        IOptions<NetworkSettings> options)
     {
         _hub = networkHub;
         settings = options.Value;

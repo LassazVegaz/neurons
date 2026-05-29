@@ -27,14 +27,14 @@ public record TrainParams
     public int Iterations { get; set; }
 }
 
-public class NetworkHub(Network network, Storage storage, IOptions<AppSettings> options,
+public class NetworkHub(Network network, Storage storage, IOptions<NetworkSettings> options,
     MSECalculator mseCalculator, Function func, TrainingDataCook cook) : Hub<INetworkClient>
 {
     readonly TrainingDataCook _cook = cook;
     readonly Network _network = network;
     readonly Storage _storage = storage;
     readonly MSECalculator _mseCal = mseCalculator;
-    readonly AppSettings settings = options.Value;
+    readonly NetworkSettings settings = options.Value;
     readonly Func<double, double> f = func.f;
 
 
