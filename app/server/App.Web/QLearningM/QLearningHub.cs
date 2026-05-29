@@ -59,7 +59,7 @@ public class QLearningHub(QLearning qLearning, IOptions<QLearningSettings> setti
 
     public override Task OnDisconnectedAsync(Exception? exception)
     {
-        Console.WriteLine($"User connected: {Context.ConnectionId}");
+        Console.WriteLine($"User disconnected: {Context.ConnectionId}");
         return base.OnDisconnectedAsync(exception);
     }
 
