@@ -17,7 +17,6 @@ public class QLearningEventsListener
 
     double step;
     double accumulator;
-    int iterationIdx;
     int lastIterationIdx;
 
 
@@ -37,7 +36,6 @@ public class QLearningEventsListener
         var gamesToSend = Math.Min(p.iterations, _settings.MaxGamesToSend);
         step = (double)gamesToSend / p.iterations;
         accumulator = 0;
-        iterationIdx = 0;
         lastIterationIdx = p.iterations - 1;
     }
 
@@ -46,7 +44,8 @@ public class QLearningEventsListener
     {
         accumulator += step;
 
-        if (accumulator >= 1.0 || iterationIdx == 0 || iterationIdx == lastIterationIdx)
+        if (accumulator >= 1.0 || results.iteration == 0 ||
+            results.iteration == lastIterationIdx)
         {
             accumulator--;
 
