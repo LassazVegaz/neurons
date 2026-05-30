@@ -1,6 +1,6 @@
 "use client";
-import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 import { TrainingResult, TrainParams } from "./network.hub.types";
+import Hub, { makeHub } from "./hub";
 
 type Events = {
   TrainingFinished: [TrainingResult[]];
@@ -13,50 +13,11 @@ type Methods = {
   StopTraining: [];
 };
 
-export default class NetworkHub {
-  private constructor(public readonly connection: HubConnection) {}
+export type NetworkHub = Hub<Events, Methods>;
 
-  on<E extends keyof Events>(
-    methodName: E,
-    newMethod: (...args: Events[E]) => void,
-  ) {
-    this.connection.on(methodName, newMethod);
-  }
+let hub: NetworkHub | undefined;
 
-  off<E extends keyof Events>(eventName: E): void;
-  off<E extends keyof Events>(
-    eventName: E,
-    method: (...args: unknown[]) => void,
-  ): void;
-  off<E extends keyof Events>(
-    eventName: E,
-    method?: (...args: unknown[]) => void,
-  ) {
-    if (method === undefined) this.connection.off(eventName);
-    else this.connection.off(eventName, method);
-  }
-
-  async invoke<M extends keyof Methods>(methodName: M, ...args: Methods[M]) {
-    await this.connection.invoke(methodName, ...args);
-  }
-
-  //#region SINGLETON
-  private static _instance: NetworkHub | undefined;
-  static get instance(): NetworkHub {
-    if (this._instance === undefined) {
-      const networkHubUrl = process.env.NEXT_PUBLIC_NETWORK_HUB;
-      if (!networkHubUrl)
-        throw new Error(
-          "NEXT_PUBLIC_NETWORK_HUB is not defined in environment variables",
-        );
-      const connection = new HubConnectionBuilder()
-        .withUrl(networkHubUrl)
-        .withAutomaticReconnect()
-        .build();
-
-      this._instance = new NetworkHub(connection);
-    }
-    return this._instance;
-  }
-  //#endregion
+export default function getNetworkHub() {
+  hub ??= makeHub<Events, Methods>(process.env.NEXT_PUBLIC_NETWORK_HUB);
+  return hub;
 }
