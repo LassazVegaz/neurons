@@ -1,4 +1,5 @@
 ﻿using Neurons.Network;
+using Neurons.QLearning;
 
 namespace Neurons.DQN;
 
@@ -9,6 +10,11 @@ public class DQN(int[] layers)
     int noOfActions;
     double alpha;
     Thetas learningT = new() { b = [], w = [] };
+
+    public event EventHandler<GameResults>? GameFinished;
+    public event EventHandler? StopTraining;
+    public event EventHandler? TrainingStopped;
+    public event EventHandler<Thetas>? TrainingFinished;
 
 
     public void Train(TrainParameters p)
