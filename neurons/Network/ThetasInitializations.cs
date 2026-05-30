@@ -56,4 +56,24 @@ public static class ThetasInitializations
 
         return t;
     }
+
+    public static Thetas Clone(this Thetas t)
+    {
+        var res = new Thetas
+        {
+            b = new double[t.b.Length][],
+            w = new double[t.w.Length][][]
+        };
+
+        for (var a = 0; a < t.w.Length; a++)
+        {
+            res.b[a] = (double[])t.b[a].Clone();
+            res.w[a] = new double[t.w[a].Length][];
+
+            for (var b = 0; b < res.w[a].Length; b++)
+                res.w[a][b] = (double[])t.w[a][b].Clone();
+        }
+
+        return res;
+    }
 }
