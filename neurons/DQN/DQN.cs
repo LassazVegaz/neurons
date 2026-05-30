@@ -6,7 +6,7 @@ namespace Neurons.DQN;
 public class DQN(int[] layers)
 {
     readonly int[] layers = layers;
-
+    int[] layers = [];
     int noOfActions;
     double alpha;
     Thetas learningT = new() { b = [], w = [] };
@@ -33,6 +33,7 @@ public class DQN(int[] layers)
         noOfActions = p.noOfActions;
         alpha = p.alpha;
         learningT = p.t.Clone();
+        layers = p.layers;
 
         var learningP = new Predictor(learningT, layers);
         var targetP = new Predictor(p.t, layers);
