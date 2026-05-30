@@ -27,6 +27,38 @@ public class DQN()
 
     public void StopTraining() => tknCtx?.Cancel();
 
+    public GameResults DoTheBest(Thetas t, double[] initialState, int maxPeriods)
+    {
+        if (act == null)
+            throw new Exception("Act cannot be null");
+
+        var p = new Predictor(t, layers);
+        var actions = new List<int>();
+        var totalRewards = 0.0;
+        var s = initialState;
+
+        for (var i = 0; i < maxPeriods; i++)
+        {
+            var prediction = p.Forward(s);
+            var a = NextAction(prediction, 1);
+            var res = act(new() { actionToTake = a, currentState = s, period = i });
+
+            actions.Add(a);
+            totalRewards += res.reward;
+
+            if (res.gameOver) break;
+
+            s = res.nextState;
+        }
+
+        return new()
+        {
+            actions = [.. actions],
+            iteration = 0,
+            totalRewards = totalRewards
+        };
+    }
+
 
     private void Train(TrainParameters p, CancellationToken token)
     {
