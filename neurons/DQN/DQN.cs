@@ -32,6 +32,8 @@ public class DQN(int[] layers)
         for (var i = 0; i < p.iterations; i++)
         {
             var s = p.initialState;
+            var actions = new List<int>();
+            var totalRewards = 0.0;
 
             greediness += greedinessRate;
 
@@ -42,6 +44,8 @@ public class DQN(int[] layers)
                 // do the next action
                 var a = NextAction(predicted, greediness);
                 var actRes = p.act(a);
+                actions.Add(a);
+                totalRewards += actRes.reward;
 
                 // start calculating target Q value
                 var targetQ = actRes.reward;
@@ -58,6 +62,8 @@ public class DQN(int[] layers)
 
             if (i % 50 == 0)
                 targetP.t = learningT.Clone();
+
+            RaiseGameFinished(actions, i, totalRewards);
         }
     }
 
@@ -159,4 +165,12 @@ public class DQN(int[] layers)
         return greediness < Random.Shared.NextDouble() ?
             GetBestAction(res) : Random.Shared.Next(noOfActions);
     }
+
+    private void RaiseGameFinished(List<int> actions, int i, double totalRewards)
+        => GameFinished?.Invoke(this, new()
+        {
+            actions = [.. actions],
+            iteration = i,
+            totalRewards = totalRewards
+        });
 }
