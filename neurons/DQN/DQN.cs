@@ -3,9 +3,9 @@ using Neurons.QLearning;
 
 namespace Neurons.DQN;
 
-public class DQN(int[] layers)
+public class DQN()
 {
-    readonly int[] layers = layers;
+    Func<PeriodContext, ActionResults>? act;
     int[] layers = [];
     int noOfActions;
     double alpha;
@@ -33,6 +33,7 @@ public class DQN(int[] layers)
         noOfActions = p.noOfActions;
         alpha = p.alpha;
         learningT = p.t.Clone();
+        act = p.act;
         layers = p.layers;
 
         var learningP = new Predictor(learningT, layers);
@@ -63,7 +64,7 @@ public class DQN(int[] layers)
                 var predicted = learningP.Forward(s);
                 // do the next action
                 var a = NextAction(predicted, greediness);
-                var actRes = p.act(a);
+                var actRes = p.act(new() { actionToTake = a, currentState = s, period = j });
                 actions.Add(a);
                 totalRewards += actRes.reward;
 
