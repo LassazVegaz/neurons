@@ -10,14 +10,25 @@ public class DQN(int[] layers)
     int noOfActions;
     double alpha;
     Thetas learningT = new() { b = [], w = [] };
+    CancellationTokenSource? tknCtx;
 
     public event EventHandler<GameResults>? GameFinished;
-    public event EventHandler? StopTraining;
     public event EventHandler? TrainingStopped;
     public event EventHandler<Thetas>? TrainingFinished;
 
 
     public void Train(TrainParameters p)
+    {
+        tknCtx?.Cancel();
+        tknCtx ??= new();
+
+        Task.Run(() => Train(p, tknCtx.Token));
+    }
+
+    public void StopTraining() => tknCtx?.Cancel();
+
+
+    private void Train(TrainParameters p, CancellationToken token)
     {
         noOfActions = p.noOfActions;
         alpha = p.alpha;
@@ -25,12 +36,20 @@ public class DQN(int[] layers)
 
         var learningP = new Predictor(learningT, layers);
         var targetP = new Predictor(p.t, layers);
+        var stopped = false;
 
         var greediness = 0;
         var greedinessRate = 1 / (p.iterations - 1);
 
         for (var i = 0; i < p.iterations; i++)
         {
+            if (token.IsCancellationRequested)
+            {
+                TrainingStopped?.Invoke(this, EventArgs.Empty);
+                stopped = true;
+                break;
+            }
+
             var s = p.initialState;
             var actions = new List<int>();
             var totalRewards = 0.0;
@@ -65,8 +84,10 @@ public class DQN(int[] layers)
 
             RaiseGameFinished(actions, i, totalRewards);
         }
-    }
 
+        if (!stopped)
+            TrainingFinished?.Invoke(this, targetP.t);
+    }
 
     private static int GetBestAction(ForwardResults forwardResults)
     {
