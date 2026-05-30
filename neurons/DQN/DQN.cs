@@ -185,7 +185,7 @@ public class DQN()
 
     private int NextAction(ForwardResults res, double greediness)
     {
-        return greediness < Random.Shared.NextDouble() ?
+        return greediness > Random.Shared.NextDouble() ?
             GetBestAction(res) : Random.Shared.Next(noOfActions);
     }
 
