@@ -27,7 +27,7 @@ public class DQN(int[] layers)
 
     int noOfActions;
     double alpha;
-    Thetas learningT;
+    Thetas learningT = new() { b = [], w = [] };
 
 
     public void Train(TrainParameters p)
