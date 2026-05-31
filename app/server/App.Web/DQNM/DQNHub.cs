@@ -23,6 +23,20 @@ public class DQNHub(DQN dqn, ActionPerformer performer, IOptions<DQNSettings> se
     readonly Storage _storage = storage;
     readonly EventsListener _listener = listener;
 
+
+    public override Task OnConnectedAsync()
+    {
+        Console.WriteLine("User connected: " + Context.ConnectionId);
+        return base.OnConnectedAsync();
+    }
+
+    public override Task OnDisconnectedAsync(Exception? exception)
+    {
+        Console.WriteLine("User disconnected: " + Context.ConnectionId);
+        return base.OnDisconnectedAsync(exception);
+    }
+
+
     public async Task StartTraining(HubTrainingParameters p)
     {
         _listener.SetIterations(p.Iterations);
