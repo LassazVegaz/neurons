@@ -1,5 +1,4 @@
 ﻿using Neurons.Network;
-using Neurons.QLearning;
 
 namespace Neurons.DQN;
 
@@ -100,6 +99,7 @@ public class DQN
 
         var greediness = 0.0;
         var gRate = 1 / p.iterations;
+        var s = p.initialState;
 
         for (var i = 0; i < p.iterations; i++)
         {
@@ -110,9 +110,9 @@ public class DQN
                 break;
             }
 
-            var s = p.initialState;
             var actions = new List<int>();
             var totalRewards = 0.0;
+            var initialState = s;
 
             greediness += gRate;
 
@@ -135,14 +135,19 @@ public class DQN
                 // optimize learning thetas
                 optimizer.Optimize(predicted, targetQ, a);
 
-                if (actRes.gameOver) break;
-                s = actRes.nextState;
+                if (actRes.gameOver)
+                {
+                    s = p.initialState;
+                    break;
+                }
+                else
+                    s = actRes.nextState;
             }
 
             if ((i + 1) % p.batchSize == 0)
                 targetP.t = learningT.Clone();
 
-            RaiseGameFinished(actions, p.initialState, i, totalRewards);
+            RaiseGameFinished(actions, initialState, i, totalRewards);
         }
 
         if (!stopped)
