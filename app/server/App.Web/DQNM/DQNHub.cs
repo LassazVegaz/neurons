@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Options;
 using Neurons.DQN;
 using Neurons.Network;
 
@@ -13,13 +12,12 @@ public interface IDQNClient
     Task GameFinished(GameResults gameResults);
 }
 
-public class DQNHub(DQN dqn, ActionPerformer performer, IOptions<DQNSettings> settings,
-    Storage storage, EventsListener listener)
+public class DQNHub(DQN dqn, ActionPerformer performer, Storage storage,
+    EventsListener listener)
     : Hub<IDQNClient>
 {
     readonly DQN _dqn = dqn;
     readonly ActionPerformer _performer = performer;
-    readonly DQNSettings _settings = settings.Value;
     readonly Storage _storage = storage;
     readonly EventsListener _listener = listener;
 
