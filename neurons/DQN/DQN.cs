@@ -73,8 +73,8 @@ public class DQN()
         var targetP = new Predictor(p.t.Clone(), layers);
         var stopped = false;
 
-        var greediness = 0;
-        var greedinessRate = 1 / (p.iterations - 1);
+        var eRate = (double)p.maxPeriods / p.iterations;
+        var eStopsAt = -eRate;
 
         for (var i = 0; i < p.iterations; i++)
         {
@@ -89,14 +89,14 @@ public class DQN()
             var actions = new List<int>();
             var totalRewards = 0.0;
 
-            greediness += greedinessRate;
+            eStopsAt += eRate;
 
             for (var j = 0; j < p.maxPeriods; j++)
             {
                 // predict Q values for the state
                 var predicted = learningP.Forward(s);
                 // do the next action
-                var a = NextAction(predicted, greediness);
+                var a = NextAction(predicted, j < eStopsAt);
                 var actRes = p.act(new() { actionToTake = a, currentState = s, period = j });
                 actions.Add(a);
                 totalRewards += actRes.reward;
@@ -141,11 +141,8 @@ public class DQN()
         return res.befA[^1].Max();
     }
 
-    private int NextAction(ForwardResults res, double greediness)
-    {
-        return greediness > Random.Shared.NextDouble() ?
-            GetBestAction(res) : Random.Shared.Next(noOfActions);
-    }
+    private int NextAction(ForwardResults res, bool bestAction) =>
+        bestAction ? GetBestAction(res) : Random.Shared.Next(noOfActions);
 
     private void RaiseGameFinished(List<int> actions, int i, double totalRewards)
         => GameFinished?.Invoke(this, new()
