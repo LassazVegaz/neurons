@@ -40,7 +40,7 @@ public class DQN()
         for (var i = 0; i < maxPeriods; i++)
         {
             var prediction = p.Forward(s);
-            var a = NextAction(prediction, 1);
+            var a = NextAction(prediction, true);
             var res = act(new() { actionToTake = a, currentState = s, period = i });
 
             actions.Add(a);
