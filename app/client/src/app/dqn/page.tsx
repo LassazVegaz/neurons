@@ -8,7 +8,7 @@ import useUtils from "./helpers/utils.hook";
 
 const boxes = [] as string[];
 for (let i = 0; i < 10; i++)
-  for (let j = 0; j < 10; j++) boxes.push(`box-${i / 10}-${j / 10}`);
+  for (let j = 0; j < 10; j++) boxes.push(`box-${i}-${j}`);
 
 export default function DQNPage() {
   const utils = useUtils();
