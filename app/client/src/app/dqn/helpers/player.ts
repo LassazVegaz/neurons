@@ -19,11 +19,6 @@ export default class Player {
     this._onGameChange = v;
   }
 
-  private _onWinnerFound: OnNumericChange | undefined;
-  set OnWinnerFound(v: OnNumericChange) {
-    this._onWinnerFound = v;
-  }
-
   addGame(actions: number[]) {
     if (this.bestGame) {
       this.games[this.games.length - 1] = actions;
@@ -97,8 +92,6 @@ export default class Player {
       else if (a === 1 && s.x < 9) s.x++;
       else if (a === 2 && s.y < 9) s.y++;
       else if (a === 3 && s.x > 0) s.x--;
-
-      if (s.x === 9 && s.y === 9) this._onWinnerFound?.(this.currentGame);
 
       this.toggleBox(this.lastPlayerState, false);
       this.toggleBox(s, true);

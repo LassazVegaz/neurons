@@ -27,7 +27,6 @@ export default function useUtils() {
   const [trainingCompletion, setTrainingCompletion] = useState("");
   const [games, setGames] = useState<GameResults[]>([]);
   const [currentGame, setCurrentGame] = useState(-1);
-  const [winner, setWinner] = useState<number | undefined>(undefined);
   const [bestGame, setBestGame] = useState<GameResults | undefined>(undefined);
 
   const onGameFinished = (results: GameResults) => {
@@ -60,7 +59,6 @@ export default function useUtils() {
 
     const _player = player.current;
     _player.onGameChange = setCurrentGame;
-    _player.OnWinnerFound = setWinner;
 
     return () => {
       mounted = false;
@@ -115,7 +113,6 @@ export default function useUtils() {
     status,
     isConnected,
     form,
-    winner,
     bestGame,
   };
 }
