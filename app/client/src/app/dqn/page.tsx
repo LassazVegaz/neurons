@@ -90,7 +90,7 @@ export default function DQNPage() {
           </div>
         </ControlPanelContainer>
 
-        <div className="bg-blue-950 col-span-2 flex flex-col justify-center gap-4 py-4">
+        <div className="bg-blue-950 col-span-2 flex flex-col justify-center gap-4 py-4 min-h-20">
           <div className="flex justify-center items-center gap-4">
             {utils.games.map((g, idx) => (
               <GameButton
@@ -114,11 +114,13 @@ export default function DQNPage() {
             )}
           </div>
 
-          <div className="flex justify-center">
-            <button className="border border-blue-600 py-2 px-4 rounded">
-              Pause
-            </button>
-          </div>
+          {utils.games.length > 0 && (
+            <div className="flex justify-center">
+              <button className="border border-blue-600 py-2 px-4 rounded">
+                {utils.isGamePlaying ? "Pause" : "Resume"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

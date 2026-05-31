@@ -3,6 +3,7 @@ import getDQNHub, { DQNHub } from "@/signalr/dqn.hub";
 import Player from "./player";
 import { GameResults } from "@/signalr/qlearning.hub.types";
 import TrainingStatus from "@/types/training-status.enum";
+import { HubConnectionState } from "@microsoft/signalr";
 
 const defaultForm = {
   alpha: "0.1",
@@ -28,12 +29,14 @@ export default function useUtils() {
   const [games, setGames] = useState<GameResults[]>([]);
   const [currentGame, setCurrentGame] = useState(-1);
   const [bestGame, setBestGame] = useState<GameResults | undefined>(undefined);
+  const [isGamePlaying, setIsGamePlaying] = useState(false);
 
   const onGameFinished = (results: GameResults) => {
     const completion = ((results.iteration + 1) / totalGameResults) * 100;
     setTrainingCompletion(` ${completion.toFixed(2)}%`);
     player.current.addGame(results.actions);
     setGames((prev) => [...prev, results]);
+    setIsGamePlaying(true);
   };
 
   const onTrainingFinished = (bestGame: GameResults) => {
@@ -48,7 +51,8 @@ export default function useUtils() {
     const _hub = getDQNHub();
     hub.current = _hub;
 
-    _hub.connection.start().then(() => mounted && setIsConnected(true));
+    if (_hub.connection.state === HubConnectionState.Disconnected)
+      _hub.connection.start().then(() => mounted && setIsConnected(true));
     _hub.connection.onreconnected(() => mounted && setIsConnected(true));
     _hub.connection.onreconnecting(() => mounted && setIsConnected(false));
     _hub.connection.onclose(() => mounted && setIsConnected(false));
@@ -103,7 +107,18 @@ export default function useUtils() {
     }));
   };
 
+  const onGamePauseResume = () => {
+    if (isGamePlaying) {
+      player.current.pause();
+      setIsGamePlaying(false);
+    } else {
+      player.current.resume();
+      setIsGamePlaying(true);
+    }
+  };
+
   return {
+    onGamePauseResume,
     onStopClick,
     onFieldChange,
     onTrainClick,
@@ -114,5 +129,6 @@ export default function useUtils() {
     isConnected,
     form,
     bestGame,
+    isGamePlaying,
   };
 }
