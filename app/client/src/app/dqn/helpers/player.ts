@@ -59,6 +59,23 @@ export default class Player {
     this.runGame(this.games[this.currentGame]);
   }
 
+  playFrom(gameIndex: number) {
+    if (gameIndex < 0 || gameIndex >= this.games.length)
+      throw new Error("Invalid game index: " + gameIndex);
+
+    this.stopTimmer();
+    this.currentGame = gameIndex - 1;
+    this.playNextGame();
+  }
+
+  playBestGame() {
+    if (this.bestGame === undefined) throw new Error("Best game is not given");
+
+    this.stopTimmer();
+    this.currentGame = this.games.length - 2;
+    this.playNextGame();
+  }
+
   private playNextGame() {
     this.stopTimmer();
 

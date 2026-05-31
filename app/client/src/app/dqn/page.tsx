@@ -104,6 +104,7 @@ export default function DQNPage() {
                 isPlayingNow={idx === utils.currentGame}
                 label={g.iteration}
                 rewards={g.totalRewards}
+                onClick={() => utils.playGameFrom(idx)}
               />
             ))}
 
@@ -112,6 +113,7 @@ export default function DQNPage() {
                 isPlayingNow={utils.currentGame === utils.games.length}
                 label="Best"
                 rewards={utils.bestGame.totalRewards}
+                onClick={utils.playBestGame}
                 className={twMerge(
                   "bg-red-900",
                   utils.currentGame === utils.games.length && "bg-red-950",

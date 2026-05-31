@@ -115,7 +115,19 @@ export default function useUtils() {
     }
   };
 
+  const playGameFrom = (gameIdx: number) => {
+    setIsGamePlaying(true);
+    player.current.playFrom(gameIdx);
+  };
+
+  const playBestGame = () => {
+    setIsGamePlaying(true);
+    player.current.playBestGame();
+  };
+
   return {
+    playGameFrom,
+    playBestGame,
     onGamePauseResume,
     onStopClick,
     onFieldChange,
