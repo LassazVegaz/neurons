@@ -6,6 +6,7 @@ import trainingStatusText from "@/constants/training-status-text.constant";
 import TrainingStatus from "@/types/training-status.enum";
 import useUtils from "./helpers/utils.hook";
 import GameButton from "./components/GameButton";
+import { twMerge } from "tailwind-merge";
 
 const boxes = [] as string[];
 for (let i = 0; i < 10; i++)
@@ -104,6 +105,10 @@ export default function DQNPage() {
               isPlayingNow={utils.currentGame === utils.games.length}
               label="Best"
               rewards={utils.bestGame.totalRewards}
+              className={twMerge(
+                "bg-red-900",
+                utils.currentGame === utils.games.length && "bg-red-950",
+              )}
             />
           )}
         </div>

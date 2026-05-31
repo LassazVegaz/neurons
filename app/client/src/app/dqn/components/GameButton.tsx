@@ -2,7 +2,7 @@ import { ComponentProps } from "react";
 import { twMerge } from "tailwind-merge";
 
 type GameButtonProps = ComponentProps<"div"> & {
-  isPlayingNow: boolean;
+  isPlayingNow?: boolean;
   rewards: number;
   label: number | string;
 };
