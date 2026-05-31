@@ -1,3 +1,4 @@
+"use client";
 import { twMerge } from "tailwind-merge";
 import ConnectionDisplay from "@/components/ConnectionDisplay";
 import ControlPanelContainer from "@/components/ControlPanelContainer";
