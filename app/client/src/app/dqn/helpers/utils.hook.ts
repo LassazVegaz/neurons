@@ -71,6 +71,7 @@ export default function useUtils() {
     if (!hub.current) return;
 
     player.current.reset();
+    setBestGame(undefined);
     setGames([]);
     const iterations = Number.parseInt(form.iterations);
     hub.current.invoke("StartTraining", {
