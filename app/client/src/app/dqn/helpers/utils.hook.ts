@@ -12,15 +12,10 @@ const defaultForm = {
   layers: "2,6,4",
 };
 
-const totalGameResultsStr =
-  process.env.NEXT_PUBLIC_TOTAL_GAME_RESULTS_TO_RECIEVE;
-if (!totalGameResultsStr)
-  throw new Error("NEXT_PUBLIC_TOTAL_GAME_RESULTS_TO_RECIEVE is not defined");
-const totalGameResults = Number.parseInt(totalGameResultsStr);
-
 export default function useUtils() {
   const hub = useRef<DQNHub>(undefined);
   const player = useRef(new Player());
+  const lastUsedIterations = useRef(1);
   const [isConnected, setIsConnected] = useState(false);
   const [form, setForm] = useState(defaultForm);
   const [status, setStatus] = useState(TrainingStatus.NotStarted);
@@ -31,7 +26,8 @@ export default function useUtils() {
   const [isGamePlaying, setIsGamePlaying] = useState(false);
 
   const onGameFinished = (results: GameResults) => {
-    const completion = ((results.iteration + 1) / totalGameResults) * 100;
+    const completion =
+      ((results.iteration + 1) / lastUsedIterations.current) * 100;
     setTrainingCompletion(` ${completion.toFixed(2)}%`);
     player.current.addGame(results.actions);
     setGames((prev) => [...prev, results]);
@@ -76,15 +72,17 @@ export default function useUtils() {
 
     player.current.reset();
     setGames([]);
+    const iterations = Number.parseInt(form.iterations);
     hub.current.invoke("StartTraining", {
       alpha: Number.parseFloat(form.alpha),
       lambda: Number.parseFloat(form.lambda),
-      iterations: Number.parseInt(form.iterations),
+      iterations: iterations,
       createNewThetas: form.createNewThetas,
       layers: form.layers.split(",").map((s) => Number.parseInt(s.trim())),
     });
     setStatus(TrainingStatus.InProgress);
     setForm((prev) => ({ ...prev, createNewThetas: false }));
+    lastUsedIterations.current = iterations;
   };
 
   const onStopClick = () => {
