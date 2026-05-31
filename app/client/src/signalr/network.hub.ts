@@ -13,7 +13,7 @@ type Methods = {
   StopTraining: [];
 };
 
-type Functions = Record<string, [[], []]>;
+type Functions = Record<string, [[], unknown]>;
 
 export type NetworkHub = Hub<Events, Methods, Functions>;
 

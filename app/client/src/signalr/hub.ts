@@ -4,7 +4,7 @@ import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 export default class Hub<
   Events extends Record<string, unknown[]>,
   Methods extends Record<string, unknown[]>,
-  Functions extends Record<string, [unknown[], unknown[]]>,
+  Functions extends Record<string, [unknown[], unknown]>,
 > {
   public constructor(public readonly connection: HubConnection) {}
 
@@ -48,7 +48,7 @@ export default class Hub<
 export const makeHub = <
   Events extends Record<string, unknown[]>,
   Methods extends Record<string, unknown[]>,
-  Functions extends Record<string, [unknown[], unknown[]]>,
+  Functions extends Record<string, [unknown[], unknown]>,
 >(
   url?: string,
 ) => {

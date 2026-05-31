@@ -12,7 +12,7 @@ type Methods = {
   StopTraining: [];
 };
 
-type Functions = Record<string, [[], []]>;
+type Functions = Record<string, [[], unknown]>;
 
 export type QLearningHub = Hub<Events, Methods, Functions>;
 

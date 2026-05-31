@@ -14,7 +14,7 @@ type Methods = {
 };
 
 type Functions = {
-  GetLastUsedParams: [[], [LastUsedParams?]];
+  GetLastUsedParams: [[], LastUsedParams | null];
 };
 
 export type DQNHub = Hub<Events, Methods, Functions>;
