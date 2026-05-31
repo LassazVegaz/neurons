@@ -17,7 +17,7 @@ export default function DQNPage() {
 
   return (
     <>
-      <div className="q-learning h-full grid grid-cols-[1fr_300px] grid-rows-[1fr_150px]">
+      <div className="q-learning h-full grid grid-cols-[1fr_300px] grid-rows-[1fr_auto]">
         <div className="flex justify-center items-center">
           <div className="grid grid-cols-10 gap-1">
             {boxes.map((b) => (
@@ -90,27 +90,35 @@ export default function DQNPage() {
           </div>
         </ControlPanelContainer>
 
-        <div className="bg-blue-950 col-span-2 flex justify-center items-center gap-4">
-          {utils.games.map((g, idx) => (
-            <GameButton
-              key={g.iteration}
-              isPlayingNow={idx === utils.currentGame}
-              label={g.iteration}
-              rewards={g.totalRewards}
-            />
-          ))}
+        <div className="bg-blue-950 col-span-2 flex flex-col justify-center gap-4 py-4">
+          <div className="flex justify-center items-center gap-4">
+            {utils.games.map((g, idx) => (
+              <GameButton
+                key={g.iteration}
+                isPlayingNow={idx === utils.currentGame}
+                label={g.iteration}
+                rewards={g.totalRewards}
+              />
+            ))}
 
-          {utils.bestGame && (
-            <GameButton
-              isPlayingNow={utils.currentGame === utils.games.length}
-              label="Best"
-              rewards={utils.bestGame.totalRewards}
-              className={twMerge(
-                "bg-red-900",
-                utils.currentGame === utils.games.length && "bg-red-950",
-              )}
-            />
-          )}
+            {utils.bestGame && (
+              <GameButton
+                isPlayingNow={utils.currentGame === utils.games.length}
+                label="Best"
+                rewards={utils.bestGame.totalRewards}
+                className={twMerge(
+                  "bg-red-900",
+                  utils.currentGame === utils.games.length && "bg-red-950",
+                )}
+              />
+            )}
+          </div>
+
+          <div className="flex justify-center">
+            <button className="border border-blue-600 py-2 px-4 rounded">
+              Pause
+            </button>
+          </div>
         </div>
       </div>
 
