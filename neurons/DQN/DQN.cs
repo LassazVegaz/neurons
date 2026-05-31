@@ -73,7 +73,7 @@ public class DQN()
         var targetP = new Predictor(p.t.Clone(), layers);
         var stopped = false;
 
-        var eRate = (double)p.maxPeriods / p.iterations;
+        var eRate = (p.maxPeriods - 2.0) / p.iterations;
         var eStopsAt = -eRate;
 
         for (var i = 0; i < p.iterations; i++)
