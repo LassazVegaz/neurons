@@ -53,7 +53,7 @@ public class EventsListener
                 Actions = res.actions,
                 Iteration = res.iteration,
                 TotalRewards = res.totalRewards,
-                InitialState = res.initialState
+                InitialState = DenormalizeState(res.initialState)
             });
         }
     }
@@ -69,9 +69,13 @@ public class EventsListener
             Actions = bestShot.actions,
             Iteration = 0,
             TotalRewards = bestShot.totalRewards,
-            InitialState = bestShot.initialState
+            InitialState = DenormalizeState(bestShot.initialState)
         });
 
         await _storage.SaveThetas(t);
     }
+
+
+    private static int[] DenormalizeState(double[] normS)
+        => [(int)(normS[0] * 10), (int)(normS[1] * 10)];
 }
