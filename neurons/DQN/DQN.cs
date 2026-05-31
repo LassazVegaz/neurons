@@ -138,7 +138,7 @@ public class DQN
                 s = actRes.nextState;
             }
 
-            if (i % p.batchSize == 0)
+            if ((i + 1) % p.batchSize == 0)
                 targetP.t = learningT.Clone();
 
             RaiseGameFinished(actions, i, totalRewards);
