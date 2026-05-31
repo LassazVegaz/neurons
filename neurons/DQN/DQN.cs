@@ -20,7 +20,7 @@ public class DQN()
     public void Train(TrainParameters p)
     {
         tknCtx?.Cancel();
-        tknCtx ??= new();
+        tknCtx = new();
 
         Task.Run(() => Train(p, tknCtx.Token));
     }
