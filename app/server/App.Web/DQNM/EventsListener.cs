@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Options;
 using Neurons.DQN;
 using Neurons.Network;
-using QLGameResults = Neurons.QLearning.GameResults;
+using DQNGameResults = Neurons.DQN.GameResults;
 
 namespace App.Web.DQNM;
 
@@ -40,7 +40,7 @@ public class EventsListener
     }
 
 
-    async void DQN_GameFinished(object? sender, QLGameResults res)
+    async void DQN_GameFinished(object? sender, DQNGameResults res)
     {
         accumulator += step;
 
