@@ -5,15 +5,39 @@ namespace Neurons.DQN;
 
 public class DQN
 {
+    /// <summary>
+    /// Perform action
+    /// </summary>
     Func<PeriodContext, ActionResults>? act;
+    /// <summary>
+    /// Layers. Each element represents number of neurons in the layer
+    /// </summary>
     int[] layers = [];
+    /// <summary>
+    /// Total number of actions allowed
+    /// </summary>
     int noOfActions;
     double alpha;
+    /// <summary>
+    /// Thetas in the current/online DNN
+    /// </summary>
     Thetas learningT = new() { b = [], w = [] };
+    /// <summary>
+    /// Token source used to cancel training in the middle
+    /// </summary>
     CancellationTokenSource? tknCtx;
 
+    /// <summary>
+    /// Get notified when a game is finished
+    /// </summary>
     public event EventHandler<GameResults>? GameFinished;
+    /// <summary>
+    /// Get notified when the training has been stopped in the middle
+    /// </summary>
     public event EventHandler? TrainingStopped;
+    /// <summary>
+    /// Get notified when training has finished succesfully
+    /// </summary>
     public event EventHandler<Thetas>? TrainingFinished;
 
 

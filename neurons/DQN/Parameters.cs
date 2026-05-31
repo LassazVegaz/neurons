@@ -4,14 +4,26 @@ namespace Neurons.DQN;
 
 public class TrainParameters
 {
+    /// <summary>
+    /// A pre-trained set of thetas. If pre-trained thetas are not available use
+    /// <see cref="ThetasInitializations.HeInitialization(int[])"/> to create thetas
+    /// </summary>
     public required Thetas t;
+    /// <summary>
+    /// Maximum number of allowed actions
+    /// </summary>
+    public required int noOfActions;
+
+    /// <summary>
+    /// Perform an action return the next state
+    /// </summary>
+    public required Func<PeriodContext, ActionResults> act;
+
     public required int iterations;
     public required int maxPeriods;
     public required double[] initialState;
-    public required int noOfActions;
     public required double lambda;
     public required double alpha;
-    public required Func<PeriodContext, ActionResults> act;
     public required int[] layers;
     public required int batchSize;
 }
