@@ -79,7 +79,8 @@ public class DQN
         {
             actions = [.. actions],
             iteration = 0,
-            totalRewards = totalRewards
+            totalRewards = totalRewards,
+            initialState = initialState
         };
     }
 
@@ -141,7 +142,7 @@ public class DQN
             if ((i + 1) % p.batchSize == 0)
                 targetP.t = learningT.Clone();
 
-            RaiseGameFinished(actions, i, totalRewards);
+            RaiseGameFinished(actions, p.initialState, i, totalRewards);
         }
 
         if (!stopped)
@@ -168,10 +169,12 @@ public class DQN
     private int NextAction(ForwardResults res, bool bestAction) =>
         bestAction ? GetBestAction(res) : Random.Shared.Next(noOfActions);
 
-    private void RaiseGameFinished(List<int> actions, int i, double totalRewards)
+    private void RaiseGameFinished(List<int> actions, double[] initialState, int i,
+        double totalRewards)
         => GameFinished?.Invoke(this, new()
         {
             actions = [.. actions],
+            initialState = initialState,
             iteration = i,
             totalRewards = totalRewards
         });

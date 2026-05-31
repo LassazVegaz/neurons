@@ -12,3 +12,10 @@ export type LastUsedParams = {
   layers: number[];
   iterations: number;
 };
+
+export type GameResults = {
+  initialState: number[];
+  totalRewards: number;
+  actions: number[];
+  iteration: number;
+};

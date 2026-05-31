@@ -1,3 +1,5 @@
+import { GameResults } from "@/signalr/dqn.hub.types";
+
 type OnNumericChange = (idx: number) => void;
 
 const SPEED = Number.parseInt(process.env.NEXT_PUBLIC_PLAYER_SPEED || "100");
@@ -6,32 +8,34 @@ const BOX_PLAYER_CLASS = "box-player" as const;
 
 type Coord = { x: number; y: number };
 
+export type Game = Pick<GameResults, "actions" | "initialState">;
+
 export default class Player {
-  private games: number[][] = [];
+  private games: Game[] = [];
   private currentTimer: NodeJS.Timeout | undefined;
   private currentGame = -1;
   private running = false;
   private lastPlayerState: Coord = { x: 0, y: 0 };
-  private bestGame: number[] | undefined;
+  private bestGame: Game | undefined;
 
   private _onGameChange: OnNumericChange | undefined;
   set onGameChange(v: OnNumericChange) {
     this._onGameChange = v;
   }
 
-  addGame(actions: number[]) {
+  addGame(game: Game) {
     if (this.bestGame) {
-      this.games[this.games.length - 1] = actions;
+      this.games[this.games.length - 1] = game;
       this.games.push(this.bestGame);
     } else {
-      this.games.push(actions);
+      this.games.push(game);
     }
 
     if (!this.running) this.playNextGame();
   }
 
-  addBestGame(actions: number[]) {
-    this.bestGame = actions;
+  addBestGame(game: Game) {
+    this.bestGame = game;
     this.games.push(this.bestGame);
     if (!this.running) this.playNextGame();
   }
@@ -87,9 +91,10 @@ export default class Player {
     this.runGame(this.games[this.currentGame]);
   }
 
-  private runGame(actions: number[]) {
+  private runGame(game: Game) {
+    const actions = game.actions;
     let period = -1;
-    const s: Coord = { x: 0, y: 0 };
+    const s: Coord = { x: game.initialState[0], y: game.initialState[1] };
     this.running = true;
 
     this.transitState(s);

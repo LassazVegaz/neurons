@@ -80,6 +80,7 @@ public class ActionResults
 
 public class GameResults
 {
+    public required double[] initialState;
     public required double totalRewards;
     public required int[] actions;
     public required int iteration;

@@ -1,8 +1,8 @@
 import { ChangeEventHandler, useEffect, useRef, useState } from "react";
 import getDQNHub, { DQNHub } from "@/signalr/dqn.hub";
 import Player from "./player";
-import { GameResults } from "@/signalr/qlearning.hub.types";
 import TrainingStatus from "@/types/training-status.enum";
+import { GameResults } from "@/signalr/dqn.hub.types";
 
 const defaultForm = {
   alpha: "0.1",
@@ -29,13 +29,13 @@ export default function useUtils() {
     const completion =
       ((results.iteration + 1) / lastUsedIterations.current) * 100;
     setTrainingCompletion(` ${completion.toFixed(2)}%`);
-    player.current.addGame(results.actions);
+    player.current.addGame(results);
     setGames((prev) => [...prev, results]);
     setIsGamePlaying(true);
   };
 
   const onTrainingFinished = (bestGame: GameResults) => {
-    player.current.addBestGame(bestGame.actions);
+    player.current.addBestGame(bestGame);
     setBestGame(bestGame);
     setStatus(TrainingStatus.Finished);
   };

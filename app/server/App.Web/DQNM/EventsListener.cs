@@ -52,7 +52,8 @@ public class EventsListener
             {
                 Actions = res.actions,
                 Iteration = res.iteration,
-                TotalRewards = res.totalRewards
+                TotalRewards = res.totalRewards,
+                InitialState = res.initialState
             });
         }
     }
@@ -67,7 +68,8 @@ public class EventsListener
         {
             Actions = bestShot.actions,
             Iteration = 0,
-            TotalRewards = bestShot.totalRewards
+            TotalRewards = bestShot.totalRewards,
+            InitialState = bestShot.initialState
         });
 
         await _storage.SaveThetas(t);

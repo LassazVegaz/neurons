@@ -15,6 +15,7 @@ public class GameResults
 {
     public int Iteration { get; set; }
     public required int[] Actions { get; set; }
+    public required double[] InitialState { get; set; }
     public double TotalRewards { get; set; }
 }
 

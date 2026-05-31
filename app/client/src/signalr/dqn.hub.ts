@@ -1,6 +1,9 @@
-import { HubTrainParameters, LastUsedParams } from "./dqn.hub.types";
+import {
+  GameResults,
+  HubTrainParameters,
+  LastUsedParams,
+} from "./dqn.hub.types";
 import Hub, { makeHub } from "./hub";
-import { GameResults } from "./qlearning.hub.types";
 
 type Events = {
   TrainingStopped: [];
