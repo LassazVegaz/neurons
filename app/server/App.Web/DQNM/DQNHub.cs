@@ -39,9 +39,11 @@ public class DQNHub(DQN dqn, ActionPerformer performer, Storage storage,
 
     public async Task StartTraining(HubTrainingParameters p)
     {
+        await SaveParams(p);
+
         _listener.SetIterations(p.Iterations);
 
-        var thetas = await GetThetas(p);
+        var thetas = await GetThetas(p.CreateNewThetas, p.Layers);
 
         _dqn.Train(new()
         {
@@ -60,26 +62,29 @@ public class DQNHub(DQN dqn, ActionPerformer performer, Storage storage,
 
     public void StopTraining() => _dqn.StopTraining();
 
+    public async Task<LastUsedParams?> GetLastUsedParams()
+        => await _storage.GetLastUsedParams();
 
-    private async Task<Thetas> GetThetas(HubTrainingParameters p)
+
+    private async Task<Thetas> GetThetas(bool newThetas, int[] layers)
     {
         Thetas t;
 
-        if (p.CreateNewThetas)
-            t = ThetasInitializations.HeInitialization(p.Layers);
+        if (newThetas)
+            t = ThetasInitializations.HeInitialization(layers);
         else
-            t = (await _storage.GetModel())?.thetas
-                ?? ThetasInitializations.HeInitialization(p.Layers);
-
-        await _storage.SaveModel(new()
-        {
-            alpha = p.Alpha,
-            iterations = p.Iterations,
-            lambda = p.Lambda,
-            layers = p.Layers,
-            thetas = t
-        });
+            t = (await _storage.GetThetas())
+                ?? ThetasInitializations.HeInitialization(layers);
 
         return t;
     }
+
+    private async Task SaveParams(HubTrainingParameters p)
+        => await _storage.SaveLastUsedParams(new()
+        {
+            Alpha = p.Alpha,
+            Iterations = p.Iterations,
+            Lambda = p.Lambda,
+            Layers = p.Layers
+        });
 }

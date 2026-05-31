@@ -7,33 +7,37 @@ namespace App.Web.DQNM;
 public class Storage(IOptions<DQNSettings> settings)
 {
     readonly string modelFile = settings.Value.ModelFile;
+    readonly string lastUsedParamsFile = settings.Value.LastUsedParamsFile;
     readonly JsonSerializerOptions jsonOps = new()
     {
         IncludeFields = true
     };
 
 
-    public async Task UpdateThetas(Thetas t)
+    public async Task SaveThetas(Thetas t) => await SaveJson(modelFile, t);
+
+    public async Task<Thetas?> GetThetas() => await GetJson<Thetas>(modelFile);
+
+    public async Task SaveLastUsedParams(LastUsedParams p)
+        => await SaveJson(lastUsedParamsFile, p);
+
+    public async Task<LastUsedParams?> GetLastUsedParams()
+        => await GetJson<LastUsedParams>(lastUsedParamsFile);
+
+
+    private async Task SaveJson(string fileName, object o)
     {
-        var m = await GetModel()
-            ?? throw new NullReferenceException("Model is null");
-        m.thetas = t;
-        await SaveModel(m);
+        var fullFileName = Path.Combine(Environment.CurrentDirectory, fileName);
+        var json = JsonSerializer.Serialize(o, jsonOps);
+        await File.WriteAllTextAsync(fullFileName, json);
     }
 
-    public async Task SaveModel(Model m)
+    private async Task<T?> GetJson<T>(string fileName)
     {
-        var fileName = Path.Combine(Environment.CurrentDirectory, modelFile);
-        var json = JsonSerializer.Serialize(m, jsonOps);
-        await File.WriteAllTextAsync(fileName, json);
-    }
-
-    public async Task<Model?> GetModel()
-    {
-        var fullFileName = Path.Combine(Environment.CurrentDirectory, modelFile);
-        if (!File.Exists(fullFileName)) return null;
+        var fullFileName = Path.Combine(Environment.CurrentDirectory, fileName);
+        if (!File.Exists(fullFileName)) return default;
 
         var json = await File.ReadAllTextAsync(fullFileName);
-        return JsonSerializer.Deserialize<Model>(json, jsonOps);
+        return JsonSerializer.Deserialize<T>(json, jsonOps);
     }
 }

@@ -26,3 +26,11 @@ public class Model
     public required int iterations;
     public required Thetas thetas;
 }
+
+public class LastUsedParams
+{
+    public required double Alpha { get; set; }
+    public required double Lambda { get; set; }
+    public required int[] Layers { get; set; }
+    public required int Iterations { get; set; }
+}

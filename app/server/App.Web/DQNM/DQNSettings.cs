@@ -7,4 +7,5 @@ public class DQNSettings
     public int MaxGamesToSend { get; set; }
     public int BatchSize { get; set; }
     public required string ModelFile { get; set; }
+    public required string LastUsedParamsFile { get; set; }
 }

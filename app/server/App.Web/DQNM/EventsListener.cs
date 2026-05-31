@@ -70,6 +70,6 @@ public class EventsListener
             TotalRewards = bestShot.totalRewards
         });
 
-        await _storage.UpdateThetas(t);
+        await _storage.SaveThetas(t);
     }
 }
