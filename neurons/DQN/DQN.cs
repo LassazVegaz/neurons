@@ -97,8 +97,8 @@ public class DQN
         var targetP = new Predictor(p.t.Clone(), layers);
         var stopped = false;
 
-        var eRate = (p.maxPeriods - 2.0) / p.iterations;
-        var eStopsAt = -eRate;
+        var greediness = 0.0;
+        var gRate = 1 / p.iterations;
 
         for (var i = 0; i < p.iterations; i++)
         {
@@ -113,14 +113,14 @@ public class DQN
             var actions = new List<int>();
             var totalRewards = 0.0;
 
-            eStopsAt += eRate;
+            greediness += gRate;
 
             for (var j = 0; j < p.maxPeriods; j++)
             {
                 // predict Q values for the state
                 var predicted = learningP.Forward(s);
                 // do the next action
-                var a = NextAction(predicted, j < eStopsAt);
+                var a = NextAction(predicted, Random.Shared.NextDouble() < greediness);
                 var actRes = p.act(new() { actionToTake = a, currentState = s, period = j });
                 actions.Add(a);
                 totalRewards += actRes.reward;
