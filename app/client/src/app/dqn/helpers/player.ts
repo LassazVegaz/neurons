@@ -2,12 +2,16 @@ type OnNumericChange = (idx: number) => void;
 
 const SPEED = Number.parseInt(process.env.NEXT_PUBLIC_PLAYER_SPEED || "100");
 
+const BOX_PLAYER_CLASS = "box-player" as const;
+
+type Coord = { x: number; y: number };
+
 export default class Player {
   private games: number[][] = [];
   private currentTimer: NodeJS.Timeout | undefined;
   private currentGame = -1;
   private running = false;
-  private lastPlayerState = 0;
+  private lastPlayerState: Coord = { x: 0, y: 0 };
 
   private _onGameChange: OnNumericChange | undefined;
   set onGameChange(v: OnNumericChange) {
@@ -59,14 +63,11 @@ export default class Player {
 
   private runGame(actions: number[]) {
     let period = -1;
-    let s = 0;
+    const s: Coord = { x: 0, y: 0 };
     this.running = true;
 
-    document
-      .getElementById("box-" + this.lastPlayerState)
-      ?.classList.remove("box-player");
-    this.lastPlayerState = 0;
-    document.getElementById("box-" + s)?.classList.add("box-player");
+    this.toggleBox(this.lastPlayerState, false);
+    this.toggleBox(s, true);
 
     this.currentTimer = setInterval(() => {
       period++;
@@ -78,17 +79,15 @@ export default class Player {
 
       const a = actions[period];
 
-      if (a === 0 && s > 9) s -= 10;
-      else if (a === 1 && s % 10 !== 9) s++;
-      else if (a === 2 && s < 89) s += 10;
-      else if (a === 3 && s % 10 !== 0) s--;
+      if (a === 0 && s.y > 0) s.y--;
+      else if (a === 1 && s.x < 9) s.x++;
+      else if (a === 2 && s.y < 9) s.y++;
+      else if (a === 3 && s.x > 0) s.x--;
 
-      if (s === 99) this._onWinnerFound?.(this.currentGame);
+      if (s.x === 9 && s.y === 9) this._onWinnerFound?.(this.currentGame);
 
-      document
-        .getElementById("box-" + this.lastPlayerState)
-        ?.classList.remove("box-player");
-      document.getElementById("box-" + s)?.classList.add("box-player");
+      this.toggleBox(this.lastPlayerState, false);
+      this.toggleBox(s, true);
       this.lastPlayerState = s;
     }, SPEED);
   }
@@ -96,6 +95,15 @@ export default class Player {
   private stopTimmer() {
     clearInterval(this.currentTimer);
     this.running = false;
+  }
+
+  private toggleBox(state: Coord, show: boolean): void {
+    const id = `box-${state.x}-${state.y}`;
+    const ele = document.getElementById(id);
+    if (!ele) throw new Error(`Box with id ${id} is missing`);
+
+    if (show) ele.classList.add(BOX_PLAYER_CLASS);
+    else ele.classList.remove(BOX_PLAYER_CLASS);
   }
 }
 
