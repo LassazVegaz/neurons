@@ -1,4 +1,6 @@
-﻿namespace App.Web.DQNM;
+﻿using Neurons.Network;
+
+namespace App.Web.DQNM;
 
 public class HubTrainingParameters
 {
@@ -14,4 +16,13 @@ public class GameResults
     public int Iteration { get; set; }
     public required int[] Actions { get; set; }
     public double TotalRewards { get; set; }
+}
+
+public class Model
+{
+    public required double alpha;
+    public required double lambda;
+    public required int[] layers;
+    public required int iterations;
+    public required Thetas thetas;
 }

@@ -13,19 +13,27 @@ public class Storage(IOptions<DQNSettings> settings)
     };
 
 
-    public async Task SaveModel(Thetas t)
+    public async Task UpdateThetas(Thetas t)
+    {
+        var m = await GetModel()
+            ?? throw new NullReferenceException("Model is null");
+        m.thetas = t;
+        await SaveModel(m);
+    }
+
+    public async Task SaveModel(Model m)
     {
         var fileName = Path.Combine(Environment.CurrentDirectory, modelFile);
-        var json = JsonSerializer.Serialize(t, jsonOps);
+        var json = JsonSerializer.Serialize(m, jsonOps);
         await File.WriteAllTextAsync(fileName, json);
     }
 
-    public async Task<Thetas?> GetModel()
+    public async Task<Model?> GetModel()
     {
         var fullFileName = Path.Combine(Environment.CurrentDirectory, modelFile);
         if (!File.Exists(fullFileName)) return null;
 
         var json = await File.ReadAllTextAsync(fullFileName);
-        return JsonSerializer.Deserialize<Thetas>(json, jsonOps);
+        return JsonSerializer.Deserialize<Model>(json, jsonOps);
     }
 }

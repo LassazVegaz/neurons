@@ -41,7 +41,7 @@ public class DQNHub(DQN dqn, ActionPerformer performer, Storage storage,
     {
         _listener.SetIterations(p.Iterations);
 
-        var thetas = await GetThetas(p.CreateNewThetas, p.Layers);
+        var thetas = await GetThetas(p);
 
         _dqn.Train(new()
         {
@@ -61,12 +61,25 @@ public class DQNHub(DQN dqn, ActionPerformer performer, Storage storage,
     public void StopTraining() => _dqn.StopTraining();
 
 
-    private async Task<Thetas> GetThetas(bool newThetas, int[] layers)
+    private async Task<Thetas> GetThetas(HubTrainingParameters p)
     {
-        if (newThetas)
-            return ThetasInitializations.HeInitialization(layers);
+        Thetas t;
+
+        if (p.CreateNewThetas)
+            t = ThetasInitializations.HeInitialization(p.Layers);
         else
-            return await _storage.GetModel()
-                ?? ThetasInitializations.HeInitialization(layers);
+            t = (await _storage.GetModel())?.thetas
+                ?? ThetasInitializations.HeInitialization(p.Layers);
+
+        await _storage.SaveModel(new()
+        {
+            alpha = p.Alpha,
+            iterations = p.Iterations,
+            lambda = p.Lambda,
+            layers = p.Layers,
+            thetas = t
+        });
+
+        return t;
     }
 }
