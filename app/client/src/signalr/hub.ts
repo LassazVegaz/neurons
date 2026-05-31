@@ -29,9 +29,9 @@ export default class Hub<
     else this.connection.off(eventName, method);
   }
 
-  async invoke<M extends keyof Methods>(methodName: M, ...args: Methods[M]) {
+  async send<M extends keyof Methods>(methodName: M, ...args: Methods[M]) {
     if (typeof methodName === "string")
-      await this.connection.invoke(methodName, ...args);
+      await this.connection.send(methodName, ...args);
   }
 }
 

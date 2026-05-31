@@ -74,7 +74,7 @@ export default function useUtils() {
     setBestGame(undefined);
     setGames([]);
     const iterations = Number.parseInt(form.iterations);
-    hub.current.invoke("StartTraining", {
+    hub.current.send("StartTraining", {
       alpha: Number.parseFloat(form.alpha),
       lambda: Number.parseFloat(form.lambda),
       iterations: iterations,
@@ -88,7 +88,7 @@ export default function useUtils() {
 
   const onStopClick = () => {
     if (!hub.current) return;
-    hub.current.invoke("StopTraining");
+    hub.current.send("StopTraining");
     setStatus(TrainingStatus.RequestedToStop);
   };
 

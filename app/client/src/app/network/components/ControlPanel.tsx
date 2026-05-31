@@ -51,7 +51,7 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
 
   const onStartClick = async () => {
     const iterations = Number.parseInt(form.iterations);
-    await networkHub?.invoke("Train", {
+    await networkHub?.send("Train", {
       layers: form.layers.split(",").map(Number),
       newThetas: form.useNewThetas,
       alpha: Number.parseFloat(form.alpha),
@@ -62,7 +62,7 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
   };
 
   const onStopClick = async () => {
-    await networkHub?.invoke("StopTraining");
+    await networkHub?.send("StopTraining");
     setTrainingStatus(TrainingStatus.RequestedToStop);
   };
 
