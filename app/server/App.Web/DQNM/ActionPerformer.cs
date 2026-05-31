@@ -25,7 +25,7 @@ public class ActionPerformer
 
         return new()
         {
-            gameOver = ctx.period == MAX_PERIODS,
+            gameOver = x == 0.9 && y == 0.9,
             reward = r,
             nextState = [x, y]
         };
