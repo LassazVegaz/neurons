@@ -28,12 +28,19 @@ export default function useUtils() {
   const [games, setGames] = useState<GameResults[]>([]);
   const [currentGame, setCurrentGame] = useState(-1);
   const [winner, setWinner] = useState<number | undefined>(undefined);
+  const [bestGame, setBestGame] = useState<GameResults | undefined>(undefined);
 
   const onGameFinished = (results: GameResults) => {
     const completion = ((results.iteration + 1) / totalGameResults) * 100;
     setTrainingCompletion(` ${completion.toFixed(2)}%`);
     player.current.addGame(results.actions);
     setGames((prev) => [...prev, results]);
+  };
+
+  const onTrainingFinished = (bestGame: GameResults) => {
+    player.current.addBestGame(bestGame.actions);
+    setBestGame(bestGame);
+    setStatus(TrainingStatus.Finished);
   };
 
   useEffect(() => {
@@ -49,7 +56,7 @@ export default function useUtils() {
 
     _hub.on("GameFinished", onGameFinished);
     _hub.on("TrainingStopped", () => setStatus(TrainingStatus.Stopped));
-    _hub.on("TrainingFinished", () => setStatus(TrainingStatus.Finished));
+    _hub.on("TrainingFinished", onTrainingFinished);
 
     const _player = player.current;
     _player.onGameChange = setCurrentGame;
@@ -109,5 +116,6 @@ export default function useUtils() {
     isConnected,
     form,
     winner,
+    bestGame,
   };
 }

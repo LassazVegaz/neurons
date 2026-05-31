@@ -1,11 +1,11 @@
 "use client";
-import { twMerge } from "tailwind-merge";
 import ConnectionDisplay from "@/components/ConnectionDisplay";
 import ControlPanelContainer from "@/components/ControlPanelContainer";
 import { Checkbox, TextField, Button } from "@/components/Fields";
 import trainingStatusText from "@/constants/training-status-text.constant";
 import TrainingStatus from "@/types/training-status.enum";
 import useUtils from "./helpers/utils.hook";
+import GameButton from "./components/GameButton";
 
 const boxes = [] as string[];
 for (let i = 0; i < 10; i++)
@@ -91,18 +91,21 @@ export default function DQNPage() {
 
         <div className="bg-blue-950 col-span-2 flex justify-center items-center gap-4">
           {utils.games.map((g, idx) => (
-            <div
+            <GameButton
               key={g.iteration}
-              className={twMerge(
-                "border border-blue-400 flex flex-col gap-1 justify-center items-center w-20 py-2 rounded cursor-pointer duration-300 hover:border-blue-700",
-                utils.currentGame === idx && "bg-gray-950",
-                idx === utils.winner && "border-3 border-red-600",
-              )}
-            >
-              <div className="text-blue-300 text-sm">{g.iteration}</div>
-              <div>{g.totalRewards.toFixed(2)}</div>
-            </div>
+              isPlayingNow={idx === utils.currentGame}
+              label={g.iteration}
+              rewards={g.totalRewards}
+            />
           ))}
+
+          {utils.bestGame && (
+            <GameButton
+              isPlayingNow={utils.currentGame === utils.games.length}
+              label="Best"
+              rewards={utils.bestGame.totalRewards}
+            />
+          )}
         </div>
       </div>
 
