@@ -12,6 +12,7 @@ export default class Player {
   private currentGame = -1;
   private running = false;
   private lastPlayerState: Coord = { x: 0, y: 0 };
+  private bestGame: number[] | undefined;
 
   private _onGameChange: OnNumericChange | undefined;
   set onGameChange(v: OnNumericChange) {
@@ -24,7 +25,19 @@ export default class Player {
   }
 
   addGame(actions: number[]) {
-    this.games.push(actions);
+    if (this.bestGame) {
+      this.games[this.games.length - 1] = actions;
+      this.games.push(this.bestGame);
+    } else {
+      this.games.push(actions);
+    }
+
+    if (!this.running) this.playNextGame();
+  }
+
+  addBestGame(actions: number[]) {
+    this.bestGame = actions;
+    this.games.push(this.bestGame);
     if (!this.running) this.playNextGame();
   }
 
@@ -32,6 +45,7 @@ export default class Player {
     this.stopTimmer();
     this.games = [];
     this.currentGame = -1;
+    this.bestGame = undefined;
     this._onGameChange?.(this.currentGame);
   }
 
