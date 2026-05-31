@@ -9,6 +9,7 @@ public class HubTrainingParameters
     public required int[] Layers { get; set; }
     public bool CreateNewThetas { get; set; }
     public int Iterations { get; set; }
+    public bool NoGreedy { get; set; }
 }
 
 public class GameResults
@@ -34,4 +35,5 @@ public class LastUsedParams
     public required double Lambda { get; set; }
     public required int[] Layers { get; set; }
     public required int Iterations { get; set; }
+    public required bool NoGreedy { get; set; }
 }

@@ -11,6 +11,7 @@ export type LastUsedParams = {
   lambda: number;
   layers: number[];
   iterations: number;
+  noGreedy: boolean;
 };
 
 export type GameResults = {

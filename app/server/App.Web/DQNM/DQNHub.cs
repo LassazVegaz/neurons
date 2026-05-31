@@ -56,6 +56,7 @@ public class DQNHub(DQN dqn, ActionPerformer performer, Storage storage,
             maxPeriods = Constants.MAX_PERIODS,
             noOfActions = Constants.NO_OF_ACTIONS,
             batchSize = _settings.BatchSize,
+            noGreedy = p.NoGreedy,
             t = thetas
         });
     }
@@ -85,6 +86,7 @@ public class DQNHub(DQN dqn, ActionPerformer performer, Storage storage,
             Alpha = p.Alpha,
             Iterations = p.Iterations,
             Lambda = p.Lambda,
-            Layers = p.Layers
+            Layers = p.Layers,
+            NoGreedy = p.NoGreedy
         });
 }

@@ -121,7 +121,8 @@ public class DQN
                 // predict Q values for the state
                 var predicted = learningP.Forward(s);
                 // do the next action
-                var a = NextAction(predicted, Random.Shared.NextDouble() < greediness);
+                var a = NextAction(predicted,
+                    !p.noGreedy && Random.Shared.NextDouble() < greediness);
                 var actRes = p.act(new() { actionToTake = a, currentState = s, period = j });
                 actions.Add(a);
                 totalRewards += actRes.reward;

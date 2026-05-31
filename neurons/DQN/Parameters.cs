@@ -26,6 +26,7 @@ public class TrainParameters
     public required double alpha;
     public required int[] layers;
     public required int batchSize;
+    public required bool noGreedy;
 }
 
 public class ActionResults

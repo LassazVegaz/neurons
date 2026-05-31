@@ -10,6 +10,7 @@ const defaultForm = {
   iterations: "10000",
   createNewThetas: true,
   layers: "2,6,4",
+  noGreedy: false,
 };
 
 export default function useUtils() {
@@ -57,6 +58,7 @@ export default function useUtils() {
           iterations: p.iterations.toString(),
           lambda: p.lambda.toString(),
           layers: p.layers.join(","),
+          noGreedy: p.noGreedy,
         });
       });
     });

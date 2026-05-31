@@ -38,6 +38,12 @@ export default function DQNPage() {
 
         <ControlPanelContainer className="border-l border-blue-400">
           <Checkbox
+            checked={utils.form.noGreedy}
+            label="No Greedy"
+            name="noGreedy"
+            onChange={utils.onFieldChange}
+          />
+          <Checkbox
             checked={utils.form.createNewThetas}
             label="New table"
             name="createNewThetas"
