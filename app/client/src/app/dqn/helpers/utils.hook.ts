@@ -55,6 +55,17 @@ export default function useUtils() {
     _hub.on("TrainingStopped", () => setStatus(TrainingStatus.Stopped));
     _hub.on("TrainingFinished", onTrainingFinished);
 
+    _hub.invoke("GetLastUsedParams").then((p) => {
+      if (!p || !mounted) return;
+      setForm({
+        alpha: p.alpha.toString(),
+        createNewThetas: false,
+        iterations: p.iterations.toString(),
+        lambda: p.lambda.toString(),
+        layers: p.layers.join(","),
+      });
+    });
+
     const _player = player.current;
     _player.onGameChange = setCurrentGame;
 
