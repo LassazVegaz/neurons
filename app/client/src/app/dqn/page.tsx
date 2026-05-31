@@ -116,7 +116,10 @@ export default function DQNPage() {
 
           {utils.games.length > 0 && (
             <div className="flex justify-center">
-              <button className="border border-blue-600 py-2 px-4 rounded cursor-pointer">
+              <button
+                className="border border-blue-600 py-2 px-4 rounded cursor-pointer"
+                onClick={utils.onGamePauseResume}
+              >
                 {utils.isGamePlaying ? "Pause" : "Resume"}
               </button>
             </div>
