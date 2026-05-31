@@ -75,8 +75,7 @@ export default class Player {
     const s: Coord = { x: 0, y: 0 };
     this.running = true;
 
-    this.toggleBox(this.lastPlayerState, false);
-    this.toggleBox(s, true);
+    this.transitState(s);
 
     this.currentTimer = setInterval(() => {
       period++;
@@ -93,10 +92,14 @@ export default class Player {
       else if (a === 2 && s.y < 9) s.y++;
       else if (a === 3 && s.x > 0) s.x--;
 
-      this.toggleBox(this.lastPlayerState, false);
-      this.toggleBox(s, true);
-      this.lastPlayerState = { ...s };
+      this.transitState(s);
     }, SPEED);
+  }
+
+  private transitState(newState: Coord) {
+    this.toggleBox(this.lastPlayerState, false);
+    this.toggleBox(newState, true);
+    this.lastPlayerState = { ...newState };
   }
 
   private stopTimmer() {
