@@ -1,6 +1,6 @@
 type OnNumericChange = (idx: number) => void;
 
-const SPEED = Number.parseInt(process.env.NEXT_PUBLIC_PLAYER_SPEED!);
+const SPEED = Number.parseInt(process.env.NEXT_PUBLIC_PLAYER_SPEED || "100");
 
 export default class Player {
   private games: number[][] = [];
