@@ -4,6 +4,7 @@ import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 export default class Hub<
   Events extends Record<string, unknown[]>,
   Methods extends Record<string, unknown[]>,
+  Functions extends Record<string, [unknown[], unknown[]]>,
 > {
   public constructor(public readonly connection: HubConnection) {}
 
@@ -33,11 +34,21 @@ export default class Hub<
     if (typeof methodName === "string")
       await this.connection.send(methodName, ...args);
   }
+
+  async invoke<F extends keyof Functions>(
+    funcName: F,
+    ...args: Functions[F][0]
+  ): Promise<Functions[F][1]> {
+    if (typeof funcName === "string")
+      return await this.connection.invoke(funcName, ...args);
+    else throw new Error("function name is not a string");
+  }
 }
 
 export const makeHub = <
   Events extends Record<string, unknown[]>,
   Methods extends Record<string, unknown[]>,
+  Functions extends Record<string, [unknown[], unknown[]]>,
 >(
   url?: string,
 ) => {
@@ -48,5 +59,5 @@ export const makeHub = <
     .withAutomaticReconnect()
     .build();
 
-  return new Hub<Events, Methods>(connection);
+  return new Hub<Events, Methods, Functions>(connection);
 };

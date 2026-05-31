@@ -1,4 +1,4 @@
-import { HubTrainParameters } from "./dqn.hub.types";
+import { HubTrainParameters, LastUsedParams } from "./dqn.hub.types";
 import Hub, { makeHub } from "./hub";
 import { GameResults } from "./qlearning.hub.types";
 
@@ -13,7 +13,11 @@ type Methods = {
   StopTraining: [];
 };
 
-export type DQNHub = Hub<Events, Methods>;
+type Functions = {
+  GetLastUsedParams: [[], [LastUsedParams?]];
+};
+
+export type DQNHub = Hub<Events, Methods, Functions>;
 
 let hub: DQNHub | undefined;
 

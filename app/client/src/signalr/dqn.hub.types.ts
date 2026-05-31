@@ -5,3 +5,10 @@ export type HubTrainParameters = {
   createNewThetas: boolean;
   iterations: number;
 };
+
+export type LastUsedParams = {
+  alpha: number;
+  lambda: number;
+  layers: number[];
+  iterations: number;
+};

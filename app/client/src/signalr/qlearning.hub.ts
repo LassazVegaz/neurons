@@ -12,11 +12,15 @@ type Methods = {
   StopTraining: [];
 };
 
-export type QLearningHub = Hub<Events, Methods>;
+type Functions = Record<string, [[], []]>;
+
+export type QLearningHub = Hub<Events, Methods, Functions>;
 
 let hub: QLearningHub | undefined;
 
 export default function getQLearningHub() {
-  hub ??= makeHub<Events, Methods>(process.env.NEXT_PUBLIC_QLEARNING_HUB);
+  hub ??= makeHub<Events, Methods, Functions>(
+    process.env.NEXT_PUBLIC_QLEARNING_HUB,
+  );
   return hub;
 }
