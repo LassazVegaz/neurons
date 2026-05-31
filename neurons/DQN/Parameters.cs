@@ -13,6 +13,7 @@ public class TrainParameters
     public required double alpha;
     public required Func<PeriodContext, ActionResults> act;
     public required int[] layers;
+    public required int batchSize;
 }
 
 public class ActionResults

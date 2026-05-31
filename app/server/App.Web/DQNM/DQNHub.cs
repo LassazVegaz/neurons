@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using Neurons.DQN;
 using Neurons.Network;
 
@@ -13,13 +14,14 @@ public interface IDQNClient
 }
 
 public class DQNHub(DQN dqn, ActionPerformer performer, Storage storage,
-    EventsListener listener)
+    EventsListener listener, IOptions<DQNSettings> settings)
     : Hub<IDQNClient>
 {
     readonly DQN _dqn = dqn;
     readonly ActionPerformer _performer = performer;
     readonly Storage _storage = storage;
     readonly EventsListener _listener = listener;
+    readonly DQNSettings _settings = settings.Value;
 
 
     public override Task OnConnectedAsync()
@@ -51,6 +53,7 @@ public class DQNHub(DQN dqn, ActionPerformer performer, Storage storage,
             layers = p.Layers,
             maxPeriods = Constants.MAX_PERIODS,
             noOfActions = Constants.NO_OF_ACTIONS,
+            batchSize = _settings.BatchSize,
             t = thetas
         });
     }

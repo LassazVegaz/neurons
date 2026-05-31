@@ -3,7 +3,7 @@ using Neurons.QLearning;
 
 namespace Neurons.DQN;
 
-public class DQN()
+public class DQN
 {
     Func<PeriodContext, ActionResults>? act;
     int[] layers = [];
@@ -114,7 +114,7 @@ public class DQN()
                 s = actRes.nextState;
             }
 
-            if (i % 50 == 0)
+            if (i % p.batchSize == 0)
                 targetP.t = learningT.Clone();
 
             RaiseGameFinished(actions, i, totalRewards);
