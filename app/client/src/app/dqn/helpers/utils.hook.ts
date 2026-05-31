@@ -3,7 +3,6 @@ import getDQNHub, { DQNHub } from "@/signalr/dqn.hub";
 import Player from "./player";
 import { GameResults } from "@/signalr/qlearning.hub.types";
 import TrainingStatus from "@/types/training-status.enum";
-import { HubConnectionState } from "@microsoft/signalr";
 
 const defaultForm = {
   alpha: "0.1",
@@ -51,8 +50,7 @@ export default function useUtils() {
     const _hub = getDQNHub();
     hub.current = _hub;
 
-    if (_hub.connection.state === HubConnectionState.Disconnected)
-      _hub.connection.start().then(() => mounted && setIsConnected(true));
+    _hub.connection.start().then(() => mounted && setIsConnected(true));
     _hub.connection.onreconnected(() => mounted && setIsConnected(true));
     _hub.connection.onreconnecting(() => mounted && setIsConnected(false));
     _hub.connection.onclose(() => mounted && setIsConnected(false));
