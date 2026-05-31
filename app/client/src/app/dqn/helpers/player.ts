@@ -95,7 +95,7 @@ export default class Player {
 
       this.toggleBox(this.lastPlayerState, false);
       this.toggleBox(s, true);
-      this.lastPlayerState = s;
+      this.lastPlayerState = { ...s };
     }, SPEED);
   }
 
