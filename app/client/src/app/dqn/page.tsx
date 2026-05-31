@@ -9,11 +9,11 @@ import GameButton from "./components/GameButton";
 import { twMerge } from "tailwind-merge";
 
 const boxes = [] as { id: string; r: string }[];
-for (let i = 0; i < 10; i++)
-  for (let j = 0; j < 10; j++)
+for (let y = 0; y < 10; y++)
+  for (let x = 0; x < 10; x++)
     boxes.push({
-      id: `box-${i}-${j}`,
-      r: Math.hypot(i, j).toFixed(1),
+      id: `box-${y}-${x}`,
+      r: Math.hypot(y, x).toFixed(1),
     });
 
 export default function DQNPage() {

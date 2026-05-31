@@ -130,7 +130,7 @@ export default class Player {
   }
 
   private toggleBox(state: Coord, show: boolean): void {
-    const id = `box-${state.x}-${state.y}`;
+    const id = `box-${state.y}-${state.x}`;
     const ele = document.getElementById(id);
     if (!ele) throw new Error(`Box with id ${id} is missing`);
 
