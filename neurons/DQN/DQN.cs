@@ -4,27 +4,15 @@ namespace Neurons.DQN;
 
 public class DQN
 {
-    /// <summary>
-    /// Perform action
-    /// </summary>
-    Func<PeriodContext, ActionResults>? act;
-    /// <summary>
-    /// Layers. Each element represents number of neurons in the layer
-    /// </summary>
-    int[] layers = [];
-    /// <summary>
-    /// Total number of actions allowed
-    /// </summary>
-    int noOfActions;
-    double alpha;
-    /// <summary>
-    /// Thetas in the current/online DNN
-    /// </summary>
-    Thetas learningT = new() { b = [], w = [] };
+    const int REPLAYER_BUFFER_SIZE = 250;
+    const int SYNC_PERIOD = REPLAYER_BUFFER_SIZE * 64;
+
+
     /// <summary>
     /// Token source used to cancel training in the middle
     /// </summary>
     CancellationTokenSource? tknCtx;
+    TrainParameters p = null!;
 
     /// <summary>
     /// Get notified when a game is finished
@@ -52,19 +40,16 @@ public class DQN
 
     public GameResults DoTheBest(Thetas t, double[] initialState, int maxPeriods)
     {
-        if (act == null)
-            throw new Exception("Act cannot be null");
-
-        var p = new Predictor(t, layers);
+        var predictor = new Predictor(t, p.layers);
         var actions = new List<int>();
         var totalRewards = 0.0;
         var s = initialState;
 
         for (var i = 0; i < maxPeriods; i++)
         {
-            var prediction = p.Forward(s);
+            var prediction = predictor.Forward(s);
             var a = NextAction(prediction, true);
-            var res = act(new() { actionToTake = a, currentState = s, period = i });
+            var res = p.act(new() { actionToTake = a, currentState = s, period = i });
 
             actions.Add(a);
             totalRewards += res.reward;
@@ -86,23 +71,21 @@ public class DQN
 
     private void Train(TrainParameters p, CancellationToken token)
     {
-        noOfActions = p.noOfActions;
-        alpha = p.alpha;
-        learningT = p.t;
-        act = p.act;
-        layers = p.layers;
+        this.p = p;
 
-        var optimizer = new Optimizer(layers, learningT, alpha);
-        var learningP = new Predictor(learningT, layers);
-        var targetP = new Predictor(p.t.Clone(), layers);
+        var iterations = p.iterations * REPLAYER_BUFFER_SIZE;
+        var optimizer = new Optimizer(p.layers, p.t, p.alpha);
+        var learningP = new Predictor(p.t, p.layers);
+        var targetP = new Predictor(p.t.Clone(), p.layers);
         var stopped = false;
 
         var greediness = 0.0;
-        var gRate = 1 / p.iterations;
-        var s = p.initialState;
+        var gRate = 1 / REPLAYER_BUFFER_SIZE;
 
-        for (var i = 0; i < p.iterations; i++)
+        for (var i = 0; i < iterations; i++)
         {
+            var idx1 = i + 1; // 1-based index
+
             if (token.IsCancellationRequested)
             {
                 TrainingStopped?.Invoke(this, EventArgs.Empty);
@@ -111,12 +94,12 @@ public class DQN
             }
 
             greediness += gRate;
-            s = p.initialState;
+            var s = p.initialState;
 
             var actions = new List<int>();
             var totalRewards = 0.0;
             var initialState = s;
-            var experiences = new Experience[p.maxPeriods]; // replay buffer
+            var experiences = new List<Experience>(); // replay buffer
 
             for (var j = 0; j < p.maxPeriods; j++)
             {
@@ -136,27 +119,27 @@ public class DQN
                     targetQ += p.lambda * MaxQ(targetP, actRes.nextState);
 
                 // store experiences
-                experiences[j] = new(predicted, a, targetQ);
+                experiences.Add(new(predicted, a, targetQ));
 
-                if (actRes.gameOver)
-                {
-                    s = p.initialState;
-                    break;
-                }
-                else
-                    s = actRes.nextState;
+                if (actRes.gameOver) break;
+                else s = actRes.nextState;
             }
 
-            optimizer.Optimize(experiences);
+            if (idx1 % REPLAYER_BUFFER_SIZE == 0 || i == iterations - 1)
+            {
+                optimizer.Optimize([.. experiences]);
+                experiences.Clear();
+                greediness = 0;
+            }
 
-            if ((i + 1) % p.batchSize == 0)
-                targetP.t = learningT.Clone();
+            if (idx1 % SYNC_PERIOD == 0)
+                targetP.t = p.t.Clone();
 
             RaiseGameFinished(actions, initialState, i, totalRewards);
         }
 
         if (!stopped)
-            TrainingFinished?.Invoke(this, learningT);
+            TrainingFinished?.Invoke(this, p.t);
     }
 
     private static int GetBestAction(ForwardResults forwardResults)
@@ -177,7 +160,7 @@ public class DQN
     }
 
     private int NextAction(ForwardResults res, bool bestAction) =>
-        bestAction ? GetBestAction(res) : Random.Shared.Next(noOfActions);
+        bestAction ? GetBestAction(res) : Random.Shared.Next(p.noOfActions);
 
     private void RaiseGameFinished(List<int> actions, double[] initialState, int i,
         double totalRewards)
