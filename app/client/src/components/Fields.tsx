@@ -9,7 +9,7 @@ type TextFieldProps = {
 
 type CheckboxProps = {
   label: string;
-  name: string;
+  name?: string;
   checked: boolean;
   onChange: React.ComponentProps<"input">["onChange"];
 };
