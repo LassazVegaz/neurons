@@ -3,6 +3,7 @@ import getDQNHub, { DQNHub } from "@/signalr/dqn.hub";
 import Player from "./player";
 import TrainingStatus from "@/types/training-status.enum";
 import { GameResults } from "@/signalr/dqn.hub.types";
+import { HubConnectionState } from "@microsoft/signalr";
 
 const defaultForm = {
   alpha: "0.1",
@@ -47,21 +48,23 @@ export default function useUtils() {
     const _hub = getDQNHub();
     hub.current = _hub;
 
-    _hub.connection.start().then(() => {
-      if (mounted) setIsConnected(true);
+    if (_hub.connection.state === HubConnectionState.Disconnected) {
+      _hub.connection.start().then(() => {
+        if (mounted) setIsConnected(true);
 
-      _hub.invoke("GetLastUsedParams").then((p) => {
-        if (!p || !mounted) return;
-        setForm({
-          alpha: p.alpha.toString(),
-          createNewThetas: false,
-          iterations: p.iterations.toString(),
-          lambda: p.lambda.toString(),
-          layers: p.layers.join(","),
-          noGreedy: p.noGreedy,
+        _hub.invoke("GetLastUsedParams").then((p) => {
+          if (!p || !mounted) return;
+          setForm({
+            alpha: p.alpha.toString(),
+            createNewThetas: false,
+            iterations: p.iterations.toString(),
+            lambda: p.lambda.toString(),
+            layers: p.layers.join(","),
+            noGreedy: p.noGreedy,
+          });
         });
       });
-    });
+    }
 
     _hub.connection.onreconnected(() => mounted && setIsConnected(true));
     _hub.connection.onreconnecting(() => mounted && setIsConnected(false));
