@@ -4,9 +4,6 @@ namespace App.Web.DQNM;
 
 public class ActionPerformer
 {
-    // 0-based
-    const int MAX_PERIODS = Constants.MAX_PERIODS - 1;
-
     readonly double maxR = Math.Sqrt(0.9 * 0.9 * 2);
 
 
