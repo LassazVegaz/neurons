@@ -9,21 +9,25 @@ internal class Optimizer(int[] layers, Thetas t, double alpha)
     readonly double alpha = alpha;
 
 
-    public void Optimize(ForwardResults predicted, double targetQ, int a)
+    public void Optimize(Experience[] experiences)
     {
-        // construct y (targets) for backprop
-        var y = (double[])predicted.befA[^1].Clone();
-        y[a] = targetQ;
+        var dT = ThetasInitializations.ZeroInitialization(layers);
 
-        // back propagation and updating thetas
-        var dT = Backward(predicted, y);
+        foreach (var e in experiences)
+        {
+            // construct y (targets) for backprop
+            var y = (double[])e.predicted.befA[^1].Clone();
+            y[e.a] = e.targetQ;
+
+            Backward(dT, e.predicted, y);
+        }
+
         UpdateThetas(dT, alpha);
     }
 
 
-    Thetas Backward(ForwardResults fResult, double[] y)
+    void Backward(Thetas dT, ForwardResults fResult, double[] y)
     {
-        var dT = ThetasInitializations.ZeroInitialization(layers);
         var predicted = fResult.befA[^1];
 
         // error signals comming from every neurone
@@ -67,8 +71,6 @@ internal class Optimizer(int[] layers, Thetas t, double alpha)
                 }
             }
         }
-
-        return dT;
     }
 
     void UpdateThetas(Thetas dT, double alpha)

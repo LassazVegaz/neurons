@@ -116,6 +116,7 @@ public class DQN
             var actions = new List<int>();
             var totalRewards = 0.0;
             var initialState = s;
+            var experiences = new Experience[p.maxPeriods]; // replay buffer
 
             for (var j = 0; j < p.maxPeriods; j++)
             {
@@ -134,8 +135,8 @@ public class DQN
                 if (!actRes.gameOver)
                     targetQ += p.lambda * MaxQ(targetP, actRes.nextState);
 
-                // optimize learning thetas
-                optimizer.Optimize(predicted, targetQ, a);
+                // store experiences
+                experiences[j] = new(predicted, a, targetQ);
 
                 if (actRes.gameOver)
                 {
@@ -145,6 +146,8 @@ public class DQN
                 else
                     s = actRes.nextState;
             }
+
+            optimizer.Optimize(experiences);
 
             if ((i + 1) % p.batchSize == 0)
                 targetP.t = learningT.Clone();

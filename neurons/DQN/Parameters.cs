@@ -61,3 +61,10 @@ public class GameResults
     public required int[] actions;
     public required int iteration;
 }
+
+internal class Experience(ForwardResults predicted, int action, double targetQ)
+{
+    public ForwardResults predicted = predicted;
+    public int a = action;
+    public double targetQ = targetQ;
+}
