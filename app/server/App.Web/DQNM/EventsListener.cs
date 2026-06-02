@@ -33,7 +33,6 @@ public class EventsListener
 
     public void SetIterations(int iterations)
     {
-        iterations *= _settings.ReplayBufferSize;
         var gamesToSend = Math.Min(iterations, _settings.MaxGamesToSend);
         step = (double)gamesToSend / iterations;
         accumulator = 0;
@@ -52,7 +51,7 @@ public class EventsListener
             await _hub.Clients.All.GameFinished(new()
             {
                 Actions = res.actions,
-                Iteration = res.iteration / _settings.ReplayBufferSize,
+                Iteration = res.iteration,
                 TotalRewards = res.totalRewards,
                 InitialState = DenormalizeState(res.initialState)
             });

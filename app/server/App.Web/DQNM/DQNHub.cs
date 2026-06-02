@@ -57,7 +57,7 @@ public class DQNHub(DQN dqn, ActionPerformer performer, Storage storage,
             noOfActions = Constants.NO_OF_ACTIONS,
             noGreedy = p.NoGreedy,
             replayBufferSize = _settings.ReplayBufferSize,
-            networksSyncingPeriod = _settings.NetworksSyncPeriod,
+            networksSyncPeriod = _settings.NetworksSyncPeriod,
             t = thetas
         });
     }
