@@ -8,13 +8,9 @@ import useUtils from "./helpers/utils.hook";
 import GameButton from "./components/GameButton";
 import { twMerge } from "tailwind-merge";
 
-const boxes = [] as { id: string; r: string }[];
+const boxes = [] as { id: string }[];
 for (let y = 0; y < 10; y++)
-  for (let x = 0; x < 10; x++)
-    boxes.push({
-      id: `box-${y}-${x}`,
-      r: Math.hypot(y, x).toFixed(1),
-    });
+  for (let x = 0; x < 10; x++) boxes.push({ id: `box-${y}-${x}` });
 
 export default function DQNPage() {
   const utils = useUtils();
@@ -29,9 +25,7 @@ export default function DQNPage() {
                 key={b.id}
                 id={b.id}
                 className="h-11 w-11 border border-blue-300 rounded flex items-center justify-center text-gray-400"
-              >
-                {b.r}
-              </div>
+              ></div>
             ))}
           </div>
         </div>
