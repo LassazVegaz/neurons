@@ -4,10 +4,6 @@ namespace Neurons.DQN;
 
 public class DQN
 {
-    const int REPLAYER_BUFFER_SIZE = 250;
-    const int SYNC_PERIOD = REPLAYER_BUFFER_SIZE * 64;
-
-
     /// <summary>
     /// Token source used to cancel training in the middle
     /// </summary>
@@ -73,14 +69,15 @@ public class DQN
     {
         this.p = p;
 
-        var iterations = p.iterations * REPLAYER_BUFFER_SIZE;
+        var iterations = p.iterations * p.replayBufferSize;
+        var syncPeriod = p.replayBufferSize * p.networksSyncingPeriod;
         var optimizer = new Optimizer(p.layers, p.t, p.alpha);
         var learningP = new Predictor(p.t, p.layers);
         var targetP = new Predictor(p.t.Clone(), p.layers);
         var stopped = false;
 
         var greediness = 0.0;
-        var gRate = 1 / REPLAYER_BUFFER_SIZE;
+        var gRate = 1 / p.replayBufferSize;
 
         for (var i = 0; i < iterations; i++)
         {
@@ -125,14 +122,15 @@ public class DQN
                 else s = actRes.nextState;
             }
 
-            if (idx1 % REPLAYER_BUFFER_SIZE == 0 || i == iterations - 1)
+            if (idx1 % p.replayBufferSize == 0 ||
+                (i == iterations - 1 && experiences.Count > 0))
             {
                 optimizer.Optimize([.. experiences]);
                 experiences.Clear();
                 greediness = 0;
             }
 
-            if (idx1 % SYNC_PERIOD == 0)
+            if (idx1 % syncPeriod == 0)
                 targetP.t = p.t.Clone();
 
             RaiseGameFinished(actions, initialState, i, totalRewards);
