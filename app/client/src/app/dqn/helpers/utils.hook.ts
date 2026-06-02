@@ -1,4 +1,10 @@
-import { ChangeEventHandler, useEffect, useRef, useState } from "react";
+import {
+  ChangeEventHandler,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import getDQNHub, { DQNHub } from "@/signalr/dqn.hub";
 import Player from "./player";
 import TrainingStatus from "@/types/training-status.enum";
@@ -26,15 +32,19 @@ export default function useUtils() {
   const [currentGame, setCurrentGame] = useState(-1);
   const [bestGame, setBestGame] = useState<GameResults | undefined>(undefined);
   const [isGamePlaying, setIsGamePlaying] = useState(false);
+  const [autoPlay, setAutoPlay] = useState(true);
 
-  const onGameFinished = (results: GameResults) => {
-    const completion =
-      ((results.iteration + 1) / lastUsedIterations.current) * 100;
-    setTrainingCompletion(` ${completion.toFixed(2)}%`);
-    player.current.addGame(results);
-    setGames((prev) => [...prev, results]);
-    setIsGamePlaying(true);
-  };
+  const onGameFinished = useCallback(
+    (results: GameResults) => {
+      const completion =
+        ((results.iteration + 1) / lastUsedIterations.current) * 100;
+      setTrainingCompletion(` ${completion.toFixed(2)}%`);
+      player.current.addGame(results);
+      setGames((prev) => [...prev, results]);
+      if (autoPlay) setIsGamePlaying(true);
+    },
+    [autoPlay],
+  );
 
   const onTrainingFinished = (bestGame: GameResults) => {
     player.current.addBestGame(bestGame);
@@ -70,21 +80,33 @@ export default function useUtils() {
     _hub.connection.onreconnecting(() => mounted && setIsConnected(false));
     _hub.connection.onclose(() => mounted && setIsConnected(false));
 
-    _hub.on("GameFinished", onGameFinished);
     _hub.on("TrainingStopped", () => setStatus(TrainingStatus.Stopped));
     _hub.on("TrainingFinished", onTrainingFinished);
 
     const _player = player.current;
     _player.onGameChange = setCurrentGame;
+    _player.onPlayingFinished = () => setIsGamePlaying(false);
 
     return () => {
       mounted = false;
-      _hub.off("GameFinished");
       _hub.off("TrainingStopped");
       _hub.off("TrainingFinished");
       _player.reset();
+      _player.onGameChange = undefined;
+      _player.onPlayingFinished = undefined;
     };
   }, []);
+
+  useEffect(() => {
+    const _hub = hub.current;
+    if (!_hub) return;
+
+    _hub.on("GameFinished", onGameFinished);
+
+    return () => {
+      _hub.off("GameFinished");
+    };
+  }, [onGameFinished]);
 
   const onTrainClick = () => {
     if (!hub.current) return;
@@ -143,7 +165,15 @@ export default function useUtils() {
     player.current.playBestGame();
   };
 
+  const onAutoPlayChange = () => {
+    setAutoPlay((prev) => {
+      player.current.autoPlay = !prev;
+      return player.current.autoPlay;
+    });
+  };
+
   return {
+    onAutoPlayChange,
     playGameFrom,
     playBestGame,
     onGamePauseResume,
@@ -158,5 +188,6 @@ export default function useUtils() {
     form,
     bestGame,
     isGamePlaying,
+    autoPlay,
   };
 }

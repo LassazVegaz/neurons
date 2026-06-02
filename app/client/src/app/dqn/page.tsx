@@ -38,6 +38,11 @@ export default function DQNPage() {
 
         <ControlPanelContainer className="border-l border-blue-400">
           <Checkbox
+            checked={utils.autoPlay}
+            label="Auto Play"
+            onChange={utils.onAutoPlayChange}
+          />
+          <Checkbox
             checked={utils.form.noGreedy}
             label="No Greedy"
             name="noGreedy"

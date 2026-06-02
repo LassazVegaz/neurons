@@ -18,9 +18,16 @@ export default class Player {
   private lastPlayerState: Coord = { x: 0, y: 0 };
   private bestGame: Game | undefined;
 
+  public autoPlay = true;
+
   private _onGameChange: OnNumericChange | undefined;
-  set onGameChange(v: OnNumericChange) {
+  set onGameChange(v: OnNumericChange | undefined) {
     this._onGameChange = v;
+  }
+
+  private _onPlayingFinished: (() => void) | undefined;
+  set onPlayingFinished(v: (() => void) | undefined) {
+    this._onPlayingFinished = v;
   }
 
   addGame(game: Game) {
@@ -31,13 +38,13 @@ export default class Player {
       this.games.push(game);
     }
 
-    if (!this.running) this.playNextGame();
+    if (!this.running && this.autoPlay) this.playNextGame();
   }
 
   addBestGame(game: Game) {
     this.bestGame = game;
     this.games.push(this.bestGame);
-    if (!this.running) this.playNextGame();
+    if (!this.running && this.autoPlay) this.playNextGame();
   }
 
   reset() {
@@ -103,7 +110,8 @@ export default class Player {
       period++;
       if (period === actions.length) {
         this.stopTimmer();
-        this.playNextGame();
+        if (this.autoPlay) this.playNextGame();
+        else this._onPlayingFinished?.();
         return;
       }
 
