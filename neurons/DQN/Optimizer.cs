@@ -22,7 +22,7 @@ internal class Optimizer(int[] layers, Thetas t, double alpha)
             Backward(dT, e.predicted, y);
         }
 
-        UpdateThetas(dT, alpha);
+        UpdateThetas(dT, alpha, experiences.Length);
     }
 
 
@@ -73,16 +73,16 @@ internal class Optimizer(int[] layers, Thetas t, double alpha)
         }
     }
 
-    void UpdateThetas(Thetas dT, double alpha)
+    void UpdateThetas(Thetas dT, double alpha, int m)
     {
         for (var b = 0; b < layers.Length - 1; b++)
         {
             for (var c = 0; c < layers[b + 1]; c++)
             {
-                t.b[b][c] -= alpha * dT.b[b][c];
+                t.b[b][c] -= alpha * dT.b[b][c] / m;
 
                 for (var d = 0; d < layers[b]; d++)
-                    t.w[b][c][d] -= alpha * dT.w[b][c][d];
+                    t.w[b][c][d] -= alpha * dT.w[b][c][d] / m;
             }
         }
     }
