@@ -12,8 +12,8 @@ public class ActionPerformer
 
     public ActionResults Act(PeriodContext ctx)
     {
-        var x = ctx.currentState[0];
-        var y = ctx.currentState[1];
+        var x = Math.Round(ctx.currentState[0], 1);
+        var y = Math.Round(ctx.currentState[1], 1);
         var a = ctx.actionToTake;
 
         if (a == 0 && y > 0) y -= 0.1;
