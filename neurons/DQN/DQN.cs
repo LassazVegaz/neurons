@@ -87,6 +87,7 @@ public class DQN
 
             var greediness = 0.0;
             var experiences = new List<Experience>(); // replay buffer
+            var replayBuffLastIdx = p.replayBufferSize - 1;
 
             for (var j = 0; j < p.replayBufferSize; j++)
             {
@@ -95,7 +96,7 @@ public class DQN
                 var s = p.initialState;
                 var actions = new List<int>();
                 var totalRewards = 0.0;
-                var raiseEvent = j == p.replayBufferSize - 1;
+                var raiseEvent = j == replayBuffLastIdx;
 
                 for (var k = 0; k < p.maxPeriods; k++)
                 {
