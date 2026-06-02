@@ -27,7 +27,7 @@ public class TrainParameters
     public required int[] layers;
     public required bool noGreedy;
     public required int replayBufferSize;
-    public required int networksSyncingPeriod;
+    public required int networksSyncPeriod;
 }
 
 public class ActionResults

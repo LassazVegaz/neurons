@@ -69,20 +69,15 @@ public class DQN
     {
         this.p = p;
 
-        var iterations = p.iterations * p.replayBufferSize;
-        var syncPeriod = p.replayBufferSize * p.networksSyncingPeriod;
         var optimizer = new Optimizer(p.layers, p.t, p.alpha);
         var learningP = new Predictor(p.t, p.layers);
         var targetP = new Predictor(p.t.Clone(), p.layers);
         var stopped = false;
 
-        var greediness = 0.0;
         var gRate = 1 / p.replayBufferSize;
 
-        for (var i = 0; i < iterations; i++)
+        for (var i = 0; i < p.iterations; i++)
         {
-            var idx1 = i + 1; // 1-based index
-
             if (token.IsCancellationRequested)
             {
                 TrainingStopped?.Invoke(this, EventArgs.Empty);
@@ -90,50 +85,54 @@ public class DQN
                 break;
             }
 
-            greediness += gRate;
-            var s = p.initialState;
-
-            var actions = new List<int>();
-            var totalRewards = 0.0;
-            var initialState = s;
+            var greediness = 0.0;
             var experiences = new List<Experience>(); // replay buffer
 
-            for (var j = 0; j < p.maxPeriods; j++)
+            for (var j = 0; j < p.replayBufferSize; j++)
             {
-                // predict Q values for the state
-                var predicted = learningP.Forward(s);
-                // do the next action
-                var a = NextAction(predicted,
-                    !p.noGreedy && Random.Shared.NextDouble() < greediness);
-                var actRes = p.act(new() { actionToTake = a, currentState = s, period = j });
-                actions.Add(a);
-                totalRewards += actRes.reward;
+                greediness += gRate;
 
-                // start calculating target Q value
-                var targetQ = actRes.reward;
-                // accumulate possible future reward
-                if (!actRes.gameOver)
-                    targetQ += p.lambda * MaxQ(targetP, actRes.nextState);
+                var s = p.initialState;
+                var actions = new List<int>();
+                var totalRewards = 0.0;
+                var raiseEvent = j == p.replayBufferSize - 1;
 
-                // store experiences
-                experiences.Add(new(predicted, a, targetQ));
+                for (var k = 0; k < p.maxPeriods; k++)
+                {
+                    // predict Q values for the state
+                    var predicted = learningP.Forward(s);
+                    // do the next action
+                    var a = NextAction(predicted,
+                        !p.noGreedy && Random.Shared.NextDouble() < greediness);
+                    var actRes = p.act(new() { actionToTake = a, currentState = s, period = k });
 
-                if (actRes.gameOver) break;
-                else s = actRes.nextState;
+                    if (raiseEvent)
+                    {
+                        actions.Add(a);
+                        totalRewards += actRes.reward;
+                    }
+
+                    // start calculating target Q value
+                    var targetQ = actRes.reward;
+                    // accumulate possible future reward
+                    if (!actRes.gameOver)
+                        targetQ += p.lambda * MaxQ(targetP, actRes.nextState);
+
+                    // store experiences
+                    experiences.Add(new(predicted, a, targetQ));
+
+                    if (actRes.gameOver) break;
+                    else s = actRes.nextState;
+                }
+
+                if (raiseEvent)
+                    RaiseGameFinished(actions, p.initialState, i, totalRewards);
             }
 
-            if (idx1 % p.replayBufferSize == 0 ||
-                (i == iterations - 1 && experiences.Count > 0))
-            {
-                optimizer.Optimize([.. experiences]);
-                experiences.Clear();
-                greediness = 0;
-            }
+            optimizer.Optimize([.. experiences]);
 
-            if (idx1 % syncPeriod == 0)
+            if ((i + 1) % p.networksSyncPeriod == 0)
                 targetP.t = p.t.Clone();
-
-            RaiseGameFinished(actions, initialState, i, totalRewards);
         }
 
         if (!stopped)
