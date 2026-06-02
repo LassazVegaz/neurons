@@ -110,11 +110,12 @@ public class DQN
                 break;
             }
 
+            greediness += gRate;
+            s = p.initialState;
+
             var actions = new List<int>();
             var totalRewards = 0.0;
             var initialState = s;
-
-            greediness += gRate;
 
             for (var j = 0; j < p.maxPeriods; j++)
             {
