@@ -49,7 +49,7 @@ public class DQNHub(DQN dqn, ActionPerformer performer, Storage storage,
         {
             act = _performer.Act,
             alpha = p.Alpha,
-            initialState = [0, 0],
+            initialState = [0, 0, 0.9, 0.9, 0],
             iterations = p.Iterations,
             lambda = p.Lambda,
             layers = p.Layers,

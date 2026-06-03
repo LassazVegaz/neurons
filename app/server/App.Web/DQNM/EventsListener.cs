@@ -76,6 +76,6 @@ public class EventsListener
     }
 
 
-    private static int[] DenormalizeState(double[] normS)
-        => [(int)(normS[0] * 10), (int)(normS[1] * 10)];
+    private static IEnumerable<int> DenormalizeState(double[] normS)
+        => normS.Select(norm => (int)(norm * 10));
 }

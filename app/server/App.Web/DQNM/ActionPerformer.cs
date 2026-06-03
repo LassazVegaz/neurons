@@ -4,26 +4,38 @@ namespace App.Web.DQNM;
 
 public class ActionPerformer
 {
+    private const int MAX_PERIODS_0BASED = Constants.MAX_PERIODS - 1;
+
     public ActionResults Act(PeriodContext ctx)
     {
-        var x = Math.Round(ctx.currentState[0], 1);
-        var y = Math.Round(ctx.currentState[1], 1);
+        var pX = Math.Round(ctx.currentState[0], 1);
+        var pY = Math.Round(ctx.currentState[1], 1);
+        var oX = Math.Round(ctx.currentState[2], 1);
+        var oY = Math.Round(ctx.currentState[3], 1);
+        var t = Math.Round(ctx.currentState[4], 1);
         var a = ctx.actionToTake;
 
-        // + for moving towards the goal
-        var r = (a == 1 && x < 0.9) || (a == 2 && y < 0.9)
-            ? 0.1 : -0.1;
+        if (pX < oX) oX -= 0.1;
+        else if (pX > oX) oX += 0.1;
+        else if (pY < oY) oY -= 0.1;
+        else if (pY > oY) oY += 0.1;
 
-        if (a == 0 && y > 0) y -= 0.1;
-        else if (a == 1 && x < 0.9) x += 0.1;
-        else if (a == 2 && y < 0.9) y += 0.1;
-        else if (a == 3 && x > 0) x -= 0.1;
+        if (a == 0 && pY > 0) pY -= 0.1;
+        else if (a == 1 && pX < 0.9) pX += 0.1;
+        else if (a == 2 && pY < 0.9) pY += 0.1;
+        else if (a == 3 && pX > 0) pX -= 0.1;
+
+        var r = 0.0;
+        if (pX == oX && pY == oY)
+            r = -1;
+        else if (t == MAX_PERIODS_0BASED)
+            r = 1;
 
         return new()
         {
-            gameOver = x == 0.9 && y == 0.9,
+            gameOver = r == 1 || r == -1,
             reward = r,
-            nextState = [x, y]
+            nextState = [pX, pY, oX, oY, t]
         };
     }
 }
