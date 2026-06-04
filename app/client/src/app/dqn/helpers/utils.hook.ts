@@ -184,7 +184,20 @@ export default function useUtils() {
     player.current.speed = newSpeed;
   };
 
+  const getTheBestGameClick = async () => {
+    if (!hub.current) return;
+    const bestGame = await hub.current.invoke("GetTheBestGame");
+    if (bestGame) {
+      setBestGame(bestGame);
+      player.current.addBestGame(bestGame);
+      if (autoPlay && !isGamePlaying) setIsGamePlaying(true);
+    } else {
+      alert("No best game found");
+    }
+  };
+
   return {
+    getTheBestGameClick,
     onChangeSpeedButtonCLick,
     onAutoPlayChange,
     playGameFrom,

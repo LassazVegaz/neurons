@@ -93,12 +93,20 @@ export default function DQNPage() {
           {(utils.status === TrainingStatus.Finished ||
             utils.status === TrainingStatus.NotStarted ||
             utils.status === TrainingStatus.Stopped) && (
-            <Button
-              className="border border-blue-600"
-              onClick={utils.onTrainClick}
-            >
-              Train
-            </Button>
+            <>
+              <Button
+                className="border border-blue-600"
+                onClick={utils.onTrainClick}
+              >
+                Train
+              </Button>
+              <Button
+                className="border border-purple-600"
+                onClick={utils.getTheBestGameClick}
+              >
+                Best Game
+              </Button>
+            </>
           )}
           {utils.status === TrainingStatus.InProgress && (
             <Button

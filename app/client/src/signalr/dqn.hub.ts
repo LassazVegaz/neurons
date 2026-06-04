@@ -18,6 +18,7 @@ type Methods = {
 
 type Functions = {
   GetLastUsedParams: [[], LastUsedParams | null];
+  GetTheBestGame: [[], GameResults | null];
 };
 
 export type DQNHub = Hub<Events, Methods, Functions>;
