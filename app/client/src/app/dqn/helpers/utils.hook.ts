@@ -59,21 +59,26 @@ export default function useUtils() {
     hub.current = _hub;
 
     if (_hub.connection.state === HubConnectionState.Disconnected) {
-      _hub.connection.start().then(() => {
-        if (mounted) setIsConnected(true);
+      _hub.connection
+        .start()
+        .then(() => {
+          if (mounted) setIsConnected(true);
 
-        _hub.invoke("GetLastUsedParams").then((p) => {
-          if (!p || !mounted) return;
-          setForm({
-            alpha: p.alpha.toString(),
-            createNewThetas: false,
-            iterations: p.iterations.toString(),
-            lambda: p.lambda.toString(),
-            layers: p.layers.join(","),
-            noGreedy: p.noGreedy,
+          _hub.invoke("GetLastUsedParams").then((p) => {
+            if (!p || !mounted) return;
+            setForm({
+              alpha: p.alpha.toString(),
+              createNewThetas: false,
+              iterations: p.iterations.toString(),
+              lambda: p.lambda.toString(),
+              layers: p.layers.join(","),
+              noGreedy: p.noGreedy,
+            });
           });
-        });
-      });
+        })
+        .catch((e) => console.log("Connection error: ", e));
+      // Sometimes I turn off backend for testing so above connection error happens frequently
+      // if I console.error it, next.js shows red error overlay which is annoying, so I just log it
     }
 
     _hub.connection.onreconnected(() => mounted && setIsConnected(true));

@@ -1,5 +1,9 @@
 "use client";
-import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
+import {
+  HubConnection,
+  HubConnectionBuilder,
+  LogLevel,
+} from "@microsoft/signalr";
 
 export default class Hub<
   Events extends Record<string, unknown[]>,
@@ -57,6 +61,7 @@ export const makeHub = <
   const connection = new HubConnectionBuilder()
     .withUrl(url)
     .withAutomaticReconnect()
+    .configureLogging(LogLevel.Critical)
     .build();
 
   return new Hub<Events, Methods, Functions>(connection);
