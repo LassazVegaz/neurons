@@ -15,6 +15,7 @@ public class ActionPerformer
         var t = Math.Round(ctx.currentState[4], 1);
         var a = ctx.actionToTake;
 
+        // first state transitions
         if (pX < oX) oX -= 0.1;
         else if (pX > oX) oX += 0.1;
         else if (pY < oY) oY -= 0.1;
@@ -25,6 +26,9 @@ public class ActionPerformer
         else if (a == 2 && pY < 0.9) pY += 0.1;
         else if (a == 3 && pX > 0) pX -= 0.1;
 
+        t++;
+
+        // then rewards for new states
         var r = 0.0;
         if (pX == oX && pY == oY)
             r = -1;

@@ -38,9 +38,9 @@ public class DQN
     {
         var predictor = new Predictor(t, p.layers);
         var actions = new List<int>();
-        var states = new List<double[]>();
         var totalRewards = 0.0;
         var s = initialState;
+        var states = new List<double[]> { s };
 
         for (var i = 0; i < maxPeriods; i++)
         {
@@ -50,7 +50,7 @@ public class DQN
 
             actions.Add(a);
             totalRewards += res.reward;
-            states.Add(s);
+            states.Add(res.nextState);
 
             if (res.gameOver) break;
 
@@ -97,7 +97,7 @@ public class DQN
 
                 var s = p.initialState;
                 var actions = new List<int>();
-                var states = new List<double[]>();
+                var states = new List<double[]> { s };
                 var totalRewards = 0.0;
                 var raiseEvent = j == replayBuffLastIdx;
 
@@ -119,7 +119,7 @@ public class DQN
                     {
                         actions.Add(a);
                         totalRewards += actRes.reward;
-                        states.Add(s);
+                        states.Add(actRes.nextState);
                     }
 
                     // start calculating target Q value
