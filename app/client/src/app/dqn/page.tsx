@@ -10,7 +10,7 @@ import { twMerge } from "tailwind-merge";
 
 const boxes = [] as { id: string }[];
 for (let y = 0; y < 10; y++)
-  for (let x = 0; x < 10; x++) boxes.push({ id: `box-${y}-${x}` });
+  for (let x = 0; x < 10; x++) boxes.push({ id: `box-${x}-${y}` });
 
 export default function DQNPage() {
   const utils = useUtils();

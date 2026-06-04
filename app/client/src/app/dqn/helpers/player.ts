@@ -5,17 +5,16 @@ type OnNumericChange = (idx: number) => void;
 const SPEED = Number.parseInt(process.env.NEXT_PUBLIC_PLAYER_SPEED || "100");
 
 const BOX_PLAYER_CLASS = "box-player" as const;
+const BOX_OPPONENT_CLASS = "box-opponent" as const;
 
-type Coord = { x: number; y: number };
-
-export type Game = Pick<GameResults, "actions" | "initialState">;
+export type Game = Pick<GameResults, "states">;
 
 export default class Player {
   private games: Game[] = [];
   private currentTimer: NodeJS.Timeout | undefined;
   private currentGame = -1;
   private running = false;
-  private lastPlayerState: Coord = { x: 0, y: 0 };
+  private lastStates: number[] = [0, 0, 9, 9];
   private bestGame: Game | undefined;
 
   public autoPlay = true;
@@ -99,37 +98,26 @@ export default class Player {
   }
 
   private runGame(game: Game) {
-    const actions = game.actions;
+    const states = game.states;
     let period = -1;
-    const s: Coord = { x: game.initialState[0], y: game.initialState[1] };
     this.running = true;
-
-    this.transitState(s);
 
     this.currentTimer = setInterval(() => {
       period++;
-      if (period === actions.length) {
+      if (period === states.length) {
         this.stopTimmer();
         if (this.autoPlay) this.playNextGame();
         else this._onPlayingFinished?.();
         return;
       }
-
-      const a = actions[period];
-
-      if (a === 0 && s.y > 0) s.y--;
-      else if (a === 1 && s.x < 9) s.x++;
-      else if (a === 2 && s.y < 9) s.y++;
-      else if (a === 3 && s.x > 0) s.x--;
-
-      this.transitState(s);
+      this.transitState(states[period]);
     }, SPEED);
   }
 
-  private transitState(newState: Coord) {
-    this.toggleBox(this.lastPlayerState, false);
-    this.toggleBox(newState, true);
-    this.lastPlayerState = { ...newState };
+  private transitState(newStates: number[]) {
+    this.toggleBoxes(this.lastStates, false);
+    this.toggleBoxes(newStates, true);
+    this.lastStates = [...newStates];
   }
 
   private stopTimmer() {
@@ -137,13 +125,21 @@ export default class Player {
     this.running = false;
   }
 
-  private toggleBox(state: Coord, show: boolean): void {
-    const id = `box-${state.y}-${state.x}`;
-    const ele = document.getElementById(id);
-    if (!ele) throw new Error(`Box with id ${id} is missing`);
+  private toggleBoxes(states: number[], show: boolean): void {
+    const pId = `box-${states[0]}-${states[1]}`;
+    const oId = `box-${states[2]}-${states[3]}`;
+    const pEle = document.getElementById(pId);
+    const oEle = document.getElementById(oId);
+    if (!pEle || !oEle)
+      throw new Error(`Box with id ${pId} or ${oId} is missing`);
 
-    if (show) ele.classList.add(BOX_PLAYER_CLASS);
-    else ele.classList.remove(BOX_PLAYER_CLASS);
+    if (show) {
+      pEle.classList.add(BOX_PLAYER_CLASS);
+      oEle.classList.add(BOX_OPPONENT_CLASS);
+    } else {
+      pEle.classList.remove(BOX_PLAYER_CLASS);
+      oEle.classList.remove(BOX_OPPONENT_CLASS);
+    }
   }
 }
 

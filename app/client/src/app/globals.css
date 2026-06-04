@@ -32,3 +32,7 @@ body {
 .q-learning .box-player {
   background-color: #0fe71d;
 }
+
+.q-learning .box-opponent {
+  background-color: #e71d1d;
+}

@@ -15,8 +15,8 @@ export type LastUsedParams = {
 };
 
 export type GameResults = {
-  initialState: number[];
   totalRewards: number;
+  states: number[][];
   actions: number[];
   iteration: number;
 };
