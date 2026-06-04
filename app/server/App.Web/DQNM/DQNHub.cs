@@ -67,9 +67,11 @@ public class DQNHub(DQN dqn, ActionPerformer performer, Storage storage,
     public async Task<LastUsedParams?> GetLastUsedParams()
         => await _storage.GetLastUsedParams();
 
-    public async Task<GameResults> GetTheBestGame()
+    public async Task<GameResults?> GetTheBestGame()
     {
         var t = await _storage.GetThetas();
+        if (t == null) return null;
+
         var bestShot = _dqn.DoTheBest(t, Constants.InitialState, Constants.MAX_PERIODS);
         return new()
         {
