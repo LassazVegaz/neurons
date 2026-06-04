@@ -62,8 +62,7 @@ public class DQN
             states = [.. states],
             actions = [.. actions],
             iteration = 0,
-            totalRewards = totalRewards,
-            initialState = initialState
+            totalRewards = totalRewards
         };
     }
 
@@ -137,7 +136,7 @@ public class DQN
                 }
 
                 if (raiseEvent)
-                    RaiseGameFinished(states, actions, p.initialState, i, totalRewards);
+                    RaiseGameFinished(states, actions, i, totalRewards);
             }
 
             optimizer.Optimize([.. experiences]);
@@ -170,13 +169,12 @@ public class DQN
     private int NextAction(ForwardResults res, bool bestAction) =>
         bestAction ? GetBestAction(res) : Random.Shared.Next(p.noOfActions);
 
-    private void RaiseGameFinished(List<double[]> states, List<int> actions,
-        double[] initialState, int i, double totalRewards)
+    private void RaiseGameFinished(List<double[]> states, List<int> actions, int i,
+        double totalRewards)
         => GameFinished?.Invoke(this, new()
         {
             states = [.. states],
             actions = [.. actions],
-            initialState = initialState,
             iteration = i,
             totalRewards = totalRewards
         });

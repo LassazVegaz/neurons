@@ -53,8 +53,7 @@ public class EventsListener
                 States = res.states,
                 Actions = res.actions,
                 Iteration = res.iteration,
-                TotalRewards = res.totalRewards,
-                InitialState = DenormalizeState(res.initialState)
+                TotalRewards = res.totalRewards
             });
         }
     }
@@ -70,8 +69,7 @@ public class EventsListener
             States = bestShot.states,
             Actions = bestShot.actions,
             Iteration = 0,
-            TotalRewards = bestShot.totalRewards,
-            InitialState = DenormalizeState(bestShot.initialState)
+            TotalRewards = bestShot.totalRewards
         });
 
         await _storage.SaveThetas(t);
