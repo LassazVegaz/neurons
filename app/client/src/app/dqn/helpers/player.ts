@@ -2,7 +2,9 @@ import { GameResults } from "@/signalr/dqn.hub.types";
 
 type OnNumericChange = (idx: number) => void;
 
-const SPEED = Number.parseInt(process.env.NEXT_PUBLIC_PLAYER_SPEED || "100");
+export const DEFAULT_SPEED = Number.parseInt(
+  process.env.NEXT_PUBLIC_PLAYER_SPEED || "100",
+);
 
 const BOX_PLAYER_CLASS = "box-player" as const;
 const BOX_OPPONENT_CLASS = "box-opponent" as const;
@@ -18,6 +20,7 @@ export default class Player {
   private bestGame: Game | undefined;
 
   public autoPlay = true;
+  public speed = DEFAULT_SPEED;
 
   private _onGameChange: OnNumericChange | undefined;
   set onGameChange(v: OnNumericChange | undefined) {
@@ -111,7 +114,7 @@ export default class Player {
         return;
       }
       this.transitState(states[period]);
-    }, SPEED);
+    }, this.speed);
   }
 
   private transitState(newStates: number[]) {

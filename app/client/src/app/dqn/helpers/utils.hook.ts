@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 import getDQNHub, { DQNHub } from "@/signalr/dqn.hub";
-import Player from "./player";
+import Player, { DEFAULT_SPEED } from "./player";
 import TrainingStatus from "@/types/training-status.enum";
 import { GameResults } from "@/signalr/dqn.hub.types";
 import { HubConnectionState } from "@microsoft/signalr";
@@ -18,6 +18,7 @@ const defaultForm = {
   createNewThetas: true,
   layers: "2,6,4",
   noGreedy: false,
+  speed: DEFAULT_SPEED.toString(),
 };
 
 export default function useUtils() {
@@ -66,14 +67,15 @@ export default function useUtils() {
 
           _hub.invoke("GetLastUsedParams").then((p) => {
             if (!p || !mounted) return;
-            setForm({
+            setForm((prev) => ({
               alpha: p.alpha.toString(),
               createNewThetas: false,
               iterations: p.iterations.toString(),
               lambda: p.lambda.toString(),
               layers: p.layers.join(","),
               noGreedy: p.noGreedy,
-            });
+              speed: prev.speed,
+            }));
           });
         })
         .catch((e) => console.log("Connection error: ", e));
@@ -177,7 +179,13 @@ export default function useUtils() {
     });
   };
 
+  const onChangeSpeedButtonCLick = () => {
+    const newSpeed = Number.parseInt(form.speed);
+    player.current.speed = newSpeed;
+  };
+
   return {
+    onChangeSpeedButtonCLick,
     onAutoPlayChange,
     playGameFrom,
     playBestGame,

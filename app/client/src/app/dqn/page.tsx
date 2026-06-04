@@ -73,6 +73,21 @@ export default function DQNPage() {
             onChange={utils.onFieldChange}
           />
 
+          <div className="flex gap-2 items-end">
+            <TextField
+              label="Speed"
+              name="speed"
+              value={utils.form.speed}
+              onChange={utils.onFieldChange}
+            />
+            <button
+              className="border p-1 px-3 rounded border-blue-600 cursor-pointer"
+              onClick={utils.onChangeSpeedButtonCLick}
+            >
+              Set
+            </button>
+          </div>
+
           <div className="h-10" />
 
           {(utils.status === TrainingStatus.Finished ||
