@@ -85,7 +85,7 @@ public class EventsListener
             var l = normS[i].Length - 1; // ignore time state
             states[i] = new int[l];
 
-            for (var j = 0; j < normS[i].Length; j++)
+            for (var j = 0; j < l; j++)
                 states[i][j] = (int)(normS[i][j] * 10);
         }
 
