@@ -63,7 +63,7 @@ public class EventsListener
 
     async void DQN_TrainingFinished(object? sender, Thetas t)
     {
-        var bestShot = _dqn.DoTheBest(t, [0, 0], Constants.MAX_PERIODS);
+        var bestShot = _dqn.DoTheBest(t, Constants.InitialState, Constants.MAX_PERIODS);
         await _hub.Clients.All.TrainingFinished(new()
         {
             States = DenormalizeStates(bestShot.states),
