@@ -50,7 +50,7 @@ public class EventsListener
 
             await _hub.Clients.All.GameFinished(new()
             {
-                States = res.states,
+                States = DenormalizeStates(res.states),
                 Actions = res.actions,
                 Iteration = res.iteration,
                 TotalRewards = res.totalRewards
@@ -66,7 +66,7 @@ public class EventsListener
         var bestShot = _dqn.DoTheBest(t, [0, 0], Constants.MAX_PERIODS);
         await _hub.Clients.All.TrainingFinished(new()
         {
-            States = bestShot.states,
+            States = DenormalizeStates(bestShot.states),
             Actions = bestShot.actions,
             Iteration = 0,
             TotalRewards = bestShot.totalRewards
@@ -76,6 +76,19 @@ public class EventsListener
     }
 
 
-    private static IEnumerable<int> DenormalizeState(double[] normS)
-        => normS.Select(norm => (int)(norm * 10));
+    private static int[][] DenormalizeStates(double[][] normS)
+    {
+        var states = new int[normS.Length][];
+
+        for (var i = 0; i < normS.Length; i++)
+        {
+            var l = normS[i].Length - 1; // ignore time state
+            states[i] = new int[l];
+
+            for (var j = 0; j < normS[i].Length; j++)
+                states[i][j] = (int)(normS[i][j] * 10);
+        }
+
+        return states;
+    }
 }

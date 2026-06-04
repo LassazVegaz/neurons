@@ -15,7 +15,7 @@ public class HubTrainingParameters
 public class GameResults
 {
     public int Iteration { get; set; }
-    public required double[][] States { get; set; }
+    public required int[][] States { get; set; }
     public required int[] Actions { get; set; }
     public double TotalRewards { get; set; }
 }
