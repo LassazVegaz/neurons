@@ -38,6 +38,7 @@ public class DQN
     {
         var predictor = new Predictor(t, p.layers);
         var actions = new List<int>();
+        var states = new List<double[]>();
         var totalRewards = 0.0;
         var s = initialState;
 
@@ -49,6 +50,7 @@ public class DQN
 
             actions.Add(a);
             totalRewards += res.reward;
+            states.Add(s);
 
             if (res.gameOver) break;
 
@@ -57,6 +59,7 @@ public class DQN
 
         return new()
         {
+            states = [.. states],
             actions = [.. actions],
             iteration = 0,
             totalRewards = totalRewards,
@@ -95,6 +98,7 @@ public class DQN
 
                 var s = p.initialState;
                 var actions = new List<int>();
+                var states = new List<double[]>();
                 var totalRewards = 0.0;
                 var raiseEvent = j == replayBuffLastIdx;
 
@@ -105,12 +109,18 @@ public class DQN
                     // do the next action
                     var a = NextAction(predicted,
                         !p.noGreedy && Random.Shared.NextDouble() < greediness);
-                    var actRes = p.act(new() { actionToTake = a, currentState = s, period = k });
+                    var actRes = p.act(new()
+                    {
+                        actionToTake = a,
+                        currentState = s,
+                        period = k
+                    });
 
                     if (raiseEvent)
                     {
                         actions.Add(a);
                         totalRewards += actRes.reward;
+                        states.Add(s);
                     }
 
                     // start calculating target Q value
@@ -123,11 +133,11 @@ public class DQN
                     experiences.Add(new(predicted, a, targetQ));
 
                     if (actRes.gameOver) break;
-                    else s = actRes.nextState;
+                    s = actRes.nextState;
                 }
 
                 if (raiseEvent)
-                    RaiseGameFinished(actions, p.initialState, i, totalRewards);
+                    RaiseGameFinished(states, actions, p.initialState, i, totalRewards);
             }
 
             optimizer.Optimize([.. experiences]);
@@ -160,10 +170,11 @@ public class DQN
     private int NextAction(ForwardResults res, bool bestAction) =>
         bestAction ? GetBestAction(res) : Random.Shared.Next(p.noOfActions);
 
-    private void RaiseGameFinished(List<int> actions, double[] initialState, int i,
-        double totalRewards)
+    private void RaiseGameFinished(List<double[]> states, List<int> actions,
+        double[] initialState, int i, double totalRewards)
         => GameFinished?.Invoke(this, new()
         {
+            states = [.. states],
             actions = [.. actions],
             initialState = initialState,
             iteration = i,

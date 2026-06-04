@@ -57,6 +57,7 @@ public class PeriodContext
 
 public class GameResults
 {
+    public required double[][] states;
     public required double[] initialState;
     public required double totalRewards;
     public required int[] actions;

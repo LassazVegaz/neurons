@@ -50,6 +50,7 @@ public class EventsListener
 
             await _hub.Clients.All.GameFinished(new()
             {
+                States = res.states,
                 Actions = res.actions,
                 Iteration = res.iteration,
                 TotalRewards = res.totalRewards,
@@ -66,6 +67,7 @@ public class EventsListener
         var bestShot = _dqn.DoTheBest(t, [0, 0], Constants.MAX_PERIODS);
         await _hub.Clients.All.TrainingFinished(new()
         {
+            States = bestShot.states,
             Actions = bestShot.actions,
             Iteration = 0,
             TotalRewards = bestShot.totalRewards,
