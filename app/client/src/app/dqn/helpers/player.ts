@@ -11,7 +11,7 @@ const BOX_OPPONENT_CLASS = "box-opponent" as const;
 
 export type Game = Pick<GameResults, "states">;
 
-export default class Player {
+export class Player {
   private games: Game[] = [];
   private currentTimer: NodeJS.Timeout | undefined;
   private currentGame = -1;
@@ -145,5 +145,8 @@ export default class Player {
     }
   }
 }
+
+const player = new Player();
+export default player;
 
 // ACTIONS: up, right, down, left
