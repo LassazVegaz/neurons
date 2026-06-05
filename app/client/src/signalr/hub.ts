@@ -23,11 +23,11 @@ export default class Hub<
   off<E extends keyof Events>(eventName: E): void;
   off<E extends keyof Events>(
     eventName: E,
-    method: (...args: unknown[]) => void,
+    method: (...args: Events[E]) => void,
   ): void;
   off<E extends keyof Events>(
     eventName: E,
-    method?: (...args: unknown[]) => void,
+    method?: (...args: Events[E]) => void,
   ) {
     if (typeof eventName !== "string") return;
     if (method === undefined) this.connection.off(eventName);
