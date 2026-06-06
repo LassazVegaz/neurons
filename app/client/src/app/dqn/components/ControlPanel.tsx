@@ -16,7 +16,7 @@ import { GameResults } from "@/signalr/dqn.hub.types";
 type ControlPanelProps = {
   onGameAdded: (game: GameResults) => void;
   onBestGameUpdated: (game: GameResults) => void;
-  onGameReset: () => void;
+  onAllGamesReset: () => void;
 };
 
 const defaultForm = {
@@ -75,7 +75,7 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
   const onTrainButtonClick = () => {
     if (!hub.current) return;
 
-    props.onGameReset();
+    props.onAllGamesReset();
     const iterations = Number.parseInt(form.iterations);
     hub.current.send("StartTraining", {
       alpha: Number.parseFloat(form.alpha),

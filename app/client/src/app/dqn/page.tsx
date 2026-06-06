@@ -41,7 +41,7 @@ export default function DQNPage() {
     player.addBestGame(bestGame);
   };
 
-  const onGameReset = () => {
+  const onAllGamesReset = () => {
     setGames([]);
     setBestGame(undefined);
     player.reset();
@@ -82,7 +82,7 @@ export default function DQNPage() {
         <ControlPanel
           onGameAdded={onGameAdded}
           onBestGameUpdated={onBestGameUpdated}
-          onGameReset={onGameReset}
+          onAllGamesReset={onAllGamesReset}
         />
 
         <BottomSection games={games} bestGame={bestGame} />
