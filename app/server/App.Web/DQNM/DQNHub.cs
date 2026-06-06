@@ -70,7 +70,25 @@ public class DQNHub(DQN dqn, ActionPerformer performer, Storage storage,
     public async Task<GameResults?> GetTheBestGame()
     {
         var t = await _storage.GetThetas();
-        if (t == null) return null;
+        var p = await _storage.GetLastUsedParams();
+        if (t == null || p == null) return null;
+
+        if (!_dqn.ParametersAreSet)
+            _dqn.Parameters = new()
+            {
+                act = _performer.Act,
+                alpha = p.Alpha,
+                initialState = Constants.InitialState,
+                iterations = p.Iterations,
+                lambda = p.Lambda,
+                layers = p.Layers,
+                maxPeriods = Constants.MAX_PERIODS,
+                networksSyncPeriod = _settings.NetworksSyncPeriod,
+                noGreedy = p.NoGreedy,
+                noOfActions = Constants.NO_OF_ACTIONS,
+                replayBufferSize = _settings.ReplayBufferSize,
+                t = t
+            };
 
         var bestShot = _dqn.DoTheBest(t, Constants.InitialState, Constants.MAX_PERIODS);
         return new()
