@@ -10,6 +10,9 @@ public class DQN
     CancellationTokenSource? tknCtx;
     TrainParameters? p;
 
+    public bool ParametersAreSet => p != null;
+    public TrainParameters Parameters { set => p = value; }
+
     /// <summary>
     /// Get notified when a game is finished
     /// </summary>
