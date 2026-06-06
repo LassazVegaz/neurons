@@ -57,7 +57,7 @@ export default function BottomSection(props: Readonly<BottomSectionProps>) {
         )}
       </div>
 
-      {props.games.length > 0 && (
+      {(props.games.length > 0 || props.bestGame) && (
         <div className="flex justify-center">
           <button
             className="border border-blue-600 py-2 px-4 rounded cursor-pointer"
