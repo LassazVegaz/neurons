@@ -1,4 +1,10 @@
-import { ChangeEventHandler, useEffect, useRef, useState } from "react";
+import {
+  ChangeEventHandler,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import ControlPanelContainer from "@/components/ControlPanelContainer";
 import { TextField, Button, FieldContainer } from "@/components/Fields";
 import trainingStatusText from "@/constants/training-status-text.constant";
@@ -6,6 +12,12 @@ import TrainingStatus from "@/types/training-status.enum";
 import player, { DEFAULT_SPEED } from "../helpers/player";
 import getDQNHub, { DQNHub } from "@/signalr/dqn.hub";
 import { GameResults } from "@/signalr/dqn.hub.types";
+
+type ControlPanelProps = {
+  onGameAdded: (game: GameResults) => void;
+  onBestGameUpdated: (game: GameResults) => void;
+  onGameReset: () => void;
+};
 
 const defaultForm = {
   alpha: "0.1",
@@ -18,7 +30,7 @@ const defaultForm = {
   autoPlay: true,
 };
 
-export default function ControlPanel() {
+export default function ControlPanel(props: Readonly<ControlPanelProps>) {
   const hub = useRef<DQNHub>(undefined);
   const lastUsedIterations = useRef(1);
   const [form, setForm] = useState(defaultForm);
@@ -54,9 +66,7 @@ export default function ControlPanel() {
     if (!hub.current) return;
     const bestGame = await hub.current.invoke("GetTheBestGame");
     if (bestGame) {
-      //   setBestGame(bestGame);
-      player.addBestGame(bestGame);
-      //   if (form.autoPlay && !isGamePlaying) setIsGamePlaying(true);
+      props.onBestGameUpdated(bestGame);
     } else {
       alert("No best game found");
     }
@@ -65,9 +75,7 @@ export default function ControlPanel() {
   const onTrainButtonClick = () => {
     if (!hub.current) return;
 
-    player.reset();
-    // setBestGame(undefined);
-    // setGames([]);
+    props.onGameReset();
     const iterations = Number.parseInt(form.iterations);
     hub.current.send("StartTraining", {
       alpha: Number.parseFloat(form.alpha),
@@ -87,14 +95,15 @@ export default function ControlPanel() {
     setStatus(TrainingStatus.RequestedToStop);
   };
 
-  const onGameFinished = (results: GameResults) => {
-    const completion =
-      ((results.iteration + 1) / lastUsedIterations.current) * 100;
-    setTrainingCompletion(` ${completion.toFixed(2)}%`);
-    player.addGame(results);
-    //   setGames((prev) => [...prev, results]);
-    //   if (form.autoPlay) setIsGamePlaying(true);
-  };
+  const onGameFinished = useCallback(
+    (results: GameResults) => {
+      const completion =
+        ((results.iteration + 1) / lastUsedIterations.current) * 100;
+      setTrainingCompletion(` ${completion.toFixed(2)}%`);
+      props.onGameAdded(results);
+    },
+    [props],
+  );
 
   useEffect(() => {
     const _hub = getDQNHub();
@@ -105,7 +114,7 @@ export default function ControlPanel() {
     return () => {
       _hub.off("GameFinished", onGameFinished);
     };
-  }, []);
+  }, [onGameFinished]);
 
   return (
     <ControlPanelContainer className="border-l border-blue-400">
