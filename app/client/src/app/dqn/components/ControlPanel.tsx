@@ -55,14 +55,18 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
     HTMLInputElement,
     HTMLInputElement
   > = (e) => {
+    const name = e.target.name as keyof Form;
+
     setForm((prev) => {
       const prevValue = prev[e.target.name as keyof typeof form];
       return {
         ...prev,
-        [e.target.name]:
+        [name]:
           typeof prevValue === "boolean" ? e.target.checked : e.target.value,
       };
     });
+
+    if (name === "autoPlay") player.autoPlay = e.target.checked;
   };
 
   const onChangeSpeedButtonCLick = () => {
@@ -132,6 +136,7 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
       <Checkbox
         checked={form.autoPlay}
         label="Auto Play"
+        name="autoPlay"
         onChange={onFieldChange}
       />
       <Checkbox
