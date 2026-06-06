@@ -8,7 +8,7 @@ public class DQN
     /// Token source used to cancel training in the middle
     /// </summary>
     CancellationTokenSource? tknCtx;
-    TrainParameters p = null!;
+    TrainParameters? p;
 
     /// <summary>
     /// Get notified when a game is finished
@@ -36,6 +36,9 @@ public class DQN
 
     public GameResults DoTheBest(Thetas t, double[] initialState, int maxPeriods)
     {
+        if (p == null)
+            throw new NullReferenceException("Parameters are not set");
+
         var predictor = new Predictor(t, p.layers);
         var actions = new List<int>();
         var totalRewards = 0.0;
@@ -167,7 +170,7 @@ public class DQN
     }
 
     private int NextAction(ForwardResults res, bool bestAction) =>
-        bestAction ? GetBestAction(res) : Random.Shared.Next(p.noOfActions);
+        bestAction ? GetBestAction(res) : Random.Shared.Next(p!.noOfActions);
 
     private void RaiseGameFinished(List<double[]> states, List<int> actions, int i,
         double totalRewards)
