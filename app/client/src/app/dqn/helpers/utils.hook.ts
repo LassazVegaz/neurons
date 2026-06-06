@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 import getDQNHub, { DQNHub } from "@/signalr/dqn.hub";
-import Player, { DEFAULT_SPEED } from "./player";
+import _player, { DEFAULT_SPEED } from "./player";
 import TrainingStatus from "@/types/training-status.enum";
 import { GameResults } from "@/signalr/dqn.hub.types";
 import { HubConnectionState } from "@microsoft/signalr";
@@ -23,7 +23,7 @@ const defaultForm = {
 
 export default function useUtils() {
   const hub = useRef<DQNHub>(undefined);
-  const player = useRef(new Player());
+  const player = useRef(_player);
   const lastUsedIterations = useRef(1);
   const [isConnected, setIsConnected] = useState(false);
   const [form, setForm] = useState(defaultForm);
