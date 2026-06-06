@@ -1,10 +1,4 @@
-import {
-  ChangeEventHandler,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { ChangeEventHandler, useEffect, useRef, useState } from "react";
 import ControlPanelContainer from "@/components/ControlPanelContainer";
 import { TextField, Button, FieldContainer } from "@/components/Fields";
 import trainingStatusText from "@/constants/training-status-text.constant";
@@ -15,9 +9,8 @@ import { GameResults, LastUsedParams } from "@/signalr/dqn.hub.types";
 
 type ControlPanelProps = {
   lastUsedParams?: LastUsedParams;
-  onGameAdded: (game: GameResults) => void;
-  onBestGameUpdated: (game: GameResults) => void;
   onAllGamesReset: () => void;
+  onBestGameButtonClick?: () => void;
 };
 
 const defaultForm = {
@@ -45,10 +38,7 @@ const buildForm = (lastUsedParams?: LastUsedParams) => {
   };
 };
 
-export default function ControlPanel({
-  onGameAdded,
-  ...props
-}: Readonly<ControlPanelProps>) {
+export default function ControlPanel(props: Readonly<ControlPanelProps>) {
   const hub = useRef<DQNHub>(undefined);
   const lastUsedIterations = useRef(1);
   const [form, setForm] = useState(() => buildForm(props.lastUsedParams));
@@ -80,16 +70,6 @@ export default function ControlPanel({
     player.speed = newSpeed;
   };
 
-  const onBestGameButtonClick = async () => {
-    if (!hub.current) return;
-    const bestGame = await hub.current.invoke("GetTheBestGame");
-    if (bestGame) {
-      props.onBestGameUpdated(bestGame);
-    } else {
-      alert("No best game found");
-    }
-  };
-
   const onTrainButtonClick = () => {
     if (!hub.current) return;
 
@@ -113,15 +93,11 @@ export default function ControlPanel({
     setStatus(TrainingStatus.RequestedToStop);
   };
 
-  const onGameFinished = useCallback(
-    (results: GameResults) => {
-      const completion =
-        ((results.iteration + 1) / lastUsedIterations.current) * 100;
-      setTrainingCompletion(` ${completion.toFixed(2)}%`);
-      onGameAdded(results);
-    },
-    [onGameAdded],
-  );
+  const onGameFinished = (results: GameResults) => {
+    const completion =
+      ((results.iteration + 1) / lastUsedIterations.current) * 100;
+    setTrainingCompletion(` ${completion.toFixed(2)}%`);
+  };
 
   useEffect(() => {
     const _hub = getDQNHub();
@@ -132,7 +108,7 @@ export default function ControlPanel({
     return () => {
       _hub.off("GameFinished", onGameFinished);
     };
-  }, [onGameFinished]);
+  }, []);
 
   return (
     <ControlPanelContainer className="border-l border-blue-400">
@@ -203,7 +179,7 @@ export default function ControlPanel({
           </Button>
           <Button
             className="border border-purple-600"
-            onClick={onBestGameButtonClick}
+            onClick={props.onBestGameButtonClick}
           >
             Best Game
           </Button>

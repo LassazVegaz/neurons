@@ -2,9 +2,9 @@
 import ConnectionDisplay from "@/components/ConnectionDisplay";
 import ControlPanel from "./components/ControlPanel";
 import BottomSection from "./components/BottomSection";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GameResults, LastUsedParams } from "@/signalr/dqn.hub.types";
-import getDQNHub from "@/signalr/dqn.hub";
+import getDQNHub, { DQNHub } from "@/signalr/dqn.hub";
 import { HubConnectionState } from "@microsoft/signalr";
 import player from "./helpers/player";
 
@@ -28,6 +28,7 @@ const connectToHub = () => {
 };
 
 export default function DQNPage() {
+  const hub = useRef<DQNHub>(undefined);
   const [games, setGames] = useState<GameResults[]>([]);
   const [bestGame, setBestGame] = useState<GameResults | undefined>(undefined);
   const [isConnected, setIsConnected] = useState(false);
@@ -35,24 +36,32 @@ export default function DQNPage() {
     LastUsedParams | undefined
   >(undefined);
 
-  const onGameAdded = (game: GameResults) => {
-    setGames((prev) => [...prev, game]);
-  };
-
-  const onBestGameUpdated = (bestGame: GameResults) => {
-    setBestGame(bestGame);
-    player.addBestGame(bestGame);
-  };
-
   const onAllGamesReset = () => {
     setGames([]);
     setBestGame(undefined);
     player.reset();
   };
 
+  const onBestGameButtonClick = async () => {
+    if (!hub.current) return;
+    const bestGame = await hub.current.invoke("GetTheBestGame");
+    if (bestGame) {
+      setBestGame(bestGame);
+      player.addBestGame(bestGame);
+    } else {
+      alert("No best game found");
+    }
+  };
+
+  const onGameFinished = (game: GameResults) => {
+    setGames((prev) => [...prev, game]);
+    player.addGame(game);
+  };
+
   useEffect(() => {
     let mounted = true;
     const _hub = getDQNHub();
+    hub.current = _hub;
 
     connectToHub()?.then(() => {
       if (!mounted) return;
@@ -67,8 +76,11 @@ export default function DQNPage() {
     _hub.connection.onreconnecting(() => mounted && setIsConnected(false));
     _hub.connection.onclose(() => mounted && setIsConnected(false));
 
+    _hub.on("GameFinished", onGameFinished);
+
     return () => {
       mounted = false;
+      _hub.off("GameFinished", onGameFinished);
     };
   }, []);
 
@@ -89,8 +101,7 @@ export default function DQNPage() {
 
         <ControlPanel
           lastUsedParams={lastUsedParams}
-          onGameAdded={onGameAdded}
-          onBestGameUpdated={onBestGameUpdated}
+          onBestGameButtonClick={onBestGameButtonClick}
           onAllGamesReset={onAllGamesReset}
         />
 
