@@ -87,6 +87,7 @@ export default function DQNPage() {
       mounted = false;
       _hub.off("GameFinished", onGameFinished);
       _hub.off("TrainingFinished", onBestGameUpdate);
+      _hub.connection.stop();
     };
   }, []);
 
