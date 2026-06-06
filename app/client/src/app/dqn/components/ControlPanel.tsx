@@ -8,8 +8,13 @@ import getDQNHub, { DQNHub } from "@/signalr/dqn.hub";
 import { GameResults, LastUsedParams } from "@/signalr/dqn.hub.types";
 
 type ControlPanelProps = {
+  enableDebugging: boolean;
   isConnected: boolean;
   onAllGamesReset: () => void;
+  onEnableDebuggingChange: ChangeEventHandler<
+    HTMLInputElement,
+    HTMLInputElement
+  >;
   onBestGameButtonClick?: () => void;
 };
 
@@ -133,6 +138,12 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
 
   return (
     <ControlPanelContainer className="border-l border-blue-400">
+      <Checkbox
+        checked={props.enableDebugging}
+        label="Enable Debugging"
+        name="enableDebugging"
+        onChange={props.onEnableDebuggingChange}
+      />
       <Checkbox
         checked={form.autoPlay}
         label="Auto Play"
