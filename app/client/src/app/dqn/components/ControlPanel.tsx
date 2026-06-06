@@ -99,14 +99,21 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
     setTrainingCompletion(` ${completion.toFixed(2)}%`);
   };
 
+  const onTrainingFinished = () => {
+    setStatus(TrainingStatus.Finished);
+    setTrainingCompletion("");
+  };
+
   useEffect(() => {
     const _hub = getDQNHub();
     hub.current = _hub;
 
     _hub.on("GameFinished", onGameFinished);
+    _hub.on("TrainingFinished", onTrainingFinished);
 
     return () => {
       _hub.off("GameFinished", onGameFinished);
+      _hub.off("TrainingFinished", onTrainingFinished);
     };
   }, []);
 

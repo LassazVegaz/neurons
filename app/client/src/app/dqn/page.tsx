@@ -42,12 +42,16 @@ export default function DQNPage() {
     player.reset();
   };
 
+  const onBestGameUpdate = (game: GameResults) => {
+    setBestGame(game);
+    player.addBestGame(game);
+  };
+
   const onBestGameButtonClick = async () => {
     if (!hub.current) return;
     const bestGame = await hub.current.invoke("GetTheBestGame");
     if (bestGame) {
-      setBestGame(bestGame);
-      player.addBestGame(bestGame);
+      onBestGameUpdate(bestGame);
     } else {
       alert("No best game found");
     }
@@ -77,10 +81,12 @@ export default function DQNPage() {
     _hub.connection.onclose(() => mounted && setIsConnected(false));
 
     _hub.on("GameFinished", onGameFinished);
+    _hub.on("TrainingFinished", onBestGameUpdate);
 
     return () => {
       mounted = false;
       _hub.off("GameFinished", onGameFinished);
+      _hub.off("TrainingFinished", onBestGameUpdate);
     };
   }, []);
 
