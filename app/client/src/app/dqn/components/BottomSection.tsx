@@ -31,7 +31,7 @@ export default function BottomSection(props: Readonly<BottomSectionProps>) {
   }, []);
 
   return (
-    <div className="bg-blue-950 col-span-2 flex flex-col justify-center gap-4 py-4 min-h-20">
+    <div className="bg-blue-950 col-span-2 flex flex-col justify-center gap-4 py-4 min-h-39">
       <div className="flex justify-center items-center gap-4">
         {props.games.map((g, idx) => (
           <GameButton
