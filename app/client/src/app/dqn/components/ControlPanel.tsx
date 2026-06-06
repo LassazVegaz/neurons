@@ -11,9 +11,10 @@ import trainingStatusText from "@/constants/training-status-text.constant";
 import TrainingStatus from "@/types/training-status.enum";
 import player, { DEFAULT_SPEED } from "../helpers/player";
 import getDQNHub, { DQNHub } from "@/signalr/dqn.hub";
-import { GameResults } from "@/signalr/dqn.hub.types";
+import { GameResults, LastUsedParams } from "@/signalr/dqn.hub.types";
 
 type ControlPanelProps = {
+  lastUsedParams?: LastUsedParams;
   onGameAdded: (game: GameResults) => void;
   onBestGameUpdated: (game: GameResults) => void;
   onAllGamesReset: () => void;
@@ -30,10 +31,24 @@ const defaultForm = {
   autoPlay: true,
 };
 
+const buildForm = (lastUsedParams?: LastUsedParams) => {
+  if (!lastUsedParams) return defaultForm;
+  return {
+    alpha: lastUsedParams.alpha.toString(),
+    lambda: lastUsedParams.lambda.toString(),
+    iterations: lastUsedParams.iterations.toString(),
+    layers: lastUsedParams.layers.join(","),
+    noGreedy: lastUsedParams.noGreedy,
+    createNewThetas: false,
+    speed: player.speed.toString(),
+    autoPlay: player.autoPlay,
+  };
+};
+
 export default function ControlPanel(props: Readonly<ControlPanelProps>) {
   const hub = useRef<DQNHub>(undefined);
   const lastUsedIterations = useRef(1);
-  const [form, setForm] = useState(defaultForm);
+  const [form, setForm] = useState(() => buildForm(props.lastUsedParams));
   const [status, setStatus] = useState(TrainingStatus.NotStarted);
   const [trainingCompletion, setTrainingCompletion] = useState("");
 
