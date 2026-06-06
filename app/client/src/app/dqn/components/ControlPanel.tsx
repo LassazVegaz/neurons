@@ -8,10 +8,12 @@ import getDQNHub, { DQNHub } from "@/signalr/dqn.hub";
 import { GameResults, LastUsedParams } from "@/signalr/dqn.hub.types";
 
 type ControlPanelProps = {
-  lastUsedParams?: LastUsedParams;
+  isConnected: boolean;
   onAllGamesReset: () => void;
   onBestGameButtonClick?: () => void;
 };
+
+type Form = typeof defaultForm;
 
 const defaultForm = {
   alpha: "0.1",
@@ -24,24 +26,22 @@ const defaultForm = {
   autoPlay: true,
 };
 
-const buildForm = (lastUsedParams?: LastUsedParams) => {
-  if (!lastUsedParams) return defaultForm;
-  return {
-    alpha: lastUsedParams.alpha.toString(),
-    lambda: lastUsedParams.lambda.toString(),
-    iterations: lastUsedParams.iterations.toString(),
-    layers: lastUsedParams.layers.join(","),
-    noGreedy: lastUsedParams.noGreedy,
-    createNewThetas: false,
-    speed: player.speed.toString(),
-    autoPlay: player.autoPlay,
-  };
-};
+const buildForm = (prev: Form, lastUsedParams: LastUsedParams): Form => ({
+  alpha: lastUsedParams.alpha.toString(),
+  lambda: lastUsedParams.lambda.toString(),
+  iterations: lastUsedParams.iterations.toString(),
+  layers: lastUsedParams.layers.join(","),
+  noGreedy: lastUsedParams.noGreedy,
+  createNewThetas: false,
+  speed: prev.speed,
+  autoPlay: prev.autoPlay,
+});
 
 export default function ControlPanel(props: Readonly<ControlPanelProps>) {
   const hub = useRef<DQNHub>(undefined);
+  const lastUsedParamsWereSet = useRef(false);
   const lastUsedIterations = useRef(1);
-  const [form, setForm] = useState(() => buildForm(props.lastUsedParams));
+  const [form, setForm] = useState(defaultForm);
   const [status, setStatus] = useState(TrainingStatus.NotStarted);
   const [trainingCompletion, setTrainingCompletion] = useState("");
 
@@ -116,6 +116,16 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
       _hub.off("TrainingFinished", onTrainingFinished);
     };
   }, []);
+
+  useEffect(() => {
+    if (lastUsedParamsWereSet.current || !props.isConnected) return;
+
+    lastUsedParamsWereSet.current = true;
+
+    hub.current
+      ?.invoke("GetLastUsedParams")
+      .then((params) => params && setForm((prev) => buildForm(prev, params)));
+  }, [props.isConnected]);
 
   return (
     <ControlPanelContainer className="border-l border-blue-400">

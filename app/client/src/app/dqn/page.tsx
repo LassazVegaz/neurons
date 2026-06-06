@@ -3,7 +3,7 @@ import ConnectionDisplay from "@/components/ConnectionDisplay";
 import ControlPanel from "./components/ControlPanel";
 import BottomSection from "./components/BottomSection";
 import { useEffect, useRef, useState } from "react";
-import { GameResults, LastUsedParams } from "@/signalr/dqn.hub.types";
+import { GameResults } from "@/signalr/dqn.hub.types";
 import getDQNHub, { DQNHub } from "@/signalr/dqn.hub";
 import { HubConnectionState } from "@microsoft/signalr";
 import player from "./helpers/player";
@@ -32,9 +32,6 @@ export default function DQNPage() {
   const [games, setGames] = useState<GameResults[]>([]);
   const [bestGame, setBestGame] = useState<GameResults | undefined>(undefined);
   const [isConnected, setIsConnected] = useState(false);
-  const [lastUsedParams, setLastUsedParams] = useState<
-    LastUsedParams | undefined
-  >(undefined);
 
   const onAllGamesReset = () => {
     setGames([]);
@@ -67,14 +64,7 @@ export default function DQNPage() {
     const _hub = getDQNHub();
     hub.current = _hub;
 
-    connectToHub()?.then(() => {
-      if (!mounted) return;
-      setIsConnected(true);
-      _hub.invoke("GetLastUsedParams").then((p) => {
-        if (!p || !mounted) return;
-        setLastUsedParams(p);
-      });
-    });
+    connectToHub()?.then(() => mounted && setIsConnected(true));
 
     _hub.connection.onreconnected(() => mounted && setIsConnected(true));
     _hub.connection.onreconnecting(() => mounted && setIsConnected(false));
@@ -107,7 +97,7 @@ export default function DQNPage() {
         </div>
 
         <ControlPanel
-          lastUsedParams={lastUsedParams}
+          isConnected={isConnected}
           onBestGameButtonClick={onBestGameButtonClick}
           onAllGamesReset={onAllGamesReset}
         />
