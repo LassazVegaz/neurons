@@ -34,10 +34,10 @@ export default function BottomSection(props: Readonly<BottomSectionProps>) {
   };
 
   useEffect(() => {
-    player.onGameChange = setCurrentGame;
+    player.on("gameChange", setCurrentGame);
 
     return () => {
-      player.onGameChange = undefined;
+      player.off("gameChange", setCurrentGame);
     };
   }, []);
 
