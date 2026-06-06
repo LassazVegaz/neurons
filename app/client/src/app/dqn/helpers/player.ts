@@ -6,6 +6,7 @@ export type Game = Pick<GameResults, "states">;
 type Events = {
   gameChange: [[number], void];
   playingFinished: [[], void];
+  gamePlayingStatusChanged: [[boolean], void];
 };
 
 type Listener<E extends keyof Events> = (...args: Events[E][0]) => Events[E][1];
@@ -36,6 +37,7 @@ export class Player {
   } = {
     gameChange: [],
     playingFinished: [],
+    gamePlayingStatusChanged: [],
   };
 
   on<E extends keyof Events>(event: E, listener: Listener<E>) {
@@ -122,7 +124,7 @@ export class Player {
   private runGame(game: Game) {
     const states = game.states;
     let period = -1;
-    this.running = true;
+    this.changePlayingStatus(true);
 
     this.currentTimer = setInterval(() => {
       period++;
@@ -144,7 +146,7 @@ export class Player {
 
   private stopTimmer() {
     clearInterval(this.currentTimer);
-    this.running = false;
+    this.changePlayingStatus(false);
   }
 
   private toggleBoxes(states: number[], show: boolean): void {
@@ -162,6 +164,12 @@ export class Player {
       pEle.classList.remove(BOX_PLAYER_CLASS);
       oEle.classList.remove(BOX_OPPONENT_CLASS);
     }
+  }
+
+  private changePlayingStatus(isPlaying: boolean) {
+    if (this.running === isPlaying) return;
+    this.running = isPlaying;
+    this.emit("gamePlayingStatusChanged", isPlaying);
   }
 }
 

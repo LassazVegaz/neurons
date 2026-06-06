@@ -13,31 +13,18 @@ export default function BottomSection(props: Readonly<BottomSectionProps>) {
   const [currentGame, setCurrentGame] = useState(-1);
   const [isGamePlaying, setIsGamePlaying] = useState(false);
 
-  const playBestGame = () => {
-    setIsGamePlaying(true);
-    player.playBestGame();
-  };
-
   const onGamePauseResume = () => {
-    if (isGamePlaying) {
-      player.pause();
-      setIsGamePlaying(false);
-    } else {
-      player.resume();
-      setIsGamePlaying(true);
-    }
-  };
-
-  const playGameFrom = (gameIdx: number) => {
-    setIsGamePlaying(true);
-    player.playFrom(gameIdx);
+    if (isGamePlaying) player.pause();
+    else player.resume();
   };
 
   useEffect(() => {
     player.on("gameChange", setCurrentGame);
+    player.on("gamePlayingStatusChanged", setIsGamePlaying);
 
     return () => {
       player.off("gameChange", setCurrentGame);
+      player.off("gamePlayingStatusChanged", setIsGamePlaying);
     };
   }, []);
 
@@ -50,7 +37,7 @@ export default function BottomSection(props: Readonly<BottomSectionProps>) {
             isPlayingNow={idx === currentGame}
             label={g.iteration}
             rewards={g.totalRewards}
-            onClick={() => playGameFrom(idx)}
+            onClick={() => player.playFrom(idx)}
           />
         ))}
 
@@ -59,7 +46,7 @@ export default function BottomSection(props: Readonly<BottomSectionProps>) {
             isPlayingNow={currentGame === props.games.length}
             label="Best"
             rewards={props.bestGame.totalRewards}
-            onClick={playBestGame}
+            onClick={player.playBestGame}
             className={twMerge(
               "bg-red-900",
               currentGame === props.games.length && "bg-red-950",
