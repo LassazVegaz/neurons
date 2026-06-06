@@ -45,7 +45,10 @@ const buildForm = (lastUsedParams?: LastUsedParams) => {
   };
 };
 
-export default function ControlPanel(props: Readonly<ControlPanelProps>) {
+export default function ControlPanel({
+  onGameAdded,
+  ...props
+}: Readonly<ControlPanelProps>) {
   const hub = useRef<DQNHub>(undefined);
   const lastUsedIterations = useRef(1);
   const [form, setForm] = useState(() => buildForm(props.lastUsedParams));
@@ -115,9 +118,9 @@ export default function ControlPanel(props: Readonly<ControlPanelProps>) {
       const completion =
         ((results.iteration + 1) / lastUsedIterations.current) * 100;
       setTrainingCompletion(` ${completion.toFixed(2)}%`);
-      props.onGameAdded(results);
+      onGameAdded(results);
     },
-    [props],
+    [onGameAdded],
   );
 
   useEffect(() => {
