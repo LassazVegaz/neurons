@@ -1,15 +1,23 @@
 import { GameResults } from "@/signalr/dqn.hub.types";
 
-type OnNumericChange = (idx: number) => void;
+//#region TYPES
+export type Game = Pick<GameResults, "states">;
 
+type Events = {
+  gameChange: [[number], void];
+  playingFinished: [[], void];
+};
+
+type Listener<E extends keyof Events> = (...args: Events[E][0]) => Events[E][1];
+//#endregion
+
+//#region CONSTANTS
 export const DEFAULT_SPEED = Number.parseInt(
   process.env.NEXT_PUBLIC_PLAYER_SPEED || "100",
 );
-
 const BOX_PLAYER_CLASS = "box-player" as const;
 const BOX_OPPONENT_CLASS = "box-opponent" as const;
-
-export type Game = Pick<GameResults, "states">;
+//#endregion
 
 export class Player {
   private games: Game[] = [];
@@ -22,15 +30,26 @@ export class Player {
   public autoPlay = true;
   public speed = DEFAULT_SPEED;
 
-  private _onGameChange: OnNumericChange | undefined;
-  set onGameChange(v: OnNumericChange | undefined) {
-    this._onGameChange = v;
+  //#region EVENTS
+  private readonly listeners: {
+    [k in keyof Events]: Listener<k>[];
+  } = {
+    gameChange: [],
+    playingFinished: [],
+  };
+
+  on<E extends keyof Events>(event: E, listener: Listener<E>) {
+    this.listeners[event].push(listener);
   }
 
-  private _onPlayingFinished: (() => void) | undefined;
-  set onPlayingFinished(v: (() => void) | undefined) {
-    this._onPlayingFinished = v;
+  off<E extends keyof Events>(event: E, listener: Listener<E>) {
+    this.listeners[event] = this.listeners[event].filter((l) => l !== listener);
   }
+
+  private emit<E extends keyof Events>(event: E, ...args: Events[E][0]) {
+    this.listeners[event].forEach((listener) => listener(...args));
+  }
+  //#endregion
 
   addGame(game: Game) {
     if (this.bestGame) {
@@ -54,7 +73,7 @@ export class Player {
     this.games = [];
     this.currentGame = -1;
     this.bestGame = undefined;
-    this._onGameChange?.(this.currentGame);
+    this.emit("gameChange", this.currentGame);
   }
 
   pause() {
@@ -68,7 +87,7 @@ export class Player {
     if (this.currentGame >= this.games.length || this.currentGame < 0)
       this.currentGame = 0;
 
-    this._onGameChange?.(this.currentGame);
+    this.emit("gameChange", this.currentGame);
     this.runGame(this.games[this.currentGame]);
   }
 
@@ -96,7 +115,7 @@ export class Player {
     this.currentGame++;
     if (this.currentGame === this.games.length) this.currentGame = 0;
 
-    this._onGameChange?.(this.currentGame);
+    this.emit("gameChange", this.currentGame);
     this.runGame(this.games[this.currentGame]);
   }
 
@@ -110,7 +129,7 @@ export class Player {
       if (period === states.length) {
         this.stopTimmer();
         if (this.autoPlay) this.playNextGame();
-        else this._onPlayingFinished?.();
+        else this.emit("playingFinished");
         return;
       }
       this.transitState(states[period]);
