@@ -18,6 +18,8 @@ export default function BottomSection(props: Readonly<BottomSectionProps>) {
     else player.resume();
   };
 
+  const onBestGameClick = () => player.playBestGame();
+
   useEffect(() => {
     player.on("gameChange", setCurrentGame);
     player.on("gamePlayingStatusChanged", setIsGamePlaying);
@@ -46,7 +48,7 @@ export default function BottomSection(props: Readonly<BottomSectionProps>) {
             isPlayingNow={currentGame === props.games.length}
             label="Best"
             rewards={props.bestGame.totalRewards}
-            onClick={player.playBestGame}
+            onClick={onBestGameClick}
             className={twMerge(
               "bg-red-900",
               currentGame === props.games.length && "bg-red-950",
