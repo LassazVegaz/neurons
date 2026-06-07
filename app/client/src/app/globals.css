@@ -37,17 +37,11 @@ body {
   background-color: #e71d1d;
 }
 
-/* 1. Standard Properties (Firefox) */
-.custom-scroll {
-  scrollbar-width: thin; /* Options: auto | thin | none */
-  scrollbar-color: #888888 #202020; /* thumb-color track-color */
-}
-
 /* 2. WebKit Properties (Chrome, Safari, Edge) */
 /* The entire scrollbar area */
 .custom-scroll::-webkit-scrollbar {
-  width: 10px; /* Width of vertical scrollbar */
-  height: 10px; /* Height of horizontal scrollbar */
+  width: 5px; /* Width of vertical scrollbar */
+  height: 5px; /* Height of horizontal scrollbar */
 }
 
 /* The background track */
