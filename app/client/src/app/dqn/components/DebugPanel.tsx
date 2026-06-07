@@ -23,7 +23,7 @@ const DebugPiece = (props: DebugPieceProps) => (
 );
 
 export default function DebugPanel(props: Readonly<DebugPanelProps>) {
-  const [currentGame, setCurrentGame] = useState(-1);
+  const [currentGame, setCurrentGame] = useState(player.currentGame);
 
   useEffect(() => {
     player.on("gameChange", setCurrentGame);

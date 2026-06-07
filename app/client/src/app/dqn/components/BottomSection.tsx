@@ -10,7 +10,7 @@ type BottomSectionProps = {
 };
 
 export default function BottomSection(props: Readonly<BottomSectionProps>) {
-  const [currentGame, setCurrentGame] = useState(-1);
+  const [currentGame, setCurrentGame] = useState(player.currentGame);
   const [isGamePlaying, setIsGamePlaying] = useState(false);
 
   const onGamePauseResume = () => {
