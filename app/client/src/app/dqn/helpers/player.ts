@@ -23,10 +23,14 @@ const BOX_OPPONENT_CLASS = "box-opponent" as const;
 export class Player {
   private games: Game[] = [];
   private currentTimer: NodeJS.Timeout | undefined;
-  private currentGame = -1;
   private running = false;
   private lastStates: number[] = [0, 0, 9, 9];
   private bestGame: Game | undefined;
+
+  private _currentGame = -1;
+  public get currentGame() {
+    return this._currentGame;
+  }
 
   public autoPlay = true;
   public speed = DEFAULT_SPEED;
@@ -73,9 +77,9 @@ export class Player {
   reset() {
     this.stopTimmer();
     this.games = [];
-    this.currentGame = -1;
+    this._currentGame = -1;
     this.bestGame = undefined;
-    this.emit("gameChange", this.currentGame);
+    this.emit("gameChange", this._currentGame);
   }
 
   pause() {
@@ -86,11 +90,11 @@ export class Player {
     if (this.running) return;
 
     if (this.games.length === 0) return;
-    if (this.currentGame >= this.games.length || this.currentGame < 0)
-      this.currentGame = 0;
+    if (this._currentGame >= this.games.length || this._currentGame < 0)
+      this._currentGame = 0;
 
-    this.emit("gameChange", this.currentGame);
-    this.runGame(this.games[this.currentGame]);
+    this.emit("gameChange", this._currentGame);
+    this.runGame(this.games[this._currentGame]);
   }
 
   playFrom(gameIndex: number) {
@@ -98,7 +102,7 @@ export class Player {
       throw new Error("Invalid game index: " + gameIndex);
 
     this.stopTimmer();
-    this.currentGame = gameIndex - 1;
+    this._currentGame = gameIndex - 1;
     this.playNextGame();
   }
 
@@ -106,7 +110,7 @@ export class Player {
     if (this.bestGame === undefined) throw new Error("Best game is not given");
 
     this.stopTimmer();
-    this.currentGame = this.games.length - 2;
+    this._currentGame = this.games.length - 2;
     this.playNextGame();
   }
 
@@ -114,11 +118,11 @@ export class Player {
     this.stopTimmer();
 
     if (this.games.length === 0) return;
-    this.currentGame++;
-    if (this.currentGame === this.games.length) this.currentGame = 0;
+    this._currentGame++;
+    if (this._currentGame === this.games.length) this._currentGame = 0;
 
-    this.emit("gameChange", this.currentGame);
-    this.runGame(this.games[this.currentGame]);
+    this.emit("gameChange", this._currentGame);
+    this.runGame(this.games[this._currentGame]);
   }
 
   private runGame(game: Game) {
