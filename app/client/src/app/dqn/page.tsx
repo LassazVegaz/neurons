@@ -5,7 +5,6 @@ import BottomSection from "./components/BottomSection";
 import { ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { GameResults } from "@/signalr/dqn.hub.types";
 import getDQNHub, { DQNHub } from "@/signalr/dqn.hub";
-import { HubConnectionState } from "@microsoft/signalr";
 import player from "./helpers/player";
 import DebugPanel from "./components/DebugPanel";
 
@@ -51,16 +50,16 @@ export default function DQNPage() {
     player.addGame(game);
   };
 
+  const onconnected = () => setIsConnected(true);
+
   useEffect(() => {
     let mounted = true;
     const _hub = getDQNHub();
     hub.current = _hub;
 
-    if (_hub.connection.state === HubConnectionState.Disconnected)
-      _hub.connection
-        .start()
-        .then(() => mounted && setIsConnected(true))
-        .catch((e) => console.log("Connection error: ", e));
+    _hub.onconncted(onconnected);
+
+    _hub.start().catch((e) => console.log("Connection error: ", e));
     // Sometimes I turn off backend for testing so above connection error happens frequently
     // if I console.error it, next.js shows red error overlay which is annoying, so I just log it
 
@@ -73,9 +72,11 @@ export default function DQNPage() {
 
     return () => {
       mounted = false;
+
       _hub.off("GameFinished", onGameFinished);
       _hub.off("TrainingFinished", onBestGameUpdate);
-      _hub.connection.stop();
+      _hub.removeOnconncted(onconnected);
+      _hub.stop();
     };
   }, []);
 

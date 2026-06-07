@@ -1,7 +1,9 @@
 "use client";
+import { sleep } from "@/helpers/threading";
 import {
   HubConnection,
   HubConnectionBuilder,
+  HubConnectionState,
   LogLevel,
 } from "@microsoft/signalr";
 
@@ -10,6 +12,8 @@ export default class Hub<
   Methods extends Record<string, unknown[]>,
   Functions extends Record<string, [unknown[], unknown]>,
 > {
+  private onconnectedListeners: (() => void)[] = [];
+
   public constructor(public readonly connection: HubConnection) {}
 
   on<E extends keyof Events>(
@@ -46,6 +50,44 @@ export default class Hub<
     if (typeof funcName === "string")
       return await this.connection.invoke(funcName, ...args);
     else throw new Error("function name is not a string");
+  }
+
+  onconncted(listener: () => void) {
+    this.onconnectedListeners.push(listener);
+  }
+
+  removeOnconncted(listener: () => void) {
+    this.onconnectedListeners = this.onconnectedListeners.filter(
+      (l) => l !== listener,
+    );
+  }
+
+  async start() {
+    if (this.connection.state === HubConnectionState.Disconnecting) {
+      this.log("waiting to disconnect before connecting");
+      let tries = 0;
+      do {
+        if (++tries > 3) {
+          this.log("didn't disconnect after waiting 3s. stopped waiting");
+          break;
+        }
+        await sleep(1000);
+      } while (this.connection.state === HubConnectionState.Disconnecting);
+    }
+
+    if (this.connection.state === HubConnectionState.Disconnected) {
+      await this.connection.start();
+      for (const l of this.onconnectedListeners) l();
+    }
+  }
+
+  async stop() {
+    if (this.connection.state !== HubConnectionState.Connecting)
+      await this.connection.stop();
+  }
+
+  private log(msg: string) {
+    console.log("local hub:", msg);
   }
 }
 
