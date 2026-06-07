@@ -13,6 +13,7 @@ type DebugPanelProps = {
 
 const DebugPiece = (props: DebugPieceProps) => (
   <div className="flex gap-4">
+    <span className="text-[#0fe71d]">{props.states[4]}:</span>
     <span className="text-[#0fe71d]">
       ({props.states[0]}, {props.states[1]})
     </span>
