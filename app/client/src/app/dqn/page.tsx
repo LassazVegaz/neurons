@@ -7,10 +7,9 @@ import { GameResults } from "@/signalr/dqn.hub.types";
 import getDQNHub, { DQNHub } from "@/signalr/dqn.hub";
 import { HubConnectionState } from "@microsoft/signalr";
 import player from "./helpers/player";
+import DebugPanel from "./components/DebugPanel";
 
 type OnCheckBoxChange = ChangeEventHandler<HTMLInputElement, HTMLInputElement>;
-
-type DebugPieceProps = { states: number[] };
 
 const boxes = [] as { id: string }[];
 for (let y = 0; y < 10; y++)
@@ -31,24 +30,12 @@ const connectToHub = () => {
   });
 };
 
-const DebugPiece = (props: DebugPieceProps) => (
-  <div className="flex gap-4">
-    <span className="text-[#0fe71d]">
-      ({props.states[0]}, {props.states[1]})
-    </span>
-    <span className="text-[#e71d1d]">
-      ({props.states[2]}, {props.states[3]})
-    </span>
-  </div>
-);
-
 export default function DQNPage() {
   const hub = useRef<DQNHub>(undefined);
   const [games, setGames] = useState<GameResults[]>([]);
   const [bestGame, setBestGame] = useState<GameResults | undefined>(undefined);
   const [isConnected, setIsConnected] = useState(false);
   const [enableDebugging, setEnableDebugging] = useState(false);
-  const [currentGame, setCurrentGame] = useState(-1);
 
   const onEnableDebuggingChange: OnCheckBoxChange = (e) =>
     setEnableDebugging(e.target.checked);
@@ -93,14 +80,11 @@ export default function DQNPage() {
     _hub.on("GameFinished", onGameFinished);
     _hub.on("TrainingFinished", onBestGameUpdate);
 
-    player.on("gameChange", setCurrentGame);
-
     return () => {
       mounted = false;
       _hub.off("GameFinished", onGameFinished);
       _hub.off("TrainingFinished", onBestGameUpdate);
       _hub.connection.stop();
-      player.off("gameChange", setCurrentGame);
     };
   }, []);
 
@@ -108,17 +92,11 @@ export default function DQNPage() {
     <>
       <div className="q-learning h-full grid grid-cols-[1fr_300px] grid-rows-[1fr_auto]">
         <div className="flex justify-center items-center gap-10 overflow-hidden py-5">
-          {enableDebugging && (
-            <div className="custom-scroll overflow-y-auto overflow-x-hidden max-h-full p-2 text-md">
-              {games[currentGame]?.states.map((s, i) => (
-                <DebugPiece states={s} key={i} /> //NOSONAR
-              ))}
-              {currentGame === games.length &&
-                bestGame?.states.map((s, i) => (
-                  <DebugPiece states={s} key={i} /> //NOSONAR
-                ))}
-            </div>
-          )}
+          <DebugPanel
+            show={enableDebugging}
+            games={games}
+            bestGame={bestGame}
+          />
 
           <div className="grid grid-cols-10 gap-1">
             {boxes.map((b) => (
