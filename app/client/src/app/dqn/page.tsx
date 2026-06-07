@@ -15,21 +15,6 @@ const boxes = [] as { id: string }[];
 for (let y = 0; y < 10; y++)
   for (let x = 0; x < 10; x++) boxes.push({ id: `box-${x}-${y}` });
 
-const connectToHub = () => {
-  const _hub = getDQNHub();
-
-  if (_hub.connection.state !== HubConnectionState.Disconnected) return;
-
-  return new Promise<void>((resolve) => {
-    _hub.connection
-      .start()
-      .then(resolve)
-      .catch((e) => console.log("Connection error: ", e));
-    // Sometimes I turn off backend for testing so above connection error happens frequently
-    // if I console.error it, next.js shows red error overlay which is annoying, so I just log it
-  });
-};
-
 export default function DQNPage() {
   const hub = useRef<DQNHub>(undefined);
   const [games, setGames] = useState<GameResults[]>([]);
@@ -71,7 +56,13 @@ export default function DQNPage() {
     const _hub = getDQNHub();
     hub.current = _hub;
 
-    connectToHub()?.then(() => mounted && setIsConnected(true));
+    if (_hub.connection.state === HubConnectionState.Disconnected)
+      _hub.connection
+        .start()
+        .then(() => mounted && setIsConnected(true))
+        .catch((e) => console.log("Connection error: ", e));
+    // Sometimes I turn off backend for testing so above connection error happens frequently
+    // if I console.error it, next.js shows red error overlay which is annoying, so I just log it
 
     _hub.connection.onreconnected(() => mounted && setIsConnected(true));
     _hub.connection.onreconnecting(() => mounted && setIsConnected(false));
