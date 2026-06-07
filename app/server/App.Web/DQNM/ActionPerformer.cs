@@ -4,8 +4,7 @@ namespace App.Web.DQNM;
 
 public class ActionPerformer
 {
-    private const int MAX_PERIODS_0BASED = Constants.MAX_PERIODS - 1;
-    private const double TIME_RATE = 1.0 / MAX_PERIODS_0BASED;
+    private const double TIME_RATE = 1.0 / Constants.MAX_PERIODS;
     private const double EPS = 1e-6;
 
     public ActionResults Act(PeriodContext ctx)
@@ -14,7 +13,7 @@ public class ActionPerformer
         var pY = Math.Round(ctx.currentState[1], 1);
         var oX = Math.Round(ctx.currentState[2], 1);
         var oY = Math.Round(ctx.currentState[3], 1);
-        var t = Math.Round(ctx.currentState[4], 1);
+        var t = Math.Round(ctx.currentState[4], 2);
         var a = ctx.actionToTake;
 
         // first state transitions
