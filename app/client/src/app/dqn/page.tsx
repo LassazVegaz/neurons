@@ -57,7 +57,7 @@ export default function DQNPage() {
     const _hub = getDQNHub();
     hub.current = _hub;
 
-    _hub.onconncted(onconnected);
+    _hub.localEvents.on("connected", onconnected);
 
     _hub.start().catch((e) => console.log("Connection error: ", e));
     // Sometimes I turn off backend for testing so above connection error happens frequently
@@ -75,7 +75,7 @@ export default function DQNPage() {
 
       _hub.off("GameFinished", onGameFinished);
       _hub.off("TrainingFinished", onBestGameUpdate);
-      _hub.removeOnconncted(onconnected);
+      _hub.localEvents.off("connected", onconnected);
       _hub.stop();
     };
   }, []);

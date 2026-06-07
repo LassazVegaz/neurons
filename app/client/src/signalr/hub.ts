@@ -1,4 +1,5 @@
 "use client";
+import EventsBucket from "@/helpers/events-bucket";
 import { sleep } from "@/helpers/threading";
 import {
   HubConnection,
@@ -7,14 +8,23 @@ import {
   LogLevel,
 } from "@microsoft/signalr";
 
+type LocalEvents = {
+  connected: [[], void];
+};
+
 export default class Hub<
   Events extends Record<string, unknown[]>,
   Methods extends Record<string, unknown[]>,
   Functions extends Record<string, [unknown[], unknown]>,
 > {
-  private onconnectedListeners: (() => void)[] = [];
+  private readonly localEventsBucket: EventsBucket<LocalEvents>;
 
-  public constructor(public readonly connection: HubConnection) {}
+  public readonly localEvents;
+
+  public constructor(public readonly connection: HubConnection) {
+    this.localEventsBucket = new EventsBucket<LocalEvents>();
+    this.localEvents = this.localEventsBucket.getBucket();
+  }
 
   on<E extends keyof Events>(
     methodName: E,
@@ -52,16 +62,6 @@ export default class Hub<
     else throw new Error("function name is not a string");
   }
 
-  onconncted(listener: () => void) {
-    this.onconnectedListeners.push(listener);
-  }
-
-  removeOnconncted(listener: () => void) {
-    this.onconnectedListeners = this.onconnectedListeners.filter(
-      (l) => l !== listener,
-    );
-  }
-
   async start() {
     if (this.connection.state === HubConnectionState.Disconnecting) {
       this.log("waiting to disconnect before connecting");
@@ -77,7 +77,7 @@ export default class Hub<
 
     if (this.connection.state === HubConnectionState.Disconnected) {
       await this.connection.start();
-      for (const l of this.onconnectedListeners) l();
+      this.localEventsBucket.emit("connected");
     }
   }
 
