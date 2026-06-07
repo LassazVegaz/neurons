@@ -8,11 +8,13 @@ internal static class Normalization
 
         for (var i = 0; i < normS.Length; i++)
         {
-            var l = normS[i].Length - 1; // ignore time state
-            states[i] = new int[l];
+            states[i] = new int[normS[i].Length];
 
+            var l = normS[i].Length - 1; // first 4 are coordis
             for (var j = 0; j < l; j++)
                 states[i][j] = (int)(normS[i][j] * 10);
+
+            states[i][^1] = (int)(normS[i][^1] * (Constants.MAX_PERIODS - 1)); // time
         }
 
         return states;
