@@ -1,4 +1,4 @@
-﻿namespace Neurons.DQN;
+﻿namespace App.Web.DQNM;
 
 internal static class Normalization
 {
