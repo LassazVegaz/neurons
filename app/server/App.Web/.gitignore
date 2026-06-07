@@ -1,3 +1,5 @@
 model.json
 training-data.json
 q-table.json
+dqn.json
+dqn-last-used-params.json

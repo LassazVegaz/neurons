@@ -1,0 +1,118 @@
+"use client";
+import ConnectionDisplay from "@/components/ConnectionDisplay";
+import ControlPanel from "./components/ControlPanel";
+import BottomSection from "./components/BottomSection";
+import { ChangeEventHandler, useEffect, useRef, useState } from "react";
+import { GameResults } from "@/signalr/dqn.hub.types";
+import getDQNHub, { DQNHub } from "@/signalr/dqn.hub";
+import player from "./helpers/player";
+import DebugPanel from "./components/DebugPanel";
+
+type OnCheckBoxChange = ChangeEventHandler<HTMLInputElement, HTMLInputElement>;
+
+const boxes = [] as { id: string }[];
+for (let y = 0; y < 10; y++)
+  for (let x = 0; x < 10; x++) boxes.push({ id: `box-${x}-${y}` });
+
+export default function DQNPage() {
+  const hub = useRef<DQNHub>(undefined);
+  const [games, setGames] = useState<GameResults[]>([]);
+  const [bestGame, setBestGame] = useState<GameResults | undefined>(undefined);
+  const [isConnected, setIsConnected] = useState(false);
+  const [enableDebugging, setEnableDebugging] = useState(false);
+
+  const onEnableDebuggingChange: OnCheckBoxChange = (e) =>
+    setEnableDebugging(e.target.checked);
+
+  const onAllGamesReset = () => {
+    setGames([]);
+    setBestGame(undefined);
+    player.reset();
+  };
+
+  const onBestGameUpdate = (game: GameResults) => {
+    setBestGame(game);
+    player.addBestGame(game);
+  };
+
+  const onBestGameButtonClick = async () => {
+    if (!hub.current) return;
+    const bestGame = await hub.current.invoke("GetTheBestGame");
+    if (bestGame) {
+      onBestGameUpdate(bestGame);
+    } else {
+      alert("No best game found");
+    }
+  };
+
+  const onGameFinished = (game: GameResults) => {
+    setGames((prev) => [...prev, game]);
+    player.addGame(game);
+  };
+
+  const onconnected = () => setIsConnected(true);
+
+  useEffect(() => {
+    let mounted = true;
+    const _hub = getDQNHub();
+    hub.current = _hub;
+
+    _hub.localEvents.on("connected", onconnected);
+
+    _hub.start().catch((e) => console.log("Connection error: ", e));
+    // Sometimes I turn off backend for testing so above connection error happens frequently
+    // if I console.error it, next.js shows red error overlay which is annoying, so I just log it
+
+    _hub.connection.onreconnected(() => mounted && setIsConnected(true));
+    _hub.connection.onreconnecting(() => mounted && setIsConnected(false));
+    _hub.connection.onclose(() => mounted && setIsConnected(false));
+
+    _hub.on("GameFinished", onGameFinished);
+    _hub.on("TrainingFinished", onBestGameUpdate);
+
+    return () => {
+      mounted = false;
+
+      _hub.off("GameFinished", onGameFinished);
+      _hub.off("TrainingFinished", onBestGameUpdate);
+      _hub.localEvents.off("connected", onconnected);
+      _hub.stop();
+    };
+  }, []);
+
+  return (
+    <>
+      <div className="q-learning h-full grid grid-cols-[1fr_300px] grid-rows-[1fr_auto]">
+        <div className="flex justify-center items-center gap-10 overflow-hidden py-5">
+          <DebugPanel
+            show={enableDebugging}
+            games={games}
+            bestGame={bestGame}
+          />
+
+          <div className="grid grid-cols-10 gap-1">
+            {boxes.map((b) => (
+              <div
+                key={b.id}
+                id={b.id}
+                className="h-11 w-11 border border-blue-300 rounded flex items-center justify-center text-gray-400"
+              ></div>
+            ))}
+          </div>
+        </div>
+
+        <ControlPanel
+          enableDebugging={enableDebugging}
+          isConnected={isConnected}
+          onEnableDebuggingChange={onEnableDebuggingChange}
+          onBestGameButtonClick={onBestGameButtonClick}
+          onAllGamesReset={onAllGamesReset}
+        />
+
+        <BottomSection games={games} bestGame={bestGame} />
+      </div>
+
+      <ConnectionDisplay hide={isConnected} />
+    </>
+  );
+}

@@ -1,0 +1,183 @@
+import { GameResults } from "@/signalr/dqn.hub.types";
+
+//#region TYPES
+export type Game = Pick<GameResults, "states">;
+
+type Events = {
+  gameChange: [[number], void];
+  playingFinished: [[], void];
+  gamePlayingStatusChanged: [[boolean], void];
+};
+
+type Listener<E extends keyof Events> = (...args: Events[E][0]) => Events[E][1];
+//#endregion
+
+//#region CONSTANTS
+export const DEFAULT_SPEED = Number.parseInt(
+  process.env.NEXT_PUBLIC_PLAYER_SPEED || "100",
+);
+const BOX_PLAYER_CLASS = "box-player" as const;
+const BOX_OPPONENT_CLASS = "box-opponent" as const;
+//#endregion
+
+export class Player {
+  private games: Game[] = [];
+  private currentTimer: NodeJS.Timeout | undefined;
+  private running = false;
+  private lastStates: number[] = [0, 0, 9, 9];
+  private bestGame: Game | undefined;
+
+  private _currentGame = -1;
+  public get currentGame() {
+    return this._currentGame;
+  }
+
+  public autoPlay = true;
+  public speed = DEFAULT_SPEED;
+
+  //#region EVENTS
+  private readonly listeners: {
+    [k in keyof Events]: Listener<k>[];
+  } = {
+    gameChange: [],
+    playingFinished: [],
+    gamePlayingStatusChanged: [],
+  };
+
+  on<E extends keyof Events>(event: E, listener: Listener<E>) {
+    this.listeners[event].push(listener);
+  }
+
+  off<E extends keyof Events>(event: E, listener: Listener<E>) {
+    this.listeners[event] = this.listeners[event].filter((l) => l !== listener);
+  }
+
+  private emit<E extends keyof Events>(event: E, ...args: Events[E][0]) {
+    this.listeners[event].forEach((listener) => listener(...args));
+  }
+  //#endregion
+
+  addGame(game: Game) {
+    if (this.bestGame) {
+      this.games[this.games.length - 1] = game;
+      this.games.push(this.bestGame);
+    } else {
+      this.games.push(game);
+    }
+
+    if (!this.running && this.autoPlay) this.playNextGame();
+  }
+
+  addBestGame(game: Game) {
+    this.bestGame = game;
+    this.games.push(this.bestGame);
+    if (!this.running && this.autoPlay) this.playNextGame();
+  }
+
+  reset() {
+    this.stopTimmer();
+    this.games = [];
+    this._currentGame = -1;
+    this.bestGame = undefined;
+    this.emit("gameChange", this._currentGame);
+  }
+
+  pause() {
+    this.stopTimmer();
+  }
+
+  resume() {
+    if (this.running) return;
+
+    if (this.games.length === 0) return;
+    if (this._currentGame >= this.games.length || this._currentGame < 0)
+      this._currentGame = 0;
+
+    this.emit("gameChange", this._currentGame);
+    this.runGame(this.games[this._currentGame]);
+  }
+
+  playFrom(gameIndex: number) {
+    if (gameIndex < 0 || gameIndex >= this.games.length)
+      throw new Error("Invalid game index: " + gameIndex);
+
+    this.stopTimmer();
+    this._currentGame = gameIndex - 1;
+    this.playNextGame();
+  }
+
+  playBestGame() {
+    if (this.bestGame === undefined) throw new Error("Best game is not given");
+
+    this.stopTimmer();
+    this._currentGame = this.games.length - 2;
+    this.playNextGame();
+  }
+
+  private playNextGame() {
+    this.stopTimmer();
+
+    if (this.games.length === 0) return;
+    this._currentGame++;
+    if (this._currentGame === this.games.length) this._currentGame = 0;
+
+    this.emit("gameChange", this._currentGame);
+    this.runGame(this.games[this._currentGame]);
+  }
+
+  private runGame(game: Game) {
+    const states = game.states;
+    let period = -1;
+    this.changePlayingStatus(true);
+
+    this.currentTimer = setInterval(() => {
+      period++;
+      if (period === states.length) {
+        this.stopTimmer();
+        if (this.autoPlay) this.playNextGame();
+        else this.emit("playingFinished");
+        return;
+      }
+      this.transitState(states[period]);
+    }, this.speed);
+  }
+
+  private transitState(newStates: number[]) {
+    this.toggleBoxes(this.lastStates, false);
+    this.toggleBoxes(newStates, true);
+    this.lastStates = [...newStates];
+  }
+
+  private stopTimmer() {
+    clearInterval(this.currentTimer);
+    this.changePlayingStatus(false);
+  }
+
+  private toggleBoxes(states: number[], show: boolean): void {
+    const pId = `box-${states[0]}-${states[1]}`;
+    const oId = `box-${states[2]}-${states[3]}`;
+    const pEle = document.getElementById(pId);
+    const oEle = document.getElementById(oId);
+    if (!pEle || !oEle)
+      throw new Error(`Box with id ${pId} or ${oId} is missing`);
+
+    if (show) {
+      pEle.classList.add(BOX_PLAYER_CLASS);
+      oEle.classList.add(BOX_OPPONENT_CLASS);
+    } else {
+      pEle.classList.remove(BOX_PLAYER_CLASS);
+      oEle.classList.remove(BOX_OPPONENT_CLASS);
+    }
+  }
+
+  private changePlayingStatus(isPlaying: boolean) {
+    if (this.running === isPlaying) return;
+    this.running = isPlaying;
+    this.emit("gamePlayingStatusChanged", isPlaying);
+  }
+}
+
+const player = new Player();
+export default player;
+
+// ACTIONS: up, right, down, left

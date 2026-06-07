@@ -1,11 +1,30 @@
 "use client";
-import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
+import EventsBucket from "@/helpers/events-bucket";
+import { sleep } from "@/helpers/threading";
+import {
+  HubConnection,
+  HubConnectionBuilder,
+  HubConnectionState,
+  LogLevel,
+} from "@microsoft/signalr";
+
+type LocalEvents = {
+  connected: [[], void];
+};
 
 export default class Hub<
   Events extends Record<string, unknown[]>,
   Methods extends Record<string, unknown[]>,
+  Functions extends Record<string, [unknown[], unknown]>,
 > {
-  public constructor(public readonly connection: HubConnection) {}
+  private readonly localEventsBucket: EventsBucket<LocalEvents>;
+
+  public readonly localEvents;
+
+  public constructor(public readonly connection: HubConnection) {
+    this.localEventsBucket = new EventsBucket<LocalEvents>();
+    this.localEvents = this.localEventsBucket.getBucket();
+  }
 
   on<E extends keyof Events>(
     methodName: E,
@@ -18,26 +37,64 @@ export default class Hub<
   off<E extends keyof Events>(eventName: E): void;
   off<E extends keyof Events>(
     eventName: E,
-    method: (...args: unknown[]) => void,
+    method: (...args: Events[E]) => void,
   ): void;
   off<E extends keyof Events>(
     eventName: E,
-    method?: (...args: unknown[]) => void,
+    method?: (...args: Events[E]) => void,
   ) {
     if (typeof eventName !== "string") return;
     if (method === undefined) this.connection.off(eventName);
     else this.connection.off(eventName, method);
   }
 
-  async invoke<M extends keyof Methods>(methodName: M, ...args: Methods[M]) {
+  async send<M extends keyof Methods>(methodName: M, ...args: Methods[M]) {
     if (typeof methodName === "string")
-      await this.connection.invoke(methodName, ...args);
+      await this.connection.send(methodName, ...args);
+  }
+
+  async invoke<F extends keyof Functions>(
+    funcName: F,
+    ...args: Functions[F][0]
+  ): Promise<Functions[F][1]> {
+    if (typeof funcName === "string")
+      return await this.connection.invoke(funcName, ...args);
+    else throw new Error("function name is not a string");
+  }
+
+  async start() {
+    if (this.connection.state === HubConnectionState.Disconnecting) {
+      this.log("waiting to disconnect before connecting");
+      let tries = 0;
+      do {
+        if (++tries > 3) {
+          this.log("didn't disconnect after waiting 3s. stopped waiting");
+          break;
+        }
+        await sleep(1000);
+      } while (this.connection.state === HubConnectionState.Disconnecting);
+    }
+
+    if (this.connection.state === HubConnectionState.Disconnected) {
+      await this.connection.start();
+      this.localEventsBucket.emit("connected");
+    }
+  }
+
+  async stop() {
+    if (this.connection.state !== HubConnectionState.Connecting)
+      await this.connection.stop();
+  }
+
+  private log(msg: string) {
+    console.log("local hub:", msg);
   }
 }
 
 export const makeHub = <
   Events extends Record<string, unknown[]>,
   Methods extends Record<string, unknown[]>,
+  Functions extends Record<string, [unknown[], unknown]>,
 >(
   url?: string,
 ) => {
@@ -46,7 +103,8 @@ export const makeHub = <
   const connection = new HubConnectionBuilder()
     .withUrl(url)
     .withAutomaticReconnect()
+    .configureLogging(LogLevel.Critical)
     .build();
 
-  return new Hub<Events, Methods>(connection);
+  return new Hub<Events, Methods, Functions>(connection);
 };

@@ -13,11 +13,15 @@ type Methods = {
   StopTraining: [];
 };
 
-export type NetworkHub = Hub<Events, Methods>;
+type Functions = Record<string, [[], unknown]>;
+
+export type NetworkHub = Hub<Events, Methods, Functions>;
 
 let hub: NetworkHub | undefined;
 
 export default function getNetworkHub() {
-  hub ??= makeHub<Events, Methods>(process.env.NEXT_PUBLIC_NETWORK_HUB);
+  hub ??= makeHub<Events, Methods, Functions>(
+    process.env.NEXT_PUBLIC_NETWORK_HUB,
+  );
   return hub;
 }

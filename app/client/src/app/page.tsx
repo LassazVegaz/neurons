@@ -10,7 +10,7 @@ const links = [
     text: "Q-Learning",
   },
   {
-    href: "/dqlearning",
+    href: "/dqn",
     text: "Deep Q-Learning",
   },
   {

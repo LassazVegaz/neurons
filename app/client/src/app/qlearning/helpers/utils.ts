@@ -66,7 +66,7 @@ export default function useUtils() {
 
     player.current.reset();
     setGames([]);
-    hub.current.invoke("Train", {
+    hub.current.send("Train", {
       alpha: Number.parseFloat(form.alpha),
       lambda: Number.parseFloat(form.lambda),
       iterations: Number.parseInt(form.iterations),
@@ -78,7 +78,7 @@ export default function useUtils() {
 
   const onStopClick = () => {
     if (!hub.current) return;
-    hub.current.invoke("StopTraining");
+    hub.current.send("StopTraining");
     setStatus(TrainingStatus.RequestedToStop);
   };
 

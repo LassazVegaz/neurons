@@ -1,7 +1,6 @@
+using App.Web.DQNM;
 using App.Web.NetworkM;
 using App.Web.QLearningM;
-using Neurons.Network;
-using Neurons.QLearning;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,31 +12,17 @@ builder.Services.AddCors(
 
 builder.Services.AddSignalR();
 
-// network services
-builder.Services.AddSingleton<NetworkEventListener>();
-builder.Services.AddSingleton<Function>();
-builder.Services.AddSingleton<Network>();
-builder.Services.AddSingleton<MSECalculator>();
-builder.Services.AddSingleton<Storage>();
-builder.Services.AddSingleton<TrainingDataCook>();
-
-// q-learning services
-builder.Services.AddSingleton<QLearning>();
-builder.Services.AddSingleton<QLearningEventsListener>();
-builder.Services.AddSingleton<ActionPerformer>();
-
-builder.Services.AddOptions<NetworkSettings>()
-                .BindConfiguration(NetworkSettings.KEY);
-builder.Services.AddOptions<QLearningSettings>()
-                .BindConfiguration(QLearningSettings.KEY);
-
+builder.Services.AddNetworkServices();
+builder.Services.AddQLearningServices();
+builder.Services.AddDQNServices();
 
 var app = builder.Build();
 
 app.UseCors();
 
-app.MapHub<NetworkHub>("/network");
-app.MapHub<QLearningHub>("/q-learning");
+app.AddNetworkApps();
+app.AddQLearningpps();
+app.AddDQNApps();
 
 
 await app.RunAsync();
